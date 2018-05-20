@@ -4,10 +4,12 @@ int num[10];
 
 int bobble_sort(int delimiter, int start, int end)
 {
-
-
+	int temp;
 	
 	
+	for (int i = 9; i > 0; i--) {
+		for		
+	}	
 
 }
 
