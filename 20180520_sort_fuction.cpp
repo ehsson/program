@@ -2,7 +2,7 @@
 
 int num[10];
 
-int sequence_sort(int delimiter, int start, int end) {
+int sequential_sort(int delimiter, int start, int end) {
 	int cnt = 0;
 
 	return cnt;
