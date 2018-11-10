@@ -1,0 +1,11 @@
+﻿  ch8_no9.cpp
+c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(18): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(26): warning C4473: 'scanf_s': 서식 문자열에 대한 인수가 충분하게 전달되지 않았습니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(26): note: 자리 표시자 및 해당 매개 변수에는 variadic 인수가 2개 필요하지만 1개가 제공되었습니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(26): note: 누락된 variadic 인수 2이(가) 서식 문자열 '%c'에 필요합니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(26): note: 이 인수는 버퍼 크기로 사용됩니다.
+c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(42): warning C4473: 'scanf_s': 서식 문자열에 대한 인수가 충분하게 전달되지 않았습니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(42): note: 자리 표시자 및 해당 매개 변수에는 variadic 인수가 2개 필요하지만 1개가 제공되었습니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(42): note: 누락된 variadic 인수 2이(가) 서식 문자열 '%c'에 필요합니다.
+  c:\users\son_kwak\source\repos\ch8, no.10\ch8, no.10\ch8_no9.cpp(42): note: 이 인수는 버퍼 크기로 사용됩니다.
+  ch8, no.10.vcxproj -> C:\Users\Son_Kwak\source\repos\ch8, no.10\Debug\ch8, no.10.exe

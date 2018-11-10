@@ -1,0 +1,3 @@
+﻿  ch10_no2.cpp
+c:\users\son_kwak\source\repos\ch.10, no.2\ch.10, no.2\ch10_no2.cpp(10): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  ch.10, no.2.vcxproj -> C:\Users\Son_Kwak\source\repos\ch.10, no.2\Debug\ch.10, no.2.exe
