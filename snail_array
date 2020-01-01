@@ -1,0 +1,55 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int arr[10][10] = {0};
+	int i = 0, j = 0, num = 1, n, right, left = 0, height = 1;
+	
+	scanf("%d", &n);
+	
+	right = n;
+	
+	while(num <= n * n) {
+		for(i = i; i < right; i++) {
+			if(arr[j][i] == 0) {
+				arr[j][i] = num;
+				num++;
+			}
+		}
+		i--;
+		for(j = j + 1; j < right; j++) {
+			if(arr[j][i] == 0) {
+				arr[j][i] = num;
+				num++;
+			}
+		}
+		j--;
+		for(i = i - 1; i >= left; i--) {
+			if(arr[j][i] == 0) {
+				arr[j][i] = num;
+				num++;
+			}
+		}
+		i++;
+		for(j = j; j >= height; j--) {
+			if(arr[j][i] == 0) {
+				arr[j][i] = num;
+				num++;
+			}
+		}
+		i++;
+		j++;
+		right--;
+		left++;
+		height++;
+	}
+	
+	for(int k = 0; k < n; k++) {
+		for(int l = 0; l < n; l++) {
+			printf("%3d", arr[k][l]);
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
