@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main(void)
+{
+	int num, chk = 0, win = 0, draw = 0;
+	
+	while(chk != 1) {
+		printf("바위는 1, 가위는 2, 보는 3: \n");
+		scanf("%d", &num);
+	
+		srand((int)time(NULL));
+		
+		switch (num) {
+			case 1:
+				switch (rand() % 3 + 1) {
+					case 1:
+						printf("비겼습니다.\n");
+						draw++;
+						break;
+					case 2:
+						printf("이겼습니다.\n");
+						win++;
+						break;
+					case 3:
+						printf("졌습니다.\n");
+						chk = 1;
+						break;
+				}
+				break;
+			case 2:
+				switch (rand() % 3 + 1) {
+					case 1:
+						printf("졌습니다.\n");
+						chk = 1;
+						break;
+					case 2:
+						printf("비겼습니다.\n");
+						draw++;
+						break;
+					case 3:
+						printf("이겼습니다.\n");
+						win++;
+						break;
+				}
+				break;
+			case 3:
+				switch (rand() % 3 + 1) {
+					case 1:
+						printf("이겼습니다.\n");
+						win++;
+						break;
+					case 2:
+						printf("졌습니다.\n");
+						chk = 1;
+						break;
+					case 3:
+						printf("비겼습니다.\n");
+						draw++;
+						break;	
+				}
+				break;
+			default:
+				break;
+		}
+		
+	}
+	
+	printf("게임의 결과: %d승 %d무\n", win, draw);
+	
+	return 0;
+}
