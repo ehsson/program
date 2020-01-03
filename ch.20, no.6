@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main(void)
+{
+	int num[3];
+	int com[3];
+	int strike = 0, ball = 0, cnt = 1;
+	
+	srand((int)time(NULL));
+		
+	for(int i = 0; i < 3; i++)
+		com[i] = rand() % 10;
+	
+	while(strike != 3) {
+		strike = 0;
+		ball = 0;
+		
+		printf("0부터 9까지 3개의 숫자를 입력하시오: ");
+		scanf("%d %d %d", &num[0], &num[1], &num[2]);
+		
+		for(int k = 0; k < 3; k++) {
+			for(int l = 0; l < 3; l++) {
+				if(com[k] == num[l] && k == l) {
+					strike++;
+				}
+				else if(com[k] == num[l] && k != l) {
+					ball++;
+				}
+				else 
+					continue;
+			}
+		}
+		
+		printf("%d번째 도전의 결과: %d stirke %d ball\n", cnt, strike, ball);
+		cnt++;
+	}
+	
+	printf("Game Over!");
+	
+	return 0;
+}
