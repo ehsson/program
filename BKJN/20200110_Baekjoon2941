@@ -1,0 +1,90 @@
+#include <stdio.h>
+
+int main(void)
+{
+	char arr[101] = { 0 };
+	int i = 0, cnt = 0;
+	
+	scanf("%s", arr);
+	
+	while(arr[i] != 0) {
+		switch (arr[i]) {
+			case 'c':
+				if(arr[i + 1] == '=' || arr[i + 1] == '-') {
+					cnt++;
+					i++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;
+			case 'd':
+				if(arr[i + 1] == 'z' || arr[i + 1] == '-') {
+					if(arr[i + 1] == 'z' && arr[i + 2] == '=') {
+						i += 2;
+						cnt++;
+					}
+					else if(arr[i + 1] == '-') {
+						i++;
+						cnt++;
+					}
+					else 
+						cnt++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;	
+			case 'l':
+				if(arr[i + 1] == 'j') {
+					cnt++;
+					i++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;	
+			case 'n':
+				if(arr[i + 1] == 'j') {
+					cnt++;
+					i++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;	
+			case 's':
+				if(arr[i + 1] == '=') {
+					cnt++;
+					i++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;
+			case 'z':
+				if(arr[i + 1] == '=') {
+					cnt++;
+					i++;
+				}
+				else
+					cnt++;
+				
+				i++;
+				break;
+			default:
+				cnt++;
+				i++;
+				break;
+		}		
+	}
+	
+	printf("%d\n", cnt);
+	
+	return 0;
+}
