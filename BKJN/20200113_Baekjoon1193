@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int X, cnt = 1, a = 1, b = 1, tmp, chk = 0;
+	
+	scanf("%d", &X);
+	
+	while(cnt < X) {
+		b++;
+		tmp = b;
+		cnt++;
+		
+		for(int i = 1; i < tmp; i++) {
+			if(cnt == X) {
+				chk = 1;
+				break;
+			}
+			
+			a++;
+			b--;
+			cnt++;
+		}
+		
+		if(chk == 1)
+			break;
+		
+		if(cnt == X) 
+				break;
+			
+		a++;
+		tmp = a;
+		cnt++;
+		
+		for(int j = 1; j < tmp; j++) {
+			if(cnt == X) 
+				break;
+			
+			b++;
+			a--;
+			cnt++;
+		}
+	}
+	
+	printf("%d/%d\n", a, b);
+	
+	return 0;
+}
