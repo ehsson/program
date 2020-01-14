@@ -1,3 +1,56 @@
+// 분수찾기 문제 : https://www.acmicpc.net/problem/1193
+
+// 아빠 솔루션
+
+#include <stdio.h>
+
+int main() {
+
+	int N;
+	int count = 1;
+	int value = 2;
+	int temp;
+	
+	scanf_s("%d", &N);
+
+	if (N == 1) {
+		printf("1/1");
+		goto END;
+	}
+
+	while (1) {
+		if (value <= N && N <= value + (count * 4)) {
+			if (value == N) {
+				printf("%d/%d\n", 1, (count * 2));
+				break;
+			}
+
+			if (N < (int)((value + (value + (count * 4))) / 2)) {
+				temp = N - value;
+				printf("%d/%d\n", temp + 1, (count * 2) - temp);
+				break;
+			}
+
+			value = (int)((value + (value + (count * 4))) / 2);
+			temp = N - value;
+			printf("%d/%d\n", (count * 2) + 1 - temp, temp + 1);
+			break;
+		}
+
+		value = value + (count * 4) + 1;
+		count++;
+	}
+
+END:
+
+	return 0;
+}
+
+
+
+// 현수 솔루션
+/*
+
 #include <stdio.h>
 
 int main(void)
@@ -46,3 +99,4 @@ int main(void)
 	
 	return 0;
 }
+*/
