@@ -1,5 +1,55 @@
 //크로아티아 알파벳 문제 : https://www.acmicpc.net/problem/2941
 
+// 아빠 솔루션
+
+#include <stdio.h>
+#include <string.h>
+
+#define CMP_WORD_CNT	8
+
+int main() {
+
+	char arr[101] = { 0 };
+	int arr_len = 0;
+	int cnt = 0;
+	char temp;
+
+	char cmp_word[][CMP_WORD_CNT] = { "dz=", "c=", "c-", "d-", "lj", "nj", "s=", "z=" };
+	int cmp_word_len = 0;
+
+	scanf("%s", arr, 100);
+
+	arr_len = strlen(arr);
+
+	for (int i = 0; i < CMP_WORD_CNT; i++) {
+		cmp_word_len = strlen(cmp_word[i]);
+
+		for (int k = 0; k < arr_len - cmp_word_len + 1; k++) {
+			temp = arr[k + cmp_word_len];
+			arr[k + cmp_word_len] = 0;
+
+			if (!strcmp(&arr[k], cmp_word[i])) {
+				cnt++;
+				for (int m = k; m < k + cmp_word_len; m++) {
+					arr[m] = 0;
+				}
+			}
+
+			arr[k + cmp_word_len] = temp;
+		}
+	}
+
+	for (int i = 0; i < arr_len; i++)
+		if (arr[i] != 0) cnt++;
+
+	printf("%d\n", cnt);
+
+	return 0;
+}
+
+
+/*
+// 현수 솔루션
 #include <stdio.h>
 
 int main(void)
@@ -90,3 +140,4 @@ int main(void)
 	
 	return 0;
 }
+*/
