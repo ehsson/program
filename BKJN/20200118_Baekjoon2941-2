@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <string.h>
+
+#define CMP_WORD_CNT 8
+
+int main(void)
+{
+	char arr[101] = { 0 };
+	int cmp_word_len = 0, arr_len = 0, cnt = 0;
+	char temp;
+	char cmp_word[][CMP_WORD_CNT] = {"dz=", "c=", "c-", "d-", "lj", "nj", "s=", "z="};
+	
+	scanf("%s", arr);
+
+	arr_len = strlen(arr);
+	
+	for(int i = 0; i < CMP_WORD_CNT; i++) {
+		cmp_word_len = strlen(cmp_word[i]);
+		
+		for(int k = 0; k < arr_len - cmp_word_len + 1; k++) {
+			temp = arr[k + cmp_word_len];
+			arr[k + cmp_word_len] = 0;
+			
+			if(!strcmp(&arr[k], cmp_word[i])) {
+				cnt++;
+				
+				for(int m = k; m < k + cmp_word_len; m++)
+					arr[m] = 0;
+			}
+			
+			arr[k + cmp_word_len] = temp;
+		}
+	}
+	
+	for(int j = 0; j < arr_len; j++) {
+		if(arr[j] != 0)
+			cnt++;
+	}
+	
+	printf("%d\n", cnt);
+  
+	return 0;
+}
