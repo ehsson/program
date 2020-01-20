@@ -1,6 +1,62 @@
 // 분수찾기 문제 : https://www.acmicpc.net/problem/1193
 
-// 아빠 솔루션
+// 아빠 솔루션3
+
+#include <stdio.h>
+
+int main()
+{
+	int value;
+	int cnt = 0;
+
+	scanf("%d", &value);
+
+	while (value > 0)
+	{
+		cnt++;
+		value -= cnt;
+	}
+
+	if (cnt % 2 == 0)
+	{
+		printf("%d/%d", cnt + value, 1 - value);
+	}
+	else {
+		printf("%d/%d", 1 - value, cnt + value);
+	}
+
+	return 0;
+}
+
+
+// 아빠 솔루션2
+
+#include <stdio.h>
+
+int main() {
+
+	int N;
+	int cnt = 1;
+	int value = 1;
+
+	scanf_s("%d", &N);
+
+	while (value <= N)
+		value = value + cnt++;
+
+	cnt--;
+
+	if ( cnt % 2 == 0 )
+		printf("%d/%d\n", cnt - (value - N - 1), value - N);
+	else
+		printf("%d/%d\n", value - N, cnt - (value - N - 1));
+
+	return 0;
+}
+
+
+
+// 아빠 솔루션1
 
 #include <stdio.h>
 
