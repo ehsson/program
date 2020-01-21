@@ -1,0 +1,31 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int floor, room, T, i, k;
+	int arr[15][15] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int a = 0; a < T; a++) {
+		scanf("%d %d", &floor, &room);
+	
+		for(int j = 1; j < 15; j++) 
+			arr[0][j] = j;
+		
+		for(int m = 1; m < 15; m++) 
+			arr[m][1] = 1;
+		
+		for(i = 1; i < 15; i++) {
+			for(k = 2; k < 15; k++) {
+				for(int l = 1; l <= k; l++) {
+					arr[i][k] = arr[i][k - 1] + arr[i - 1][k];
+				}
+			}
+		}
+	
+		printf("%d\n", arr[floor][room]);
+	}
+	
+	return 0;
+}
