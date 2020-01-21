@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int floor, room, guest, T, ans_floor, ans_room;
+	
+	scanf("%d", &T);
+	
+	for(int i = 0; i < T; i++) {
+		scanf("%d %d %d", &floor, &room, &guest);
+	
+		if(guest % floor == 0) {
+			ans_floor = floor;
+			ans_room = (int)(guest / floor);
+		}
+		else {
+			ans_floor = guest % floor;
+			ans_room = (int)(guest / floor + 1);
+		}
+	
+		printf("%d\n", ans_floor * 100 + ans_room);
+	}
+	
+	return 0;
+}
