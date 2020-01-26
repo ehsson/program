@@ -1,0 +1,31 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, x, y, cnt, distance, sum, i;
+	
+	scanf("%d", &T);
+	
+	for(int k = 0; k < T; k++) {
+		scanf("%d %d", &x, &y);
+
+		distance = y - x;
+		
+		sum = 0;
+		i = 0;
+		
+		while(sum < distance) {
+			i++;
+			sum += 2 * i;
+		}
+		
+		cnt = i * 2;
+		
+		if(sum - i >= distance)
+			printf("%d\n", cnt - 1);
+		else
+			printf("%d\n", cnt);
+	}	
+	
+	return 0;
+}
