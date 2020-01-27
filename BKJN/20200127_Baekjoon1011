@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <math.h>
+
+int main(void)
+{
+	int T, x, y, cnt, distance, tmp;
+	
+	scanf("%d", &T);
+	
+	for(int k = 0; k < T; k++) {
+		scanf("%d %d", &x, &y);
+
+		distance = y - x;
+		tmp = (int)(sqrt(distance));
+		
+		cnt = 2 * tmp;
+		
+		if(distance == (int)(pow(tmp, 2)))
+			cnt--;
+		
+		if(distance > (int)(pow(tmp, 2)) + tmp)
+			cnt++;
+		
+		printf("%d\n", cnt);
+	}	
+	
+	return 0;
+}
