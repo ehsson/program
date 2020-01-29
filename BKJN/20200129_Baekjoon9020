@@ -1,0 +1,51 @@
+#include <stdio.h>
+
+int dec_prime_num(int num)
+{
+	if(num % 2 == 0)
+		return 0;
+	
+	for(int i = 3; i <= (int)(num / 2); i += 2) {
+		if(num % i == 0) {
+			return 0;
+		}
+	}
+	
+	return 1;
+}
+
+int main(void)
+{
+	int T, n, tmp1, tmp2;
+	
+	scanf("%d", &T);
+	
+	for(int a = 0; a < T; a++) {
+		scanf("%d", &n);
+		
+		if(n == 4) {
+			printf("%d %d\n", 2, 2);
+			continue;
+		}
+		
+		tmp1 = tmp2 = (int)(n / 2);
+		
+		if(tmp1 % 2 == 0) {
+			tmp1--;
+			tmp2++;
+		}
+		
+		while(1) {
+			if(dec_prime_num(tmp1) == 1 && dec_prime_num(tmp2) == 1) {
+				printf("%d %d\n", tmp1, tmp2);
+				break;
+			}
+			else {
+				tmp1 -= 2;
+				tmp2 += 2;
+			}
+		}
+	}
+	
+	return 0;
+}
