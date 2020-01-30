@@ -1,0 +1,23 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int x, y, w, h, min = 1000;
+	int arr[4] = { 0 };
+	
+	scanf("%d %d %d %d", &x, &y, &w, &h);
+	
+	arr[0] = x;
+	arr[1] = w - x;
+	arr[2] = h - y;
+	arr[3] = y;
+	
+	for(int i = 0; i < 4; i++) {
+		if(arr[i] < min)
+			min = arr[i];
+	}
+	
+	printf("%d\n", min);
+	
+	return 0;
+}
