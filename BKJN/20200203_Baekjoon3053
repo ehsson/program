@@ -1,0 +1,13 @@
+#include <stdio.h>
+#define pi 3.14159265358979
+
+int main(void)
+{
+	int R;
+	
+	scanf("%d", &R);
+	
+	printf("%.6lf\n%.6lf\n", (double)R * (double)R * pi, 2.0 * (double)R * (double)R);
+	
+	return 0;
+}
