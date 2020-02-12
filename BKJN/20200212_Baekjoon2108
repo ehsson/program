@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#define input 500000
+#define swap(a, b) (a ^= b ^= a ^= b)
+
+void sequential_sort(int * arr, int N)
+{
+	for(int i = 0; i < N - 1; i++) {
+		for(int k = i + 1; k < N; k++) {
+			if(arr[i] > arr[k]) {
+				swap(arr[i], arr[k]);
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	int arr[input] = { 0 };
+	int fre[8001] = { 0 };
+	int N, sum = 0, max = 0, pos, index = 0, fre_max = 0, fre_max2 = input;
+	double avg;
+	
+	scanf("%d", &N);
+	
+	for(int i = 0; i < N; i++) {
+		scanf("%d", &arr[i]);
+		sum += arr[i];
+		fre[arr[i] + 4000]++;
+		if(max <= fre[arr[i] + 4000]) {
+			if(max == fre[arr[i] + 4000]) {
+				if(pos > arr[i]) {
+					fre_max = arr[i];
+					fre_max2 = fre_max;
+				}
+				else if(pos < arr[i] && fre_max2 > arr[i]){
+					fre_max = pos;
+					fre_max2 = arr[i];
+				}
+			}
+			else {
+				max = fre[arr[i] + 4000];
+				pos = arr[i];
+			}
+		}
+	}
+	
+	avg = (double)sum / (double)N;
+	
+	sequential_sort(arr, N);
+	
+	printf("%.0lf\n", avg);
+	
+	printf("%d\n", arr[(int)(N / 2)]);
+	
+	printf("%d\n", fre_max2);
+	
+	printf("%d\n", arr[N - 1] - arr[0]);
+	
+	return 0;
+}
