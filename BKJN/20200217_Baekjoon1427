@@ -1,0 +1,28 @@
+#include <stdio.h>
+#define swap(a, b) (a ^= b ^= a ^= b)
+
+int main(void)
+{
+	int n, tmp, i = 0;
+	int arr[10] = { 0 };
+	
+	scanf("%d", &n);
+	
+	while(n != 0) {
+		arr[i] = n % 10;
+		n /= 10;
+		i++;
+	}
+	
+	for(int k = 0; k < i - 1; k++) {
+		for(int j = k + 1; j < i; j++) {
+			if(arr[k] < arr[j])
+				swap(arr[k], arr[j]);
+		}
+	}
+	
+	for(int p = 0; p < i; p++) 
+		printf("%d", arr[p]);
+	
+	return 0;
+}
