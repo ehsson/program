@@ -1,0 +1,35 @@
+#include <stdio.h>
+#define swap(a, b) (a ^= b ^= a ^= b)
+
+int main(void)
+{
+	int n, pos_start, len = 0;
+	int arr[2][100000] = { 0 };
+	
+	scanf("%d", &n);
+	
+	for(int q = 0; q < n; q++)
+		scanf("%d %d", &arr[0][q], &arr[1][q]);
+	
+	for(int i = 0; i < n - 1; i++) {
+		for(int k = i + 1; k < n; k++) {
+			if(arr[0][i] >= arr[0][k]) {
+				if(arr[0][i] == arr[0][k]) {
+					if(arr[1][i] > arr[1][k]) {
+						swap(arr[1][i], arr[1][k]);
+					}
+				}
+				else {
+					swap(arr[0][i], arr[0][k]);
+					swap(arr[1][i], arr[1][k]);
+				}
+			}
+		}
+	}
+	
+	for(int t = 0; t < n; t++) 
+		printf("%d %d\n", arr[0][t], arr[1][t]);
+	
+	
+	return 0;
+}
