@@ -1,3 +1,71 @@
+
+//아빠 솔루션
+
+#include <stdio.h>
+
+int main(void)
+{
+	int T, input, date, month, year;
+
+	scanf("%d", &T);
+
+	for (int t = 0; t < T; t++) {
+		scanf("%d", &input);
+
+		if (input > 99991231 || input < 1) {
+			printf("#%d -1\n", t + 1);
+			continue;
+		}
+
+		year = (int)((int)(input / 100) / 100);
+		month = (int)(input / 100) % 100;
+		date = input % 100;
+
+		if (month > 12 || month < 1) {
+			printf("#%d -1\n", t + 1);
+			continue;
+		}
+
+		switch(month) {
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			if (date > 31 || date < 1)
+				printf("#%d -1\n", t + 1);
+			else
+				printf("#%d %04d/%02d/%02d\n", t + 1, year, month, date);
+			break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			if (date > 30 || date < 1)
+				printf("#%d -1\n", t + 1);
+			else
+				printf("#%d %04d/%02d/%02d\n", t + 1, year, month, date);
+			break;
+		case 2:
+			if (date > 28 || date < 1)
+				printf("#%d -1\n", t + 1);
+			else
+				printf("#%d %04d/%02d/%02d\n", t + 1, year, month, date);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
+
+/* 현수 솔루션
+
 #include <stdio.h>
 
 int main(void)
@@ -41,3 +109,4 @@ int main(void)
 	
 	return 0;
 }
+*/
