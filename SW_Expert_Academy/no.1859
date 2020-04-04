@@ -1,0 +1,40 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, pro, day, sum, cnt;
+	int arr[1000001] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		pro = 0;
+		sum = 0;
+		cnt = 0;
+		
+		scanf("%d", &day);
+		
+		for(int i = 0; i <= day; i++) {
+			if(i < day)
+				scanf("%d", &arr[i]);
+			
+			if(i == 0) 
+				continue;
+			
+			if(arr[i] < arr[i - 1]) {
+				pro += (arr[i - 1] * cnt - sum);
+				sum = 0;
+				cnt = 0;
+			}
+			else {
+				sum += arr[i - 1];
+				cnt++;
+			}
+		}
+		
+		
+		printf("#%d %d\n", t + 1, pro);
+	}
+	
+	return 0;
+}
