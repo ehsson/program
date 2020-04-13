@@ -1,3 +1,64 @@
+// https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5LrsUaDxcDFAXc&categoryId=AV5LrsUaDxcDFAXc&categoryType=CODE
+
+
+//아빠 솔루션
+
+#include <stdio.h>
+
+int arr[1000002] = { 0 };
+
+int get_max_peak(int start, int end) {
+	int temp = 0;
+
+	for (int i = start; i <= end; i++) {
+		if (arr[i - 1] <= arr[i] && arr[i] >= arr[i + 1] && arr[i] >= arr[temp])
+			temp = i;
+	}
+
+	return temp;
+}
+
+int main(void)
+{
+	int T, day, start, max_peak_pos;
+	long long int sum;
+
+	scanf_s("%d", &T);
+
+	for (int t = 0; t < T; t++) {
+		sum = 0;
+		start = 2;
+
+		scanf_s("%d", &day);
+
+		for (int i = 1; i <= day; i++)
+			scanf_s("%d", &arr[i]);
+
+		arr[day + 1] = -1;
+
+		while (1) {
+			max_peak_pos = get_max_peak(start, day);
+			if (max_peak_pos == 0 || start > day)
+				break;
+
+			for (int i = start - 1; i < max_peak_pos; i++) {
+				if (arr[i] >= arr[max_peak_pos])
+					continue;
+
+				sum += arr[max_peak_pos] - arr[i];
+			}
+
+			start = max_peak_pos + 2;
+		}
+
+		printf("#%d %lld\n", t + 1, sum);
+	}
+
+	return 0;
+}
+
+// 현수 솔루션
+/*
 #include <stdio.h>
 
 int main(void)
@@ -38,3 +99,4 @@ int main(void)
 	
 	return 0;
 }
+*/
