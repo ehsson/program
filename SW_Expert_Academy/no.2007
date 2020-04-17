@@ -1,0 +1,36 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, len, chk;
+	char arr[31] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		scanf("%s", arr);
+		chk = 1;
+		
+		for(int i = 1; i <= 10; i++) {
+			for(int k = 0; k < i; k++) {
+				if(arr[i + k] == arr[k] && arr[k] == arr[2 * i + k]) {
+					chk = 1;
+					len = i;
+				}
+				else {
+					chk = 0;
+					break;
+				}
+			}
+			if(chk == 0)
+				continue;
+			else {
+				break;
+			}
+		}
+		
+		printf("#%d %d\n", t + 1, len);
+	}
+	
+	return 0;
+}
