@@ -1,3 +1,46 @@
+// https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5PTeo6AHUDFAUq
+
+// 아빠 솔루션
+
+#include <stdio.h>
+
+int main(void)
+{
+	int N, quotient, remainder, chk;
+
+	scanf_s("%d", &N);
+
+	for (int n = 1; n <= N; n++) {
+		chk = 0;
+		quotient = n;
+
+		while (1) {
+			remainder = quotient % 10;
+			quotient = (int)(quotient / 10);
+
+			if (remainder == 3 || remainder == 6 || remainder == 9)
+				chk++;
+
+			if (quotient == 0)
+				break;
+		}
+
+		if (chk == 0)
+			printf("%d ", n);
+		else {
+			for (int i = 0; i < chk; i++)
+				printf("-");
+
+			printf(" ");
+		}
+	}
+
+	return 0;
+}
+
+
+/* 현수 솔루션
+
 #include <stdio.h>
 
 int main(void)
@@ -41,3 +84,4 @@ int main(void)
 	
 	return 0;
 }
+*/
