@@ -16,11 +16,10 @@ int main(void)
 
 		while (1) {
 			remainder = quotient % 10;
-			quotient = (int)(quotient / 10);
-
 			if (remainder == 3 || remainder == 6 || remainder == 9)
 				chk++;
 
+			quotient = (int)(quotient / 10);
 			if (quotient == 0)
 				break;
 		}
