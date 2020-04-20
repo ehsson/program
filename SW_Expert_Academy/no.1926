@@ -8,7 +8,7 @@ int main(void)
 {
 	int N, quotient, remainder, chk;
 
-	scanf_s("%d", &N);
+	scanf("%d", &N);
 
 	for (int n = 1; n <= N; n++) {
 		chk = 0;
