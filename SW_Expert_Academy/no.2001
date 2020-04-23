@@ -1,0 +1,37 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, M, N, max, sum;
+	int arr[15][15] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		max = 0;
+		
+		scanf("%d %d", &N, &M);
+		
+		for(int i = 0; i < N; i++) {
+			for(int k = 0; k < N; k++)
+				scanf("%d", &arr[i][k]);
+		}
+		
+		for(int i = 0; i <= N - M; i++) {
+			for(int k = 0; k <= N - M; k++) {
+				sum = 0;
+				for(int y = i; y < i + M; y++) {
+					for(int x = k; x < k + M; x++) {
+						sum += arr[y][x];
+					}
+				}
+				if(max < sum)
+					max = sum;
+			}
+		}
+		
+		printf("#%d %d\n", t + 1, max);
+	}
+	
+	return 0;
+}
