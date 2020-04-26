@@ -61,40 +61,72 @@ int main(void)
 /*
 #include <stdio.h>
 
+int arr[1000002] = { 0 };
+int peak_point[2][500000] = { 0 };
+
+int get_max_peak(int start, int end)
+{
+	int max = 0, temp = -1;
+	
+	for(int i = start; i < end; i++) {
+		if(max < peak_point[1][i])
+			temp = i;
+	}
+	
+	return temp;
+}
+
 int main(void)
 {
-	int T, pro, day, sum, cnt;
-	int arr[1000001] = { 0 };
+	int T, max_peak_val, max_peak_pos, day, cnt, start_arr, start;
+	long long int sum;
 	
 	scanf("%d", &T);
 	
 	for(int t = 0; t < T; t++) {
-		pro = 0;
-		sum = 0;
-		cnt = 0;
-		
 		scanf("%d", &day);
 		
-		for(int i = 0; i <= day; i++) {
-			if(i < day)
-				scanf("%d", &arr[i]);
-			
-			if(i == 0) 
-				continue;
-			
-			if(arr[i] < arr[i - 1]) {
-				pro += (arr[i - 1] * cnt - sum);
-				sum = 0;
-				cnt = 0;
-			}
-			else {
-				sum += arr[i - 1];
+		cnt = 0;
+		start = 0;
+		start_arr = 1;
+		
+		for(int i = 1; i <= day; i++)
+			scanf("%d", &arr[i]);
+		
+		arr[day + 1] = -1;
+		
+		for(int i = 2; i < day; i++) {
+			if(arr[i] >= arr[i - 1] && arr[i] >= arr[i + 1]) {
+				peak_point[0][cnt] = i;
+				peak_point[1][cnt] = arr[i];
 				cnt++;
 			}
 		}
 		
+		peak_point[1][cnt] = -1;
 		
-		printf("#%d %d\n", t + 1, pro);
+		while(1) {
+			if(get_max_peak(start, cnt) < 0)
+				break;
+			
+			max_peak_val = peak_point[1][get_max_peak(start, cnt)];
+			max_peak_pos = peak_point[0][get_max_peak(start, cnt)];
+			
+			for(int k = start_arr; k < max_peak_pos; k++) {
+				if(arr[k] >= max_peak_val)
+					continue;
+				
+				sum += max_peak_val - arr[k];
+			}
+			
+			start_arr = peak_point[0][get_max_peak(start, cnt)] + 1;
+			start = get_max_peak(start, cnt) + 1;
+			
+			if(max_peak_val == peak_point[1][cnt - 1])
+				break;
+		}
+		
+		printf("#%d %lld", t + 1, sum);
 	}
 	
 	return 0;
