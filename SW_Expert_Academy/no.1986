@@ -1,0 +1,27 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, sum;
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		scanf("%d", &N);
+		
+		sum = 0;
+		
+		for(int i = 1; i <= N; i++) {
+			if(i % 2 == 0) {
+				sum -= i;
+			}
+			else {
+				sum += i;
+			}
+		}
+		
+		printf("#%d %d\n", t + 1, sum);
+	}
+	
+	return 0;
+}
