@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, max, min, sum;
+	double avg;
+	int arr[10] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		sum = 0;
+		
+		for(int i = 0; i < 10; i++) {
+			scanf("%d", &arr[i]);
+			
+			sum += arr[i]; 
+			
+			if(i == 0) {
+				max = min = arr[i];
+				continue;
+			}
+			
+			if(max < arr[i])
+				max = arr[i];
+			else if(min > arr[i])
+				min = arr[i];
+		}
+		
+		avg = (double)(sum - max - min) / 8;
+		
+		if(avg + 0.5 >= (int)avg + 1)
+			avg++;
+		
+		printf("#%d %d\n", t + 1, (int)avg);
+	}
+	
+	return 0;
+}
