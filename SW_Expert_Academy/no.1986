@@ -53,7 +53,7 @@ int main(void)
 }
 
 
-// 80점, 배열에 전체 값을 미리  저장해 두고 재활용
+// 80점, 배열에 전체 값을 미리 계산해서 저장해 두고 재활용
 #include <stdio.h>
 
 int main ( void ) {
