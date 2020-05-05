@@ -1,0 +1,125 @@
+#include <stdio.h>
+
+void swap(int arr[], int idx1, int idx2)
+{
+	int temp;
+
+	temp = arr[idx1];
+	arr[idx1] = arr[idx2];
+	arr[idx2] = temp;
+}
+
+int partition(int arr[], int left, int right)
+{
+	int pivot, low, high;
+
+	pivot = arr[left];
+	low = left + 1;
+	high = right;
+
+	while (low <= high) {
+		while (pivot > arr[low])
+			low++;
+
+		while (pivot < arr[high])
+			high--;
+
+		if (low <= high)
+			swap(arr, low, high);
+	}
+
+	swap(arr, left, high);
+
+	return high;
+}
+
+void QuickSort(int arr[], int left, int right)
+{
+	if (left > right) {
+		return;
+	}
+
+	int pivot;
+
+	pivot = partition(arr, left, right);
+
+	QuickSort(arr, left, pivot - 1);
+	QuickSort(arr, pivot + 1, right);
+
+}
+
+int main(void)
+{
+	int T, N, K, mid, fin, task, K_val, pos, chk;
+	int arr[101] = { 0 };
+	char * grade[10] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
+	double per;
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		scanf("%d %d", &N, &K);
+		
+		for(int n = 1; n <= N; n++) {
+			scanf("%d %d %d", &mid, &fin, &task);
+			
+			arr[n] = mid * 35 + fin * 45 + task * 20;
+			
+			if(n == K)
+				K_val = arr[n];
+		}
+		
+		QuickSort(arr, 1, 100);
+		
+		for(int i = 1; i <= N; i++) 
+			if(K_val == arr[i]) {
+				pos = i;
+				break;
+			}
+		
+		per = (double)pos / (double)N * 100.0;
+		
+		if((int)per % 10 == 0) 
+			chk = (int)per / 10 - 1;
+		else
+			chk = (int)per / 10;
+		
+		
+		switch(chk) {
+			case 0:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 1:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 2:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 3:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 4:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 5:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 6:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 7:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 8:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			case 9:
+				printf("#%d %s\n", t + 1, grade[chk]);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	return 0;
+}
