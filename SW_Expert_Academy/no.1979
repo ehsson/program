@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, K, ans, cnt;
+	int arr[15][15] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int tc = 1; tc <= T; tc++) {
+		scanf("%d %d", &N, &K);
+		
+		ans = 0;
+		
+		for(int y = 0; y < N; y++) 
+			for(int x = 0; x < N; x++) 
+				scanf("%d", &arr[y][x]);
+		
+		for(int h = 0; h < N; h++) {
+			cnt = 0;
+			for(int w = 0; w < N; w++) {
+				if(arr[h][w] == 1) 
+					cnt++;
+				else {
+					if(cnt == K) {
+						ans++;
+						cnt = 0;
+					}
+					else {
+						cnt = 0;
+						continue;
+					}
+				}	
+			}
+			if(cnt == K)
+				ans++;
+		}
+		
+		for(int w = 0; w < N; w++) {
+			cnt = 0;
+			for(int h = 0; h < N; h++) {
+				if(arr[h][w] == 1) 
+					cnt++;
+				else {
+					if(cnt == K) {
+						ans++;
+						cnt = 0;
+					}
+					else {
+						cnt = 0;
+						continue;
+					}
+				}
+			}
+			if(cnt == K)
+				ans++;
+		}
+		
+		printf("#%d %d\n", tc, ans);
+	}
+	
+	return 0;
+}
