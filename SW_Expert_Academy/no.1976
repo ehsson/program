@@ -1,3 +1,5 @@
+//수정 전 
+
 #include <stdio.h>
 
 int main(void)
@@ -19,4 +21,33 @@ int main(void)
 	}
 	
 	return 0;
-}-
+}
+
+//수정한 코드
+
+#include <stdio.h>
+
+int main(void)
+{
+	int T, hour1, hour2, min1, min2, sum_hour, sum_min;
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		scanf("%d %d %d %d", &hour1, &min1, &hour2, &min2);
+		
+		if(hour1 + hour2 == 12) 
+			sum_hour = 12;
+		else
+			sum_hour = (hour1 + hour2) % 12;
+		
+		sum_min = (min1 + min2) % 60;
+		
+		if((min1 + min2) / 60 >= 1)
+			sum_hour++;
+		
+		printf("#%d %d %d\n", t + 1, sum_hour, sum_min);
+	}
+	
+	return 0;
+}
