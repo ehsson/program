@@ -52,7 +52,7 @@ int main(void)
 {
 	int T, N, K, mid, fin, task, K_val, pos;
 	double per;
-	int arr[100] = { 0 };
+	int arr[101] = { 0 };
 	char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
 	
 	scanf("%d", &T);
@@ -60,25 +60,29 @@ int main(void)
 	for(int t = 0; t < T; t++) {
 		scanf("%d %d", &N, &K);
 		
-		for(int n = 0; n < N; n++) {
+		for(int n = 1; n <= N; n++) {
 			scanf("%d %d %d", &mid, &fin, &task);
 			
 			arr[n] = mid * 35 + fin * 45 + task * 20;
 			
-			if(n == K - 1)
+			if(n == K)
 				K_val = arr[n];
 		}
 		
-		QuickSort(arr, 0, sizeof(arr) / sizeof(int) - 1);
+		QuickSort(arr, 1, N);
 		
 		for(int i = 0; i < N; i++) {
 			if(K_val == arr[i]) {
-				pos = i + 1;
+				pos = i;
 				break;
 			}
 		}
 		
-		per = (double)pos * 10.0 / (double)N;
+		per = (double)pos * 100.0 / (double)N;
+		
+		if((int)per % 10 == 0) {
+			per = per / 10.0 - 1.0;
+		}
 		
 		printf("#%d %s\n", t + 1, grade[(int)per]);
 	}
