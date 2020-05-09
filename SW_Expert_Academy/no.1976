@@ -65,9 +65,9 @@ int main(void)
 	for(int t = 0; t < T; t++) {
 		scanf("%d %d %d %d", &hour1, &min1, &hour2, &min2);
 
-        sum_min = (min1 + min2) % 60;
+        	sum_min = (min1 + min2) % 60;
         
-        if((min1 + min2) / 60 >= 1)
+        	if((min1 + min2) / 60 >= 1)
 			hour1++;
 
 		sum_hour = (hour1 + hour2) % 12;
