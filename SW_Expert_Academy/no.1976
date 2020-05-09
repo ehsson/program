@@ -84,36 +84,26 @@ int main(void)
 //아빠 솔루션2 : 100점
 
 #include <stdio.h>
-
+ 
 int main(void)
 {
-	int T, N, sum_hour, sum_min;
-	
-	scanf("%d", &T);
-	
-	for(int t = 0; t < T; t++) {
-		sum_hour = sum_min = 0;
-		
-		scanf("%d", &N);
-		sum_min = N * 60;
-
-		scanf("%d", &N);
-		sum_min += N;
-
-		scanf("%d", &N);
-		sum_min += N * 60;
-
-		scanf("%d", &N);
-		sum_min += N;
-
-	        sum_hour = ( (int)(sum_min / 60) % 12 );
-	        if (sum_hour == 0)
-	            sum_hour = 12;
-        
-	        sum_min = sum_min % 60;
-        
-		printf("#%d %d %d\n", t + 1, sum_hour, sum_min);
-	}
-	
-	return 0;
+    int T, hour1, hour2, min1, min2, sum_hour, sum_min;
+     
+    scanf("%d", &T);
+     
+    for(int t = 0; t < T; t++) {
+        scanf("%d %d %d %d", &hour1, &min1, &hour2, &min2);
+ 
+        sum_min = hour1 * 60 + hour2 * 60 + min1 + min2;
+         
+        sum_hour = ( (int)(sum_min / 60) % 12 );
+        if (sum_hour == 0)
+            sum_hour = 12;
+         
+        sum_min = sum_min % 60;
+         
+        printf("#%d %d %d\n", t + 1, sum_hour, sum_min);
+    }
+     
+    return 0;
 }
