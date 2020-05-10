@@ -20,13 +20,13 @@ int partition(int arr[], int left, int right)
 	high = right;
 
 	while (low <= high) {
-		while (pivot > arr[low])
+		while (pivot >= arr[low])
 			low++;
 
-		while (pivot < arr[high])
+		while (pivot <= arr[high] && left < high)
 			high--;
 
-		if (low <= high)
+		if (low < high)
 			swap(arr, low, high);
 	}
 
