@@ -1,8 +1,9 @@
 #include <stdio.h>
 
-int arr1[15] = { 14, 2, 4, 1, 7, 6, 5, 10, 19, 13, 11, 17, 20, 16, 18 };
+int arr[101] = { 0 };
+char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
 
-void swap(int arr[], int idx1, int idx2)
+void swap(int idx1, int idx2)
 {
 	int temp;
 
@@ -11,7 +12,7 @@ void swap(int arr[], int idx1, int idx2)
 	arr[idx2] = temp;
 }
 
-int partition(int arr[], int left, int right)
+int partition(int left, int right)
 {
 	int pivot, low, high;
 
@@ -27,15 +28,15 @@ int partition(int arr[], int left, int right)
 			high--;
 
 		if (low < high)
-			swap(arr, low, high);
+			swap(low, high);
 	}
 
-	swap(arr, left, high);
+	swap(left, high);
 
 	return high;
 }
 
-void QuickSort(int arr[], int left, int right)
+void QuickSort(int left, int right)
 {
 	if (left > right) {
 		return;
@@ -43,27 +44,49 @@ void QuickSort(int arr[], int left, int right)
 
 	int pivot;
 
-	pivot = partition(arr, left, right);
+	pivot = partition(left, right);
 
-	QuickSort(arr, left, pivot - 1);
-	QuickSort(arr, pivot + 1, right);
+	QuickSort(left, pivot - 1);
+	QuickSort(pivot + 1, right);
 
 }
 
 int main(void)
 {
-
-	int len, i;
-
-	len = sizeof(arr1) / sizeof(int);
-
-	QuickSort(arr1, 0, sizeof(arr1) / sizeof(int) - 1);
-
-	for (int i = 0; i < len; i++) {
-		printf("%d ", arr1[i]);
+	int T, N, K, mid, fin, task, K_val, pos;
+	double per;
+	
+	scanf("%d", &T);
+	
+	for(int t = 0; t < T; t++) {
+		scanf("%d %d", &N, &K);
+		
+		for(int n = 1; n <= N; n++) {
+			scanf("%d %d %d", &mid, &fin, &task);
+			
+			arr[n] = mid * 35 + fin * 45 + task * 20;
+			
+			if(n == K)
+				K_val = arr[n];
+		}
+		
+		QuickSort(1, N);
+		
+		for(int i = 0; i < N; i++) {
+			if(K_val == arr[i]) {
+				pos = i;
+				break;
+			}
+		}
+		
+		per = (double)pos * 100.0 / (double)N;
+		
+		if((int)per % 10 == 0) {
+			per = per / 10.0 - 1.0;
+		}
+		
+		printf("#%d %s\n", t + 1, grade[(int)per]);
 	}
-
-	printf("\n");
-
+	
 	return 0;
 }
