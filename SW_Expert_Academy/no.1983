@@ -1,6 +1,9 @@
 #include <stdio.h>
 
-void swap(int arr[], int idx1, int idx2)
+int arr[101] = { 0 };
+char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
+
+void swap(int idx1, int idx2)
 {
 	int temp;
 
@@ -9,7 +12,7 @@ void swap(int arr[], int idx1, int idx2)
 	arr[idx2] = temp;
 }
 
-int partition(int arr[], int left, int right)
+int partition(int left, int right)
 {
 	int pivot, low, high;
 
@@ -18,22 +21,22 @@ int partition(int arr[], int left, int right)
 	high = right;
 
 	while (low <= high) {
-		while (pivot > arr[low])
+		while (pivot >= arr[low])
 			low++;
 
-		while (pivot < arr[high])
+		while (pivot <= arr[high] && left < high)
 			high--;
 
-		if (low <= high)
-			swap(arr, low, high);
+		if (low < high)
+			swap(low, high);
 	}
 
-	swap(arr, left, high);
+	swap(left, high);
 
 	return high;
 }
 
-void QuickSort(int arr[], int left, int right)
+void QuickSort(int left, int right)
 {
 	if (left > right) {
 		return;
@@ -41,10 +44,10 @@ void QuickSort(int arr[], int left, int right)
 
 	int pivot;
 
-	pivot = partition(arr, left, right);
+	pivot = partition(left, right);
 
-	QuickSort(arr, left, pivot - 1);
-	QuickSort(arr, pivot + 1, right);
+	QuickSort(left, pivot - 1);
+	QuickSort(pivot + 1, right);
 
 }
 
@@ -52,8 +55,6 @@ int main(void)
 {
 	int T, N, K, mid, fin, task, K_val, pos;
 	double per;
-	int arr[101] = { 0 };
-	char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
 	
 	scanf("%d", &T);
 	
@@ -69,7 +70,7 @@ int main(void)
 				K_val = arr[n];
 		}
 		
-		QuickSort(arr, 1, N);
+		QuickSort(1, N);
 		
 		for(int i = 0; i < N; i++) {
 			if(K_val == arr[i]) {
