@@ -3,52 +3,57 @@
 int arr[101] = { 0 };
 char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
 
-void swap(int idx1, int idx2)
-{
+void QuickSort(int arr[], int start, int end, int order) {
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start;
+	int high = end;
 	int temp;
 
-	temp = arr[idx1];
-	arr[idx1] = arr[idx2];
-	arr[idx2] = temp;
-}
+	if (order == 0) {				//오름차순 정렬
+		while (low < high) {
+			// pivot 값 보다도 작거나 같은 수를 왼쪽 부터 찾기
+			// 단 범위를 끝까지 넘어가면 안됨
+			while (arr[low] <= arr[pivot] && low < end)
+				low++;
 
-int partition(int left, int right)
-{
-	int pivot, low, high;
+			// pivot 값 보다도 작거나 같은 수를 왼쪽 부터 찾기
+			while (arr[pivot] < arr[high])
+				high++;
 
-	pivot = arr[left];
-	low = left + 1;
-	high = right;
+			// pivot 값보다 크고 작은 수의 위치를 바꿈
+			if (low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
+	}
+	else {						//내림차순 정렬
+		while (low < high) {
+			while (arr[low] >= arr[pivot] && low < end)
+				low++;
 
-	while (low <= high) {
-		while (pivot >= arr[low])
-			low++;
+			while (arr[pivot] > arr[high])
+				high++;
 
-		while (pivot <= arr[high] && left < high)
-			high--;
-
-		if (low < high)
-			swap(low, high);
+			if (low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
 	}
 
-	swap(left, high);
+	// pivot 값과 pivot 값 보다 큰 수의 위치를 바꿈
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
 
-	return high;
-}
-
-void QuickSort(int left, int right)
-{
-	if (left > right) {
-		return;
-	}
-
-	int pivot;
-
-	pivot = partition(left, right);
-
-	QuickSort(left, pivot - 1);
-	QuickSort(pivot + 1, right);
-
+	QuickSort(arr, start, high - 1, order);
+	QuickSort(arr, high + 1, end, order);
 }
 
 int main(void)
@@ -70,7 +75,7 @@ int main(void)
 				K_val = arr[n];
 		}
 		
-		QuickSort(1, N);
+		QuickSort(arr, 1, N, 0);
 		
 		for(int i = 0; i < N; i++) {
 			if(K_val == arr[i]) {
