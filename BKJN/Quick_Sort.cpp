@@ -1,8 +1,5 @@
 #include <stdio.h>
 
-int input[101] = { 0 };
-char grade[10][3] = { "D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+" };
-
 void QuickSort(int arr[], int start, int end, int order) {
 	if (start >= end)
 		return;
@@ -58,19 +55,19 @@ void QuickSort(int arr[], int start, int end, int order) {
 
 int main(void)
 {
+	int input[101] = { 0 };
+	char grade[10][3] = { "D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+" };
+
 	int T, N, K, mid, fin, task, K_val, pos;
 	double per;
 
-	FILE *pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
-
-	scanf_s("%d", &T);
+	scanf("%d", &T);
 
 	for (int t = 0; t < T; t++) {
-		scanf_s("%d %d", &N, &K);
+		scanf("%d %d", &N, &K);
 
 		for (int n = 1; n <= N; n++) {
-			scanf_s("%d %d %d", &mid, &fin, &task);
+			scanf("%d %d %d", &mid, &fin, &task);
 
 			input[n] = mid * 35 + fin * 45 + task * 20;
 
