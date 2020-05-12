@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, dhaks, aks, dhcjs, cjs, dhqor, qor, dhtlq, tlq, tmp;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		dhaks = (int)(N / 50000);
+		tmp = N % 50000;
+		
+		aks = (int)(tmp / 10000);
+		tmp %= 10000;
+		
+		dhcjs = (int)(tmp / 5000);
+		tmp %= 5000;
+		
+		cjs = (int)(tmp / 1000);
+		tmp %= 1000;
+		
+		dhqor = (int)(tmp / 500);
+		tmp %= 500;
+		
+		qor = (int)(tmp / 100);
+		tmp %= 100;
+		
+		dhtlq = (int)(tmp / 50);
+		tmp %= 50;
+		
+		tlq = (int)(tmp / 10);
+		
+		printf("#%d\n%d %d %d %d %d %d %d %d\n", t, dhaks, aks, dhcjs, cjs, dhqor, qor, dhtlq, tlq);
+	}
+	
+	return 0;
+}
