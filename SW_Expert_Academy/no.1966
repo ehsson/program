@@ -1,0 +1,37 @@
+#include <stdio.h>
+
+#define swap(a, b) (a ^= b ^= a ^= b)
+
+int main(void)
+{
+	int T, N, max;
+	int arr[50] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		for(int i = 0; i < N; i++)
+			scanf("%d", &arr[i]);
+		
+		for(int i = N - 1; i > 0; i--) {
+			max = arr[i];
+			for(int k = 0; k < i; k++) {
+				if(max <= arr[k]) {
+					max = arr[k];
+					swap(arr[k], arr[i]);
+				}
+			}
+		}
+		
+		printf("#%d ", t);
+		
+		for(int k = 0; k < N; k++)
+			printf("%d ", arr[k]);
+		
+		printf("\n");
+	}
+	
+	return 0;
+}
