@@ -1,92 +1,99 @@
 #include <stdio.h>
 
-int arr[101] = { 0 };
-char * grade[] = {"D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+"};
+void QuickSort(int arr[], int start, int end, int order) {
+	if (start >= end)
+		return;
 
-void swap(int idx1, int idx2)
-{
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
 	int temp;
 
-	temp = arr[idx1];
-	arr[idx1] = arr[idx2];
-	arr[idx2] = temp;
-}
+	if (order == 0) {
+		while (low <= high) {
+			while (arr[low] <= arr[pivot] && low <= end)
+				low++;
 
-int partition(int left, int right)
-{
-	int pivot, low, high;
+			while (arr[pivot] < arr[high])
+				high--;
 
-	pivot = arr[left];
-	low = left + 1;
-	high = right;
+			if (low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
+	}
+	else {
+		while (low <= high) {
+			while (arr[low] >= arr[pivot] && low <= end)
+				low++;
 
-	while (low <= high) {
-		while (pivot >= arr[low])
-			low++;
+			while (arr[pivot] > arr[high])
+				high--;
 
-		while (pivot <= arr[high] && left < high)
-			high--;
-
-		if (low < high)
-			swap(low, high);
+			if (low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
 	}
 
-	swap(left, high);
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
 
-	return high;
-}
-
-void QuickSort(int left, int right)
-{
-	if (left > right) {
-		return;
-	}
-
-	int pivot;
-
-	pivot = partition(left, right);
-
-	QuickSort(left, pivot - 1);
-	QuickSort(pivot + 1, right);
-
+	QuickSort(arr, start, high - 1, order);
+	QuickSort(arr, high + 1, end, order);
 }
 
 int main(void)
 {
+	int input[101] = { 0 };
+	char grade[10][3] = { "D0", "C-", "C0", "C+", "B-", "B0", "B+", "A-", "A0", "A+" };
+
 	int T, N, K, mid, fin, task, K_val, pos;
 	double per;
-	
+
 	scanf("%d", &T);
-	
-	for(int t = 0; t < T; t++) {
+
+	for (int t = 1; t <= T; t++) {
 		scanf("%d %d", &N, &K);
-		
-		for(int n = 1; n <= N; n++) {
+
+		for (int n = 1; n <= N; n++) {
 			scanf("%d %d %d", &mid, &fin, &task);
-			
-			arr[n] = mid * 35 + fin * 45 + task * 20;
-			
-			if(n == K)
-				K_val = arr[n];
+
+			input[n] = mid * 35 + fin * 45 + task * 20;
+
+			if (n == K)
+				K_val = input[n];
 		}
-		
-		QuickSort(1, N);
-		
-		for(int i = 0; i < N; i++) {
-			if(K_val == arr[i]) {
+
+		QuickSort(input, 1, N, 0);
+
+		for (int i = 1; i <= N; i++) {
+			if (K_val == input[i]) {
 				pos = i;
 				break;
 			}
 		}
-		
+
 		per = (double)pos * 100.0 / (double)N;
 		
-		if((int)per % 10 == 0) {
-			per = per / 10.0 - 1.0;
+		if(per == 100.0) {
+			per /= 10.0;
+			per -= 1.0;
 		}
-		
-		printf("#%d %s\n", t + 1, grade[(int)per]);
+		else if((int)per % 10 == 0 && (int)(per * 10.0) % 10 == 0) {
+			per /= 10.0;
+			per -= 1.0;
+		}
+		else 
+			per /= 10.0;
+
+		printf("#%d %s\n", t, grade[(int)per]);
 	}
-	
+
 	return 0;
 }
