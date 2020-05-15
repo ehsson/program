@@ -1,3 +1,91 @@
+// https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5PwGK6AcIDFAUq
+
+// 아빠 솔루션
+
+#include <stdio.h>
+ 
+int input[10001] = { 0 };
+int ten[1001] = { 0 };
+int hundred[101] = { 0 };
+int thousand[11] = { 0 };
+ 
+char grade[11][3] = {"", "A+", "A0", "A-", "B+", "B0", "B-", "C+", "C0", "C-", "D0"};
+ 
+void init() {
+    for (int i = 0; i < 10001; i++)
+        input[i] = 0;
+    for (int i = 0; i < 1001; i++)
+        ten[i] = 0;
+    for (int i = 0; i < 101; i++)
+        hundred[i] = 0;
+    for (int i = 0; i < 11; i++)
+        thousand[i] = 0;
+}
+ 
+int main(void)
+{
+    int T, N, K, mid, fin, task, K_val = 0, pos = 0, temp = 0;
+ 
+    scanf("%d", &T);
+ 
+    for (int t = 1; t <= T; t++) {
+ 
+        if (t > 1) {			//배열 초기화
+            init();
+            pos = 0;
+        }
+ 
+        scanf("%d %d", &N, &K);
+ 
+        for (int n = 1; n < K; n++) {			// K 전까지 성적 저장
+            scanf("%d %d %d", &mid, &fin, &task);
+            temp = mid * 35 + fin * 45 + task * 20;
+ 
+            ++input[ temp ];			//해당 점수 칸을 카운트 증가
+            ++ten[ (int)(temp /= 10) ];		//10의 자리까지 해당하는 값의 칸을 카운트 증가
+            ++hundred[ (int)(temp /= 10) ];	//100의 자리까지 해당하는 값의 칸을 카운트 증가
+            ++thousand[ (int)(temp /= 10) ];	//1000의 자리까지 해당하는 값의 칸을 카운트 증가
+        }
+ 
+        scanf("%d %d %d", &mid, &fin, &task);
+        K_val = temp = mid * 35 + fin * 45 + task * 20;		//K학생의 성적 저장
+  
+        temp = (int)(K_val / 1000);
+        for (int i = 10; i > temp; i--)
+            pos += thousand[i];
+ 
+        temp = (int)(K_val / 100);
+        for (int i = (int)(temp / 10) * 10 + 9; i > temp; i--)
+            pos += hundred[i];
+ 
+        temp = (int)(K_val / 10);
+        for (int i = (int)(temp / 10) * 10 + 9; i > temp; i--)
+            pos += ten[i];
+
+	// 여기까지 -> K 앞까지 학생 중에서 K 보다 성적이 높은 학생 카운트
+
+
+        for (int i = 0; i < N - K; i++) {			//K학생 이후 학생 중 K 학생 성적보다 높은 학생 카운트
+            scanf("%d %d %d", &mid, &fin, &task);
+            if (K_val < mid * 35 + fin * 45 + task * 20)
+                pos++;
+        }
+ 
+        pos++;			//K학생의 등수 결정
+ 
+        temp = 0;
+        for (int i = 1; i <= pos; i += (int)(N / 10) )
+            temp++;
+ 
+        printf("#%d %s\n", t, grade[temp]);
+    }
+ 
+    return 0;
+}
+
+
+// 현수 솔루션
+
 #include <stdio.h>
 
 void QuickSort(int arr[], int start, int end, int order) {
