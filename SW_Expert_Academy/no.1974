@@ -24,30 +24,36 @@ int main(void)
 				
 				if(chk[arr[y][x]] - chk[0] > 1) {
 					TF = 0;
-					break;
+					goto END_PRT;
 				}
 			}
 			if(TF == 0)
-				break;
+				goto END_PRT;
 			
 			chk[0]++;
 		}
 		
+		if (TF == 0)
+			goto END_PRT;
+			
 		for(int x = 0; x < 9; x++) {
 			for(int y = 0; y < 9; y++) {
 				chk[arr[y][x]]++;
 				
 				if(chk[arr[y][x]] - chk[0] > 1) {
 					TF = 0;
-					break;
+					goto END_PRT;
 				}
 			}
 			if(TF == 0)
-				break;
+				goto END_PRT;
 			
 			chk[0]++;
 		}
-		
+
+		if (TF == 0)
+			goto END_PRT;
+
 		for(int y = 0; y < 9; y += 3) {
 			for(int x = 0; x < 9; x += 3) {
 				for(int k = y; k < y + 3; k++) {
@@ -56,21 +62,22 @@ int main(void)
 						
 						if(chk[arr[k][i]] - chk[0] > 1) {
 							TF = 0;
-							break;
+							goto END_PRT;
 						}
 					}
 					if(TF == 0)
-						break;
+						goto END_PRT;
 				}
 				if(TF == 0)
-					break;
+					goto END_PRT;
 				
 				chk[0]++;
 			}
 			if(TF == 0)
-				break;
+				goto END_PRT;
 		}
-		
+
+END_PRT:
 		printf("#%d %d\n", t, TF);
 	}
 	
