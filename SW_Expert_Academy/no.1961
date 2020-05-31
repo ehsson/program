@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+int arr[7][7] = { 0 };
+int arr90[7][7] = { 0 };
+int arr180[7][7] = { 0 };
+int arr270[7][7] = { 0 };
+
+void initial(int N)
+{
+	for(int y = 0; y < N; y++)
+		for(int x = 0; x < N; x++)
+			arr[y][x] = 0;
+}
+
+int main(void)
+{
+	int T, N;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		initial(N);
+		
+		for(int y = 0; y < N; y++)
+			for(int x = 0; x < N; x++)
+				scanf("%d", &arr[y][x]);
+		
+		for(int i = 0; i < N; i++) 
+			for(int k = 0; k < N; k++) 
+				arr90[k][N - 1 - i] = arr[i][k];
+			
+		for(int i = 0; i < N; i++) 
+			for(int k = 0; k < N; k++) 
+				arr180[k][N - 1 - i] = arr90[i][k];
+		
+		for(int i = 0; i < N; i++) 
+			for(int k = 0; k < N; k++) 
+				arr270[k][N - 1 - i] = arr180[i][k];
+		
+		printf("#%d\n", t);
+		
+		for(int h = 0; h < N; h++) {
+			for(int w = 0; w < N; w++) 
+				printf("%d", arr90[h][w]);
+			
+			printf(" ");
+			
+			for(int w = 0; w < N; w++) 
+				printf("%d", arr180[h][w]);
+			
+			printf(" ");
+			
+			for(int w = 0; w < N; w++) 
+				printf("%d", arr270[h][w]);
+			
+			printf("\n");
+		}
+	}
+	
+	return 0;
+}
