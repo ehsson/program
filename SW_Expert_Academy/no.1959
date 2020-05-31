@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, M, max, sum, chk;
+	int A[20] = { 0 };
+	int B[20] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d %d", &N, &M);
+		
+		chk = 0;
+		
+		for(int i = 0; i < N; i++)
+			scanf("%d", &A[i]);
+		
+		for(int i = 0; i < M; i++)
+		 	scanf("%d", &B[i]);
+		
+		if(N > M) {
+			for(int k = 0; k <= N - M; k++) {
+				sum = 0;
+				
+				for(int c = 0; c < M; c++) {
+					sum += A[chk + c] * B[c];
+				}
+				
+				chk++;
+				
+				if(k == 0)
+					max = sum;
+				
+				if(max <= sum)
+					max = sum;
+			}
+		}
+		else {
+			for(int k = 0; k <= M - N; k++) {
+				sum = 0;
+				
+				for(int c = 0; c < N; c++) {
+					sum += B[chk + c] * A[c];
+				}
+				
+				chk++;
+				
+				if(k == 0)
+					max = sum;
+				
+				if(max <= sum)
+					max = sum;
+			}
+		}
+		
+		printf("#%d %d\n", t, max);
+	}
+	
+	return 0;
+}
