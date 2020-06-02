@@ -19,14 +19,10 @@ int main(void)
 			cnt = 0;
 			
 			while(tmp > cnt) {
-				if(hei < (int)(N / 2)) {
-					arr[hei][wid++] = val;
-					val++;
-				}
-				else {
-					arr[hei][wid--] = val;
-					val++;
-				}
+				if(hei < (int)(N / 2)) 
+					arr[hei][wid++] = val++;
+				else 
+					arr[hei][wid--] = val++;
 				
 				cnt++;
 			}
@@ -48,14 +44,10 @@ int main(void)
 			cnt = 0;
 			
 			while(tmp > cnt) {
-				if(wid < (int)(N / 2)) {
-					arr[hei--][wid] = val;
-					val++;
-				}
-				else {
-					arr[hei++][wid] = val;
-					val++;
-				}
+				if(wid < (int)(N / 2)) 
+					arr[hei--][wid] = val++;
+				else 
+					arr[hei++][wid] = val++;
 				
 				cnt++;
 			}
