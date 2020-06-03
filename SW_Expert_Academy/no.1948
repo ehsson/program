@@ -1,0 +1,53 @@
+#include <stdio.h>
+
+int get_days(int month)
+{
+	switch(month) {
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			return 31;
+			break;
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			return 30;
+			break;
+		case 2:
+			return 28;
+			break;
+		default:
+			break;
+	}
+}
+
+int main(void)
+{
+	int T, mon1, mon2, day1, day2, days;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d %d %d %d", &mon1, &day1, &mon2, &day2);
+		
+		days = 0;
+		
+		for(int i = mon1 + 1; i < mon2; i++)
+			days += get_days(i);
+		
+		days += (get_days(mon1) - day1 + 1);
+		days += day2;
+		
+		if(mon1 == mon2)
+			days = day2 - day1 + 1;
+		
+		printf("#%d %d\n", t, days);
+	}
+	
+	return 0;
+}
