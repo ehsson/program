@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include<math.h>
+
+int main(void)
+{
+	int T, N, a, b, c, d, e, tmp;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		for(e = 0; N % (int)pow(11, e) == 0; e++)
+			e = e;
+		
+		for(d = 0; N % (int)pow(7, d) == 0; d++) 
+			d = d;
+		
+		for(c = 0; N % (int)pow(5, c) == 0; c++) 
+			c = c;
+		
+		for(b = 0; N % (int)pow(3, b) == 0; b++) 
+			b = b;
+		
+		for(a = 0; N % (int)pow(2, a) == 0; a++)
+			a = a;
+		
+		a--;
+		b--;
+		c--;
+		d--;
+		e--;
+		
+		printf("#%d %d %d %d %d %d\n", t, a, b, c, d, e);
+	}
+	
+	return 0;
+}
