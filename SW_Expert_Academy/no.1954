@@ -36,16 +36,16 @@ void dfs(int x, int y, int num, int direct) {
 
 	switch (direct) {
 	case LEFT:
-		next_x = x + 1;
+		next_x++;
 		break;
 	case DOWN:
-		next_y = y + 1;
+		next_y++;
 		break;
 	case RIGHT:
-		next_x = x - 1;
+		next_x--;
 		break;
 	case UP:
-		next_y = y - 1;
+		next_y--;
 		break;
 	default:
 		break;
@@ -58,21 +58,21 @@ void dfs(int x, int y, int num, int direct) {
 
 	switch (direct) {
 	case LEFT:
-		next_y = y + 1;
+		next_y++;
 		break;
 	case DOWN:
-		next_x = x - 1;
+		next_x--;
 		break;
 	case RIGHT:
-		next_y = y - 1;
+		next_y--;
 		break;
 	case UP:
-		next_x = x + 1;
+		next_x++;
 		break;
 	default:
 		break;
 	}
-
+	
 	dfs(next_x, next_y, num + 1, (direct + 1) % 4);
 }
 
