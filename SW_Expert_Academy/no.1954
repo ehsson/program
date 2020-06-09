@@ -1,3 +1,114 @@
+// https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5PobmqAPoDFAUq&categoryId=AV5PobmqAPoDFAUq&categoryType=CODE
+
+// 아빠 솔루션, 재귀함수 사용
+
+#include <stdio.h>
+
+enum {
+	LEFT = 0,
+	DOWN,
+	RIGHT,
+	UP
+};
+
+
+int arr[12][12] = { 0, };
+
+void init(int N) {
+
+	for (int y = 1; y <= N; y++)
+		for (int x = 1; x <= N; x++)
+			arr[y][x] = 0;
+
+	for (int i = 1; i <= N; i++)
+		arr[i][0] = arr[i][N + 1] = arr[0][i] = arr[N + 1][i] = -1;
+}
+
+void dfs(int x, int y, int num, int direct) {
+
+	if (arr[y][x] != 0)
+		return;
+
+	arr[y][x] = num;
+
+	int next_x = x;
+	int next_y = y;
+
+	switch (direct) {
+	case LEFT:
+		next_x = x + 1;
+		break;
+	case DOWN:
+		next_y = y + 1;
+		break;
+	case RIGHT:
+		next_x = x - 1;
+		break;
+	case UP:
+		next_y = y - 1;
+		break;
+	default:
+		break;
+	}
+
+	dfs(next_x, next_y, num + 1, direct);
+
+	next_x = x;
+	next_y = y;
+
+	switch (direct) {
+	case LEFT:
+		next_y = y + 1;
+		break;
+	case DOWN:
+		next_x = x - 1;
+		break;
+	case RIGHT:
+		next_y = y - 1;
+		break;
+	case UP:
+		next_x = x + 1;
+		break;
+	default:
+		break;
+	}
+
+	dfs(next_x, next_y, num + 1, (direct + 1) % 4);
+}
+
+int main(void)
+{
+	int T, N;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++) {
+		scanf_s("%d", &N);
+
+		init(N);
+
+		dfs(1, 1, 1, 0);
+
+		printf("#%d\n", t);
+
+		for (int y = 1; y <= N; y++) {
+			for (int x = 1; x <= N; x++) {
+				printf("%d", arr[y][x]);
+				if (x < N)
+					printf(" ");
+				else
+					printf("\n");
+
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+// 현수 솔루션
+
 #include <stdio.h>
 
 int main(void)
