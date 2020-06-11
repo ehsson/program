@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, vel, sum;
+	int arr[2][30] = { 0 };
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		sum = 0;
+		vel = 0;
+		
+		for(int n = 0; n < N; n++) {
+			scanf("%d", &arr[0][n]);
+			
+			if(arr[0][n] == 0)
+				continue;
+			
+			scanf("%d", &arr[1][n]);
+		}
+		
+		for(int i = 0; i < N; i++) {
+			if(arr[0][i] == 1) 
+				vel += arr[1][i];
+			else if(arr[0][i] == 2) {
+				vel -= arr[1][i];
+				if(vel < 0)
+					vel = 0;
+			}
+			
+			sum += vel;
+		}
+		
+		printf("#%d %d\n", t, sum);
+	}
+	
+	return 0;
+}
