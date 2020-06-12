@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+int chk[10] = { 0 };
+
+void init(void)
+{
+	for(int i = 0; i < 10; i++)
+		chk[i] = 0;
+}
+
+int chk_count(void)
+{
+	for(int i = 0; i < 10; i++)
+		if(chk[i] == 0)
+			return 0;
+	
+	return 1;
+}
+
+int main(void)
+{
+	int T, N, tmp, cnt;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d", &N);
+		
+		init();
+		
+		cnt = 0;
+		
+		do {
+			cnt++;
+			tmp = cnt * N;
+			
+			while(tmp != 0) {
+				chk[tmp % 10]++;
+				
+				tmp /= 10;
+			}
+		} while(chk_count() != 1);
+		
+		printf("#%d %d\n", t, cnt * N);
+	}
+	
+	return 0;
+}
