@@ -1,0 +1,23 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, P, Q, R, S, W, A_price, B_price;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d %d %d %d %d", &P, &Q, &R, &S, &W);
+		
+		A_price = P * W;
+		
+		if(W < R)
+			B_price = Q;
+		else
+			B_price = Q + (W - R) * S;
+		
+		A_price > B_price ? printf("#%d %d\n", t, B_price) : printf("#%d %d\n", t, A_price);
+	}
+	
+	return 0;
+}
