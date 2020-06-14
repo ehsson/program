@@ -21,3 +21,26 @@ int main(void)
 	
 	return 0;
 }
+
+// 다시 올리는 거
+
+#include <stdio.h>
+
+int main(void)
+{
+	int T, P, Q, R, S, W, A_price, B_price;
+	
+	scanf("%d", &T);
+	
+	for(int t = 1; t <= T; t++) {
+		scanf("%d %d %d %d %d", &P, &Q, &R, &S, &W);
+		
+		A_price = P * W;
+		
+		B_price = (W < R ? Q : Q + (W - R) * S);
+		
+		A_price > B_price ? printf("#%d %d\n", t, B_price) : printf("#%d %d\n", t, A_price);
+	}
+	
+	return 0;
+}
