@@ -1,0 +1,43 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int sum;
+	int arr[6] = { 0 };
+	
+	for(int p = 0; p < 6; p++)
+		scanf("%d", &arr[p]);
+	
+	for(int i = 0; i < 5; i++) {
+		if(arr[i] == arr[5])
+			printf("%d\n", arr[i]);
+		
+		for(int j = i + 1; j < 5; j++) {
+			sum = arr[i] + arr[j];
+			
+			if(sum == arr[5])
+				printf("%d %d\n", arr[i], arr[j]);
+			
+			for(int k = j + 1; k < 5; k++) {
+				sum = arr[i] + arr[j] + arr[k];
+				
+				if(sum == arr[5])
+					printf("%d %d %d\n", arr[i], arr[j], arr[k]);
+				
+				for(int l = k + 1; l < 5; l++) {
+					sum = arr[i] + arr[j] + arr[k] + arr[l];
+					
+					if(sum == arr[5])
+						printf("%d %d %d %d\n", arr[i], arr[j], arr[k], arr[l]);
+				}
+			}
+		}
+	}
+	
+	sum = arr[0] + arr[1] + arr[2] + arr[3] + arr[4];
+	
+	if(sum == arr[5])
+		printf("%d %d %d %d %d\n", arr[0], arr[1], arr[2], arr[3], arr[4]);
+	
+	return 0;
+}
