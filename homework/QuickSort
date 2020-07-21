@@ -1,0 +1,68 @@
+  #include <stdio.h>
+
+void QuickSort(int arr[], int start, int end, int order)
+{
+	if(start >= end)
+		return;
+	
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+	
+	if(order == 0) {
+		while(low <= high) {
+			while(arr[low] <= arr[pivot] && low <= end)
+				low++;
+			
+			while(arr[high] > arr[pivot])
+				high--;
+			
+			if(low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
+	}
+	else {
+		while(low <= high) {
+			while(arr[low] >= arr[pivot] && low <= end)
+				low++;
+			
+			while(arr[high] < arr[pivot])
+				high--;
+			
+			if(low < high) {
+				temp = arr[low];
+				arr[low] = arr[high];
+				arr[high] = temp;
+			}
+		}
+	}
+	
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
+	
+	QuickSort(arr, start, high - 1, order);
+	QuickSort(arr, high + 1, end, order);
+}
+
+int main(void)
+{
+	int N;
+	int arr[101] = { 0 };
+	
+	scanf("%d", &N);
+	
+	for(int i = 1; i <= N; i++)
+		scanf("%d", &arr[i]);
+	
+	QuickSort(arr, 1, N, 1);
+	
+	for(int i = 1; i <= N; i++)
+		printf("%d ", arr[i]);
+	
+	return 0;
+}
