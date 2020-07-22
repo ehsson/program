@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+#define ELEMENT_MAX 100
+
+int element_num;
+int chk[ELEMENT_MAX];
+int arr[ELEMENT_MAX];
+
+void print_subset(void)
+{
+	static int count = 0;
+	
+	count++;
+	
+	printf("%d: ", count);
+	
+	for(int i = 0; i < element_num; i++) {
+		if(chk[i] == 1)
+			printf("%d", arr[i]);
+	}
+	
+	printf("\n");
+}
+
+void subset(int n)
+{
+	if(n == element_num) {
+		print_subset();
+		return;
+	}
+	
+	chk[n] = 1;
+	subset(n + 1);
+	
+	chk[n] = 0;
+	subset(n + 1);
+}
+
+int main(void)
+{
+	scanf("%d", &element_num);
+	
+	for(int i = 0; i < element_num; i++)
+		scanf("%d", &arr[i]);
+	
+	subset(0);
+	
+	return 0;
+}
