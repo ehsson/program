@@ -1,0 +1,43 @@
+#include <stdio.h>
+
+int arr[10];
+
+void swap(int a, int b)
+{
+	int temp = arr[a];
+	arr[a] = arr[b];
+	arr[b] = temp;
+}
+
+void permutation(int size, int n)
+{
+	if(n == 1) {
+		for(int i = 0; i < size; i++)
+			printf("%d ", arr[i]);
+		
+		printf("\n");
+		return;
+	}
+	
+	for(int i = 0; i < n; i++) {
+		swap(i, n - 1);
+		
+		permutation(size, n - 1);
+		
+		swap(i, n - 1);
+	}
+}
+
+int main(void)
+{
+	int N;
+	
+	scanf("%d", &N);
+	
+	for(int i = 0; i < N; i++)
+		scanf("%d", &arr[i]);
+	
+	permutation(N, N);
+	
+	return 0;
+}
