@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+int ConvertIntoInt(int num)
+{
+	int diff = 0 - '0';
+	
+	return num + diff;
+}
+
+int main(void)
+{
+	char arr[7] = { 0 };
+	int sum = 0;
+	
+	fgets(arr, sizeof(arr), stdin);
+	
+	for(int i = 0; i < 6; i ++) {
+		if(arr[i] > '0' && arr[i] <= '9')
+			sum += ConvertIntoInt(arr[i]);
+	}
+	
+	printf("%d\n", sum);
+	
+	return 0;
+}
