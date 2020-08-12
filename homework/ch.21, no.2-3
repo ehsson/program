@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <string.h>
+
+int name_len(char arr[], int len)
+{
+	while(arr[len] != 32)
+		len--;
+	
+	return len;
+}
+
+int compare_name(char name_age1[], char name_age2[], int len)
+{
+	return strncmp(name_age1, name_age2, len);
+}
+
+int compare_age(char arr1[], char arr2[], int len1, int len2)
+{
+	int chk = 1;
+	
+	while(arr1[len1] != 0 && arr2[len2] != 0) {
+		if(arr1[len1] != arr2[len2]) {
+			chk = 0;
+			break;
+		}
+		
+		len1++;
+		len2++;
+	}
+	
+	return chk;
+}
+
+int main(void)
+{
+	int name_len1, name_len2;
+	char na1[30] = { 0 };
+	char na2[30] = { 0 };
+	
+	fgets(na1, sizeof(na1), stdin);
+	fgets(na2, sizeof(na2), stdin);
+	
+	name_len1 = strlen(na1);
+	name_len2 = strlen(na2);
+	
+	if(name_len(na1, name_len1) != name_len(na2, name_len2))
+		printf("이름이 다릅니다.\n");
+	else {
+		if(!compare_name(na1, na2, name_len(na1, name_len1)))
+			printf("이름이 같습니다.\n");
+		else
+			printf("이름이 다릅니다.\n");
+	}
+	
+	name_len1 = name_len(na1, name_len1);
+	name_len2 = name_len(na2, name_len2);
+	
+	if(compare_age(na1, na2, name_len1, name_len2))
+		printf("나이가 같습니다.\n");
+	else
+		printf("나이가 다릅니다.\n");
+	
+	return 0;
+}
