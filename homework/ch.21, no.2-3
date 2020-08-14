@@ -62,3 +62,71 @@ int main(void)
 	
 	return 0;
 }
+
+//책 속의 답안
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int GetSpIdx(char arr[])
+{
+	int len = strlen(arr);
+	
+	for(int i = 0; i < len; i++) {
+		if(arr[i] == ' ')
+			return i;
+	}
+	
+	return -1;
+}
+
+int CompareName(char arr1[], char arr2[])
+{
+	int idx1 = GetSpIdx(arr1);
+	int idx2 = GetSpIdx(arr2);
+	
+	if(idx1 != idx2)
+		return -1;
+	else
+		return strncmp(arr1, arr2, idx1);
+}
+
+int CompareAge(char arr1[], char arr2[])
+{
+	int age1, age2;
+	int idx1 = GetSpIdx(arr1);
+	int idx2 = GetSpIdx(arr2);
+	
+	age1 = atoi(&arr1[idx1 + 1]);
+	age2 = atoi(&arr2[idx2 + 1]);
+	
+	if(age1 == age2)
+		return 1;
+	else
+		return 0;
+}
+
+int main(void)
+{
+	char na1[30];
+	char na2[30];
+	
+	fgets(na1, sizeof(na1), stdin);
+	na1[strlen(na1) - 1] = 0;
+	
+	fgets(na2, sizeof(na2), stdin);
+	na2[strlen(na2) - 1] = 0;
+	
+	if(!CompareName(na1, na2))
+		printf("이름이 같습니다.\n");
+	else
+		printf("이름이 다릅니다.\n");
+	
+	if(CompareAge(na1, na2))
+		printf("나이가 같습니다.\n");
+	else
+		printf("나이가 다릅니다.\n");
+	
+	return 0;
+}
