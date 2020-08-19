@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+int arr[1000][1000] = { 0 };
+int x = 1;
+int y = 1;
+
+void init(int W, int H)
+{
+	for (int i = 1; i <= W+1; i++)
+		arr[H + 1][i] = -1;
+
+	for (int k = 1; k <= H; k++)
+		arr[k][W + 1] = -1;
+}
+
+void move(void)
+{
+	if (arr[y][x] == -1)
+	{
+		return;
+	}
+
+	if (arr[y][x] == 0)
+	{
+		arr[y][x] = 1;
+		y++;
+	}
+	else
+	{
+		arr[y][x] = 0;
+		x++;
+	}
+
+	move();
+}
+
+int main(void)
+{
+	int H, W, N, T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &H, &W, &N);
+
+		init(W, H);
+
+		for (int i = 1; i <= H; i++)
+			for (int k = 1; k <= W; k++)
+				scanf_s("%d", &arr[i][k]);
+
+		for (int i = 0; i < N; i++)
+		{
+			x = y = 1;
+			move();
+		}
+
+		printf("Case #%d \n %d %d\n", t, y, x);
+	}
+
+	return 0;
+}
