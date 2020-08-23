@@ -1,60 +1,55 @@
 #include <stdio.h>
 
-typedef struct Road{
-	int ladder_cnt;
-	int road_to[2002];
-	int road_to_pos[2002];
-	int node_broken_min[2002];
-} road_s;
+#define LINE_MAX	1501
+#define NODE_MAX	2001
 
-int t, T, N, K, M, road_1, road_2, start, destination;
+enum {
+	DOWN = 0,
+	SIDE
+};
 
-road_s road[1501];
+typedef struct Node {
+	int side_line[2];
+} node_s;
 
-int total_broken_ladder = 0;
-int broken_min = 3000;
+node_s node[LINE_MAX][NODE_MAX];
+int node_cnt[LINE_MAX];
 
-int dfs(int destination, int road_now,int pos_now, int broken_ladder)
+int broken_ladder_sum = 0;
+int broken_ladder_min = NODE_MAX;
+
+void dfs(int destination, bool from, int now, int node_pos_now, int broken_cnt)
 {
-	int ladder_num = pos_now;
+	// 끝나는 조건
+	if (broken_ladder_min == 0 || broken_cnt > broken_ladder_min) {
+		return;
+	}
 
-	if (broken_ladder > broken_min || broken_min == 0)
-		return 3000;
-
-	if (broken_ladder > K)
-		return K + 1;
-
-	// 사다리 끝에 왔다면
-	if (road[road_now].ladder_cnt == pos_now) {
-		// 목적지(end)에 도착했다면
-		if (road_now == destination && broken_ladder < broken_min) {
-			broken_min = broken_ladder;
+	// line 끝에 도착했다면
+	if (node_pos_now == node_cnt[ now ]) {
+		// 도착한 곳이 목적지라면
+		if (now == destination && broken_cnt < broken_ladder_min) {
+			broken_ladder_min = broken_cnt;
 		}
-
-		return broken_min;
+		return;
 	}
 
-	ladder_num++;
-	int road_to = road[road_now].road_to[ladder_num];
-	int road_to_pos = road[road_now].road_to_pos[ladder_num];
-	int temp;
+	//위쪽 node 에서 현재 node로 왔을 때,
+	if (from == DOWN) {
+		int next_line = node[now][node_pos_now].side_line[0];
+		int next_pos = node[now][node_pos_now].side_line[1];
 
-	temp = dfs(destination, road_to, road_to_pos, broken_ladder);
-	if (temp < road[road_now].node_broken_min[pos_now]) {
-		road[road_now].node_broken_min[pos_now] = temp;
+		dfs(destination, SIDE, next_line, next_pos, broken_cnt);
+
+		broken_cnt++;
 	}
 
-	ladder_num--;
+	// 위쪽 node 에서 현재 node에 와서, 다시 아래쪽으로 이동할 경우 broken_cnt 증가
+	// 만약 SIDE 로 왔을 경우에는 아래쪽으로 내려가지만 broken_cnt 를 증가시키지 않음
+	dfs(destination, DOWN, now, node_pos_now + 1, broken_cnt);
 
-	road_to = road[road_now].road_to[ladder_num];
-	road_to_pos = road[road_now].road_to_pos[ladder_num];
-
-	broken_ladder++;
-	temp = dfs(destination, road_to, road_to_pos, broken_ladder);
-	if (temp < road[road_now].node_broken_min[pos_now]) {
-		road[road_now].node_broken_min[pos_now] = temp;
-	}
-	broken_ladder--;
+	// 변경된 dfs 조건 원복
+	// 원복할 데이터가 없음
 }
 
 int main(void)
@@ -62,91 +57,61 @@ int main(void)
 	FILE *pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
 
+	int T;
+	int N, K, M;
+	int line_1, line_2;
+	int start, destination;
+
 	scanf_s("%d", &T);
 
-	for (t = 1; t <= T; t++) {
+	for (int t = 1; t <= T; t++) {
 		scanf_s("%d %d %d", &N, &K, &M);
 
-		//사다리 정보(양쪽 road 의 교차로 지점)를 양쪽 road에 각각 저장
-		for (int n = 1; n <= N; n++) {
-			road[n].ladder_cnt = 0;
+		// 모든 node 초기화
+		for (int li = 1; li <= N; li++) {
+			node_cnt[li] = 0;
 		}
 
-		for (int k = 1; k <= K; k++) {
-			scanf_s("%d %d", &road_1, &road_2);
-			road[road_1].ladder_cnt++;
-			road[road_2].ladder_cnt++;
+		//사다리 정보(양쪽 road 의 교차로 지점)를 양쪽 road에 각각 저장
+		for (int no = 1; no <= K; no++) {
+			scanf_s("%d %d", &line_1, &line_2);
 
-			road[road_1].road_to[road[road_1].ladder_cnt] = road_2;
-			road[road_1].road_to_pos[road[road_1].ladder_cnt] = road[road_2].ladder_cnt;
+			node_cnt[line_1]++;
+			node_cnt[line_2]++;
 
-			road[road_2].road_to[road[road_2].ladder_cnt] = road_1;
-			road[road_2].road_to_pos[road[road_2].ladder_cnt] = road[road_1].ladder_cnt;
+			node[ line_1 ][ node_cnt[line_1] ].side_line[0] = line_2;
+			node[ line_1 ][ node_cnt[line_1] ].side_line[1] = node_cnt[line_2];
+
+			node[ line_2 ][ node_cnt[line_2] ].side_line[0] = line_1;
+			node[ line_2 ][ node_cnt[line_2] ].side_line[1] = node_cnt[line_1];
 		}
 		
 		//사다리가 끝나는(end) 것을 표시
-		for (int i = 1; i <= N; i++) {
-			road[i].ladder_cnt++;
+		for (int li = 1; li <= N; li++) {
+			node_cnt[li]++;
 
-			road[i].road_to[ road[i].ladder_cnt ] = i;
-			road[i].road_to_pos[road[i].ladder_cnt] = road[i].ladder_cnt;
+			node[ li ][ node_cnt[li] ].side_line[0] = li;
+			node[ li ][ node_cnt[li] ].side_line[1] = node_cnt[li];
 		}
 
 		for (int m = 1; m <= M; m++) {
 			scanf_s("%d %d", &start, &destination);
 
-			dfs(destination, start, 0, 0);
+			dfs(destination, DOWN, start, 1, 0);
 
-			if (broken_min == 3000) {
-				total_broken_ladder--;
+			if (broken_ladder_min == NODE_MAX) {
+				broken_ladder_sum--;
+			} else {
+				broken_ladder_sum += broken_ladder_min;
 			}
-			else {
-				total_broken_ladder += broken_min;
-			}
-			broken_min = 3000;
-			for (int a = 1; a <= N; a++) {
-				for (int z = 1; z <= K; z++) {
-					road[a].node_broken_min[z] = 1501;
-				}
-			}
+
+			broken_ladder_min = NODE_MAX;
 		}
 
-		printf("Case #%d\n%d\n", t, total_broken_ladder);
+		printf("Case #%d\n%d\n", t, broken_ladder_sum);
 
-		total_broken_ladder = 0;
+		broken_ladder_sum = 0;
 	}
 
 	return 0;
 }
-
-//input 파일
-
-3
-3 4 4
-1 2
-2 3
-1 2
-1 3
-1 2
-1 1
-2 3
-3 2
-4 6 5
-1 2
-2 3
-3 4
-1 3
-2 4
-1 4
-3 3
-1 3
-1 4
-3 4
-4 4
-4 2 4
-1 2
-2 3
-1 1
-1 2
-1 3
-1 4
