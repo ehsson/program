@@ -1,0 +1,78 @@
+#include <stdio.h>
+
+int A[200000] = { 0 };
+int B[200000] = { 0 };
+
+void QuickSort(int arr[], int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+
+	while (low <= high)
+	{
+		while (arr[pivot] >= arr[low] && low <= end)
+			low++;
+
+		while (arr[pivot] < arr[high])
+			high--;
+
+		if (low < high)
+		{
+			temp = arr[low];
+			arr[low] = arr[high];
+			arr[high] = temp;
+		}
+	}
+
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
+
+	QuickSort(arr, start, high - 1);
+	QuickSort(arr, high + 1, end);
+}
+
+int main(void)
+{
+	int T, N, K, max, sum;
+	FILE* pf;
+
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		max = 0;
+		sum = 0;
+
+		scanf_s("%d %d", &N, &K);
+
+		for (int a = 0; a < N; a++)
+			scanf_s("%d", &A[a]);
+
+		for (int b = 0; b < N; b++)
+			scanf_s("%d", &B[b]);
+
+		QuickSort(A, 0, N - 1);
+		QuickSort(B, 0, N - 1);
+
+		for (int i = 0; i < K; i++)
+		{
+ 			sum = A[i] + B[K - 1 - i];
+
+			if (max <= sum)
+				max = sum;
+		}
+
+		printf("Case #%d\n", t);
+		printf("%d\n", max);
+	}
+
+	return 0;
+}
