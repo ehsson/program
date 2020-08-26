@@ -115,3 +115,210 @@ int main(void)
 
 	return 0;
 }
+
+
+////////////////////////////////
+
+#include <stdio.h>
+
+#define LINE_MAX	151	// 메모리 초과로 문제 조건을 축소
+#define NODE_MAX	201	// 메모리 초과로 문제 조건을 축소
+
+enum {
+	DOWN = 0,
+	SIDE
+};
+
+typedef struct Node {
+	int side_line[2];
+	int broken_min;
+} node_s;
+
+node_s node[LINE_MAX][NODE_MAX];
+int node_cnt[LINE_MAX];
+
+int path[LINE_MAX * 2][3];
+int path_save[LINE_MAX * 2][3];
+int data_save[LINE_MAX][NODE_MAX][LINE_MAX];
+
+int broken_ladder_sum = 0;
+int broken_ladder_min = NODE_MAX;
+
+void dfs(int destination, bool from, int now, int node_pos_now, int broken_cnt, int path_cnt)
+{
+	// 끝나는 조건
+	if (broken_ladder_min == 0 || broken_cnt > broken_ladder_min) {
+		return;
+	}
+
+	if (data_save[now][node_pos_now][destination] < NODE_MAX) {
+		if (broken_cnt + data_save[now][node_pos_now][destination] > broken_ladder_min)
+			return;
+	}
+
+	path[0][0] = path_cnt;
+	path[path_cnt][0] = now;
+	path[path_cnt][1] = node_pos_now;
+	path[path_cnt][2] = broken_cnt;
+
+	// line 끝에 도착했다면
+	if (node_pos_now == node_cnt[now]) {
+		// 도착한 곳이 목적지라면
+		if (now == destination && broken_cnt < broken_ladder_min) {
+			broken_ladder_min = broken_cnt;
+
+			for (int i = 0; i <= path[0][0]; i++) {
+				path_save[i][0] = path[i][0];
+				path_save[i][1] = path[i][1];
+				path_save[i][2] = path[i][2];
+			}
+		}
+		return;
+	}
+
+	path[0][0] = path_cnt;
+	path[path_cnt][0] = now;
+	path[path_cnt][1] = node_pos_now;
+	path[path_cnt][2] = broken_cnt;
+
+
+	//위쪽 node 에서 현재 node로 왔을 때,
+	if (from == DOWN) {
+		int next_line = node[now][node_pos_now].side_line[0];
+		int next_pos = node[now][node_pos_now].side_line[1];
+
+		dfs(destination, SIDE, next_line, next_pos, broken_cnt, path_cnt + 1);
+
+		broken_cnt++;
+	}
+
+	// 위쪽 node 에서 현재 node에 와서, 다시 아래쪽으로 이동할 경우 broken_cnt 증가
+	// 만약 SIDE 로 왔을 경우에는 아래쪽으로 내려가지만 broken_cnt 를 증가시키지 않음
+	dfs(destination, DOWN, now, node_pos_now + 1, broken_cnt, path_cnt + 1);
+
+	// 변경된 dfs 조건 원복
+	// 원복할 데이터가 없음
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	int T;
+	int N, K, M;
+	int line_1, line_2;
+	int start, destination;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++) {
+		scanf_s("%d %d %d", &N, &K, &M);
+
+		// 모든 node 초기화
+		for (int li = 1; li <= N; li++) {
+			node_cnt[li] = 0;
+		}
+
+		//사다리 정보(양쪽 road 의 교차로 지점)를 양쪽 road에 각각 저장
+		for (int no = 1; no <= K; no++) {
+			scanf_s("%d %d", &line_1, &line_2);
+
+			node_cnt[line_1]++;
+			node_cnt[line_2]++;
+
+			node[line_1][node_cnt[line_1]].side_line[0] = line_2;
+			node[line_1][node_cnt[line_1]].side_line[1] = node_cnt[line_2];
+
+			node[line_1][node_cnt[line_1]].broken_min = NODE_MAX;
+
+			node[line_2][node_cnt[line_2]].side_line[0] = line_1;
+			node[line_2][node_cnt[line_2]].side_line[1] = node_cnt[line_1];
+
+			node[line_2][node_cnt[line_2]].broken_min = NODE_MAX;
+		}
+
+		//사다리가 끝나는(end) 것을 표시
+		for (int li = 1; li <= N; li++) {
+			node_cnt[li]++;
+
+			node[li][node_cnt[li]].side_line[0] = li;
+			node[li][node_cnt[li]].side_line[1] = node_cnt[li];
+		}
+
+		for (int i = 1; i < LINE_MAX; i++) {
+			for (int k = 1; k < NODE_MAX; k++)
+				for (int m = 1; m < LINE_MAX; m++) {
+					data_save[i][k][m] = NODE_MAX;
+				}
+		}
+
+		for (int m = 1; m <= M; m++) {
+			scanf_s("%d %d", &start, &destination);
+
+
+			dfs(destination, DOWN, start, 1, 0, 1);
+
+			for (int i = 1; i <= path_save[0][0]; i++) {
+				data_save[path[i][0]][path[i][1]][destination] = broken_ladder_min - path_save[i][2];
+			}
+
+			if (broken_ladder_min == NODE_MAX) {
+				broken_ladder_sum--;
+			}
+			else {
+				broken_ladder_sum += broken_ladder_min;
+			}
+
+			broken_ladder_min = NODE_MAX;
+		}
+
+		printf("Case #%d\n%d\n", t, broken_ladder_sum);
+
+		broken_ladder_sum = 0;
+	}
+
+	return 0;
+}
+
+
+/////// input ////////////////////////
+
+3
+3 4 4
+1 2
+2 3
+1 2
+1 3
+1 2
+1 1
+2 3
+3 2
+4 6 5
+1 2
+2 3
+3 4
+1 3
+2 4
+1 4
+3 3
+1 3
+1 4
+3 4
+4 4
+4 2 4
+1 2
+2 3
+1 1
+1 2
+1 3
+1 4
+
+////// output ////////////
+
+Case #1
+3
+Case #2
+3
+Case #3
+1
