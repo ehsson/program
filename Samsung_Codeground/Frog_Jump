@@ -1,0 +1,64 @@
+#include <stdio.h>
+
+int rock[1000002] = { 0 };
+
+int main(void)
+{
+	int T, N, K;
+	int min_cnt;
+	int pos, cnt;
+
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf("%d", &N);
+
+		for (int n = 1; n <= N; n++)
+			scanf("%d", &rock[n]);
+
+		rock[N + 1] = 0;
+
+		scanf("%d", &K);
+
+		min_cnt = 0;
+		pos = 0;
+		cnt = 1;
+
+		while (pos < rock[N])
+		{
+			if (rock[cnt] - rock[cnt - 1] > K)
+			{
+				min_cnt = -1;
+				break;
+			}
+
+			if (rock[cnt] == 0)
+			{
+				pos = rock[cnt - 1];
+				min_cnt++;
+				break;
+			}
+
+			if (rock[cnt] - pos < K)
+			{
+				cnt++;
+			}
+			else if (rock[cnt] - pos == K)
+			{
+				pos = rock[cnt];
+				min_cnt++;
+				cnt++;
+			}
+			else
+			{
+				pos = rock[cnt - 1];
+				min_cnt++;
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, min_cnt);
+	}
+
+		return 0;
+}
