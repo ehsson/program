@@ -1,0 +1,146 @@
+#include <stdio.h>
+
+#define MAX 1000
+
+enum
+{
+	LEFT = 0,
+	UP,
+	RIGHT,
+	DOWN
+};
+
+char room[MAX + 2][MAX + 2];
+int chk[MAX + 1][MAX + 1];
+char temp[MAX + 1];
+
+void init(int N)
+{
+	for (int i = 1; i <= N; i++)
+		for (int j = 1; j <= N; j++)
+		{
+			room[i][j] = '0';
+			chk[i][j] = 0;
+		}
+
+	for (int i = 1; i <= N; i++)
+		room[i][0] = room[i][N + 1] = room[0][i] = room[N + 1][i] = '3';
+}
+
+int main(void)
+{
+	int T, N;
+	int cnt, prev;
+	int x_pos, y_pos;
+
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf("%d", &N);
+
+		init(N);
+
+		for (int n = 1; n <= N; n++)
+		{
+			scanf("%s", temp, N + 1);
+
+			for (int i = 0; i < N; i++)
+			{
+				room[n][i + 1] = temp[i];
+			}
+		}
+
+		cnt = 0;
+		x_pos = y_pos = 1;
+		prev = LEFT;
+
+		while (room[y_pos][x_pos] != '3')
+		{
+			if (room[y_pos][x_pos] == '0')
+			{
+				switch (prev)
+				{
+					case 0:
+						x_pos++;
+						break;
+					case 1:
+						y_pos++;
+						break;
+					case 2:
+						x_pos--;
+						break;
+					case 3:
+						y_pos--;
+						break;
+					default:
+						break;
+				}
+			}
+			else if (room[y_pos][x_pos] == '1')
+			{
+				if (chk[y_pos][x_pos] == 0)
+				{
+					chk[y_pos][x_pos] = 1;
+					cnt++;
+				}
+
+				switch (prev)
+				{
+					case 0:
+						y_pos--;
+						prev = DOWN;
+						break;
+					case 1:
+						x_pos--;
+						prev = RIGHT;
+						break;
+					case 2:
+						y_pos++;
+						prev = UP;
+						break;
+					case 3:
+						x_pos++;
+						prev = LEFT;
+						break;
+					default:
+						break;
+				}
+			}
+			else if (room[y_pos][x_pos] == '2')
+			{
+				if (chk[y_pos][x_pos] == 0)
+				{
+					chk[y_pos][x_pos] = 1;
+					cnt++;
+				}
+
+				switch (prev)
+				{
+					case 0:
+						y_pos++;
+						prev = UP;
+						break;
+					case 1:
+						x_pos++;
+						prev = LEFT;
+						break;
+					case 2:
+						y_pos--;
+						prev = DOWN;
+						break;
+					case 3:
+						x_pos--;
+						prev = RIGHT;
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
