@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+int score[200001];
+
+void QuickSort(int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+
+	
+	while (low <= high) {
+		while (score[low] <= score[pivot] && low <= end)
+			low++;
+
+		while (score[high] > score[pivot])
+			high--;
+
+		if (low < high) {
+			temp = score[low];
+			score[low] = score[high];
+			score[high] = temp;
+		}
+	}
+
+	temp = score[pivot];
+	score[pivot] = score[high];
+	score[high] = temp;
+
+	QuickSort(start, high - 1);
+	QuickSort(high + 1, end);
+}
+
+int main(void)
+{
+	int T, N, K;
+	int sum;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d", &N, &K);
+
+		for (int n = 1; n <= N; n++)
+			scanf_s("%d", &score[n]);
+
+		QuickSort(1, N);
+
+		sum = 0;
+
+		for (int k = 0; k < K; k++)
+			sum += score[N - k];
+
+		printf("Case #%d\n%d\n", t, sum);
+	}
+
+	return 0;
+}
