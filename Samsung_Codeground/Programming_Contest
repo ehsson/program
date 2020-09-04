@@ -1,0 +1,99 @@
+#include <stdio.h>
+
+int arr[300001] = { 0 };
+
+void QuickSort(int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+
+	
+	while (low <= high) {
+		while (arr[low] >= arr[pivot] && low <= end)
+			low++;
+
+		while (arr[high] < arr[pivot])
+			high--;
+
+		if (low < high) {
+			temp = arr[low];
+			arr[low] = arr[high];
+			arr[high] = temp;
+		}
+	}
+	
+
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
+
+	QuickSort(start, high - 1);
+	QuickSort(high + 1, end);
+}
+
+int main(void)
+{
+	int T, N;
+	int cnt, max, chk;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		max = 0;
+
+		for (int i = 1; i <= N; i++)
+		{
+			scanf_s("%d", &arr[i]);
+
+			if (max < arr[i])
+				max = arr[i];
+		}
+
+		cnt = 1;
+
+		for (int n = 1; n <= N; n++)
+		{
+			if ((max - (N - 1)) <= arr[n])
+			{
+				arr[cnt] = arr[n];
+
+				cnt++;
+			}
+		}
+
+		cnt--;
+
+		QuickSort(1, cnt);
+
+		max = 0;
+
+		for (int i = 1; i <= cnt; i++)
+		{
+			arr[i] += i;
+
+			if (max < arr[i])
+				max = arr[i];
+		}
+
+		for (int j = cnt; j >= 1; j--)
+		{
+			if (max <= arr[j] + (N - j))
+			{
+				chk = j;
+				break;
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, chk);
+	}
+
+	return 0;
+}
