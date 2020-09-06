@@ -1,0 +1,92 @@
+#include <stdio.h>
+
+long long arr[200000] = { 0, 1, };
+char input[300000];
+
+enum
+{
+	U = 0,
+	D,
+	L,
+	R
+};
+
+int main(void)
+{
+	int T, N, K;
+	int x, y, cnt, i;
+	long long sum;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d", &N, &K);
+
+		for (int a = 2; a <= N * 2; a++)
+			arr[a] = 0;
+
+		for (i = 1; i <= N; i++)
+			arr[i] += (arr[i - 1] + ((long long)i - 1));
+
+		arr[N + 1] += (arr[N] + N);
+		i--;
+
+		for (int n = N + 2; n <= N * 2 - 1; n++)
+		{
+			i--;
+			arr[n] += (arr[n - 1] + i);
+		}
+
+
+
+		scanf_s("%s", input, K+1);
+
+		sum = 1;
+		x = y = 1;
+
+		for (int k = 0; k < K; k++)
+		{
+			switch (input[k])
+			{
+				case 'U':
+					y--;
+					break;
+				case 'D':
+					y++;
+					break;
+				case 'L':
+					x--;
+					break;
+				case 'R':
+					x++;
+					break;
+				default:
+					break;
+			}
+
+			if ((x + y) % 2 == 0)
+			{
+				if (x + y <= N + 1)
+					cnt = arr[x + y - 1] + (x - 1);
+				else
+					cnt = arr[x + y - 1] + (N - y);
+			}
+			else
+			{
+				if (x + y <= N + 1)
+					cnt = arr[x + y - 1] + (y - 1);
+				else
+					cnt = arr[x + y - 1] + (N - x);
+			}
+
+			sum += cnt;
+		}
+
+		printf("Case #%d\n%lld\n", t, sum);
+	}
+
+	return 0;
+}
