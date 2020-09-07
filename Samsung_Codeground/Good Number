@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+#define TMP 200000
+
+int num[5001];
+int sum[400001];
+
+int main(void)
+{
+	int T, N;
+	int cnt;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		for (int q = 0; q < 400001; q++)
+			sum[q] = 0;
+
+		cnt = 0;
+
+		for (int n = 1; n <= N; n++)
+			scanf_s("%d", &num[n]);
+
+		for (int i = N - 1; i >= 1; i--)
+			for (int j = i; j >= 1; j--)
+				sum[num[i] + num[j] + TMP] = i;
+
+		for (int k = 2; k <= N; k++)
+		{
+			for (int l = 1; l < k; l++)
+			{
+				if (sum[num[k] - num[l] + TMP] > 0 && k > sum[num[k] - num[l] + TMP])
+				{
+					cnt++;
+					break;
+				}
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
