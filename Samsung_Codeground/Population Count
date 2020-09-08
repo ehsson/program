@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N;
+	int cnt;
+	int bin;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		cnt = 0;
+		bin = 1;
+
+		while (bin <= N && bin > 0)
+		{
+			if ((N & bin) > 0)
+				cnt++;
+
+			bin <<= 1;
+		}
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
