@@ -1,0 +1,58 @@
+#include <stdio.h>
+
+const char chem[][3] = { "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al",
+	"Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe",
+	"Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr",
+	"Y","Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb",
+	"Te", "I", "Xe", "Cs", "Ba", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au",
+	"Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Rf", "Db", "Sg",
+	"Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Fl", "Lv", "La", "Ce", "Pr", "Nd",
+	"Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Ac",
+	"Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md",
+	"No", "Lr" };
+
+int one[26];
+int two[26][26];
+
+int dp[50001];
+char s[50002];
+
+void precalc()
+{
+	for (int i = 0; i < sizeof(chem) / 3; i++)
+		if (!chem[i][1])
+			one[ chem[i][0] - 'A'] = 1;
+		else
+			two[ chem[i][0] - 'A' ][chem[i][1] - 'a'] = 1;
+}
+
+int main()
+{
+	int tc;
+	scanf_s("%d", &tc);
+
+	precalc();
+
+	for (int t_case = 1; t_case <= tc; t_case++)
+	{
+
+		scanf_s("%s", s + 1, sizeof(s) + 1);
+
+		int i;
+		dp[0] = 1;
+
+		for (i = 1; s[i]; i++)
+		{
+			dp[i] = 0;
+			if (one[s[i] - 'a'])
+				dp[i] |= dp[i - 1];
+
+			if (two[s[i - 1] - 'a'][ s[i] - 'a' ])
+				dp[i] |= dp[i - 2];
+		}
+
+		printf("Case #%d\n", t_case);
+		printf("%s\n", dp[i - 1] ? "YES" : "NO");
+	}
+	return 0;
+}
