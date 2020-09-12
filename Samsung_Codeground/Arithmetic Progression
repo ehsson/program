@@ -5,9 +5,9 @@ long long gap[100000];
 
 int M;
 
-int GCD(int num1, int num2)
+long long GCD(long long num1, long long num2)
 {
-	int n1, n2, temp;
+	long long n1, n2, temp;
 
 	if (num1 <= num2)
 	{
@@ -32,7 +32,7 @@ int GCD(int num1, int num2)
 	}
 }
 
-int CD(int num)
+int CD(long long num)
 {
 	int cnt = 0;
 
@@ -46,19 +46,20 @@ int CD(int num)
 int main(void)
 {
 	int T;
-	int gcd, chk;
+	int chk;
+	long long gcd;
 
-	scanf_s("%d", &T);
+	scanf("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf_s("%d", &M);
+		scanf("%d", &M);
 
 		gcd = 1;
 		chk = 0;
 
 		for (int m = 0; m < M; m++)
-			scanf_s("%lld", &arr[m]);
+			scanf("%lld", &arr[m]);
 
 		for (int n = 1; n < M; n++)
 		{
@@ -91,3 +92,13 @@ int main(void)
 
 	return 0;
 }
+
+// Test Case
+
+3
+3 
+1 3 5
+3
+5 5 5
+4
+1 9 13 17
