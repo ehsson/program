@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Line
+{
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+} LINE;
+
+LINE line[101];
+
+int max(int a, int b)
+{
+	if (a >= b)
+		return a;
+	else
+		return b;
+}
+
+int min(int a, int b)
+{
+	if (a <= b)
+		return a;
+	else
+		return b;
+}
+
+int main(void)
+{
+	int T, N;
+	int c1, c2, max1, max2, answer;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		for (int n = 1; n <= N; n++)
+			scanf_s("%d %d %d %d", &line[n].x1, &line[n].y1, &line[n].x2, &line[n].y2);
+
+		answer = 0;
+
+		for (int i = 1; i <= N; i++)
+		{
+			max1 = 0;
+			max2 = 0;
+
+			for (int j = 1; j <= N; j++)
+			{
+				if (i == j)
+					continue;
+				
+				c1 = min(max(abs(line[i].x1 - line[j].x1), abs(line[i].y1 - line[j].y1)), max(abs(line[i].x1 - line[j].x2), abs(line[i].y1 - line[j].y2)));
+				c2 = min(max(abs(line[i].x2 - line[j].x1), abs(line[i].y2 - line[j].y1)), max(abs(line[i].x2 - line[j].x2), abs(line[i].y2 - line[j].y2)));
+
+				if (max1 < c1)
+					max1 = c1;
+				if (max2 < c2)
+					max2 = c2;
+			}
+
+			if (answer < min(max1, max2))
+				answer = min(max1, max2);
+		}
+
+		printf("Case #%d\n", t);
+
+		if (answer % 2 == 0)
+			printf("%d\n", answer / 2);
+		else
+			printf("%d.5\n", (int)(answer / 2));
+	}
+
+	return 0;
+}
+
+// test case
+
+2
+2
+1 1 10 1
+4 2 5 2
+8
+3 6 3 10
+4 7 10 7
+7 2 7 9
+11 1 11 10
+1 5 13 5
+4 3 8 3
+2 2 4 2
+9 2 15 2
