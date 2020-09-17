@@ -1,61 +1,54 @@
 #include <stdio.h>
-////////////////////////////////////////////////////////////////////////////////
-// N - B = R + TQ를 만족하는
-// B = [1 ~ b]
-// R = [a ~ ka]
-// T = [bk + a ~ ak + b]
-// B, R ,T 가 존재하면 무조건 a가 승리하게된다. 
-/////////////////////////////////////////////////////////////////////////////
+
 int main(void)
 {
-    int T, N, K;
-    int a, b, c;
-    int temp, chk, i;
-    char result[8];
-    FILE* pf;
-    freopen_s(&pf, "input.txt", "r", stdin);
+	int T, N, K, a, b, c;
+	int chk, temp, tc;
+	char arr[7];
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 
-    scanf_s("%d", &T);
+	scanf_s("%d", &T);
 
-    for (int t = 1; t <= T; t++)
-    {
-        scanf_s("%d %d %d", &a, &b, &c);
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &a, &b, &c);
 
-        for (i = 0; i < c; i++)
-        {
-            chk = 0;
+		for (tc = 0; tc < c; tc++)
+		{
+			scanf_s("%d %d", &N, &K);
 
-            scanf_s("%d %d", &N, &K);
+			chk = 0;
 
-            for (int j = 1; j <= b; j++)
-            {
-                for (int m = b * K + a; m <= a * K + b; m++)
-                {
-                    temp = (N - j) % m;
+			for (int i = 1; i <= b; i++)
+			{
+				for (int j = b * K + a; j <= a * K + b; j++)
+				{
+					temp = (N - i) % j;
 
-                    if (a <= temp && temp <= K * a)
-                    {
-                        chk = 1;
-                        break;
-                    }
-                }
-                if (chk)
-                    break;
-            }
-            if (chk)
-                result[i] = 'a';
-            else
-                result[i] = 'b';
-        }
-        result[i] = NULL;
+					if (a <= temp && temp <= a * K)
+					{
+						chk = 1;
+						break;
+					}
+				}
 
-        printf("Case #%d\n", t);
+				if (chk)
+					break;
+			}
 
-        printf("%s\n", result);
+			if (chk)
+				arr[tc] = 'a';
+			else
+				arr[tc] = 'b';
+		}
 
-    }
+		arr[tc] = 0;
 
-    return 0;
+		printf("Case #%d\n%s\n", t, arr);
+	}
+
+	return 0;
 }
 
 // test case
