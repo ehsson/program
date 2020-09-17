@@ -1,0 +1,131 @@
+#include <stdio.h>
+
+int univ[1001][1001];
+int save[1001][1001];
+int temp1[1001];
+int temp2[1001];
+int chk[1001];
+
+int min, N, M;
+
+void DFS(int start, int end, int pos, int len_sum)
+{
+	if (len_sum > min)
+		return;
+
+	if (temp1[pos] > 0)
+		return;
+
+	if (save[pos][end] > 0)
+	{
+		if (min < len_sum + save[pos][end])
+			return;
+		else
+		{
+			min = len_sum + save[pos][end];
+
+			save[start][end] = min;
+			save[end][start] = min;
+
+			temp1[pos]++;
+
+			for (int k = 1; k <= N; k++)
+				temp2[k] = temp1[k];
+
+			temp1[pos]--;
+
+			return;
+		}
+	}
+
+	if (pos == end)
+	{
+		min = len_sum;
+
+		save[start][end] = min;
+		save[end][start] = min;
+
+		for (int k = 1; k <= N; k++)
+			temp2[k] = temp1[k];
+
+		return;
+	}
+
+	temp1[pos]++;
+
+	for (int i = 1; i <= N; i++)
+		if (univ[pos][i] > 0)
+			DFS(start, end, i, len_sum + univ[pos][i]);
+
+	temp1[pos]--;
+}
+
+int main(void)
+{
+	int T;
+	int univ1, univ2, len, temp, cnt;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d", &N, &M);
+
+		cnt = 0;
+
+		for (int a = 1; a <= N; a++)
+		{
+			chk[a] = 0;
+
+			for (int b = 1; b <= N; b++)
+			{
+				univ[a][b] = 0;
+				save[a][b] = 0;
+			}
+		}
+
+		for (int m = 1; m <= M; m++)
+		{
+			scanf_s("%d %d %d", &univ1, &univ2, &len);
+
+			univ[univ1][univ2] = len;
+			univ[univ2][univ1] = len;
+		}
+
+		if (N % 2 != 0)
+			temp = (int)(N / 2) + 1;
+		else
+			temp = N / 2;
+
+		for (int i = 1; i <= (N / 2); i++)
+		{
+			for (int j = i + 1; j <= N; j++)
+			{
+				min = 10000 * 5000;
+
+				DFS(i, j, i, 0);
+
+				temp2[i]--;
+
+				for (int l = 1; l <= N; l++)
+					chk[l] += temp2[l];
+			}
+		}
+
+		for (int r = 1; r <= N; r++)
+			if (chk[r] == 0)
+				cnt++;
+
+		printf("Case #%d\n%d ", t, cnt);
+
+		for (int p = 1; p <= N; p++)
+			if (chk[p] == 0)
+				printf("%d ", p);
+
+		printf("\n");
+	}
+
+	return 0;
+}
