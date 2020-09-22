@@ -1,0 +1,73 @@
+#include <stdio.h>
+
+#define DIV 1000000009
+
+int stone[50001];
+unsigned long long sum[50001];
+unsigned long long temp[50001][101];
+
+int main(void)
+{
+	int T, N, K, L;
+	int mine;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &N, &K, &L);
+
+		for (int i = 1; i <= N; i++)
+			stone[i] = sum[i] = 0;
+
+		for (int l = 1; l <= L; l++)
+		{
+			scanf_s("%d", &mine);
+
+			stone[mine] = -1;
+		}
+
+		for (int i = 1; i <= N; i++)
+		{
+			if (stone[i] == -1)
+			{
+				for (int j = 1; j <= K; j++)
+					temp[i][j] = 0;
+
+				sum[i] = 0;
+				continue;
+			}
+
+			for (int j = 1; j <= K; j++)
+			{
+				if (i < j)
+					temp[i][j] = 0;
+				else if (i == j)
+					temp[i][j] = 1;
+				else
+				{
+					temp[i][j] = sum[i - j] - temp[i - j][j];
+					temp[i][j] %= DIV;
+				}
+
+				sum[i] += temp[i][j];
+			}
+		}
+
+		printf("Case #%d\n%llu\n", t, sum[N] % DIV);
+	}
+
+	return 0;
+}
+
+//test case
+
+4
+3 2 0
+3 2 1 
+2
+4 1 2 
+1 3
+1000 10 0
