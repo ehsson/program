@@ -1,84 +1,77 @@
 #include <stdio.h>
-#include <math.h>
 
-int Answer[5];
+int answer[6];
 
 long long GCD(long long a, long long b)
 {
-    long long temp;
+	long long temp;
 
-    while (1)
-    {
-        temp = a % b;
+	while (1)
+	{
+		temp = a % b;
+		
+		if (temp == 0)
+			return b;
 
-        if (temp == 0)
-            return b;
-
-        a = b;
-        b = temp;
-    }
+		a = b;
+		b = temp;
+	}
 }
 
-void dfs(int idx, int totalCnt, int totalSum)
+void DFS(int idx, int totalsum, int totalcnt)
 {
-    int cnt = totalSum / idx;
+	int cnt = (int)(totalsum / idx);
 
-    while (1)
-    {
-        int tempCnt = totalCnt - cnt;
-        int tempSum = totalSum - idx * cnt;
+	while (1)
+	{
+		int tempsum = totalsum - idx * cnt;
+		int tempcnt = totalcnt - cnt;
 
-        if (tempSum - tempCnt > 0)
-        {
-            totalCnt = tempCnt;
-            totalSum = tempSum;
-            Answer[idx - 1] = cnt;
-            dfs(idx - 1, totalCnt, totalSum);
-            return;
-        }
-        else if (tempSum - tempCnt == 0)
-        {
-            Answer[idx - 1] = cnt;
-            Answer[0] = tempCnt;
-            return;
-        }
+		if (tempsum - tempcnt > 0)
+		{
+			answer[idx] = cnt;
+			DFS(idx - 1, tempsum, tempcnt);
+			return;
+		}
+		else if (tempsum - tempcnt == 0)
+		{
+			answer[idx] = cnt;
+			answer[1] = tempcnt;
+			return;
+		}
 
-        cnt--;
-    }
+		cnt--;
+	}
 }
 
 int main(void)
 {
-    int T;
-    double avg;
-    FILE* pf;
-    freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	double P;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 
-    scanf_s("%d", &T);
+	scanf_s("%d", &T);
 
-    for (int t = 1; t <= T; t++)
-    {
-        scanf_s("%lf", &avg);
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%lf", &P);
 
-        for (int i = 0; i < 5; ++i)
-            Answer[i] = 0;
+		for (int k = 1; k <= 5; k++)
+			answer[k] = 0;
 
-        int totalCnt = 1;
-        int totalSum = 0;
-        long long b = 10e9;
-        long long a = (long long int)(avg * b);
-        long long int gcd = GCD(a, b);
+		long long j = 10e9;
+		long long i = P * j;
+		long long gcd = GCD(i, j);
+		int TotalSum = i / gcd;
+		int TotalCnt = TotalSum / P;
 
-        totalSum = a / gcd;
-        totalCnt = b / gcd;
+		DFS(5, TotalSum, TotalCnt);
 
-        dfs(5, totalCnt, totalSum);
+		printf("#testcase%d\n%d %d %d %d %d\n", t, answer[1], answer[2], answer[3], answer[4], answer[5]);
+	}
 
-
-        printf("#testcase%d\n%d %d %d %d %d\n", t, Answer[0], Answer[1], Answer[2], Answer[3], Answer[4]);
-    }
-
-    return 0;
+	return 0;
 }
 
 //test case
