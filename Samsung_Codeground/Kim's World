@@ -1,0 +1,89 @@
+#include <stdio.h>
+
+int arr[201][201];
+int save[201];
+
+int T, N, M;
+int chk;
+
+void func(int pos, int cnt, int prev)
+{
+	if (save[pos] > 0)
+	{
+		if ((cnt - save[pos]) % 2 == 1)
+			chk = 0;
+
+		return;
+	}
+
+	save[pos] = cnt;
+
+	for (int i = 1; i <= N; i++)
+	{
+		if (chk == 0)
+			break;
+
+		if (prev == i)
+			continue;
+
+		if (arr[pos][i] == 1)
+			func(i, cnt + 1, pos);
+	}
+}
+
+int main(void)
+{
+	int area1, area2;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		scanf_s("%d", &M);
+
+		for (int i = 1; i <= N; i++)
+		{
+			save[i] = 0;
+
+			for (int j = 1; j <= N; j++)
+				arr[i][j] = 0;
+		}
+
+		for (int m = 1; m <= M; m++)
+		{
+			scanf_s("%d %d", &area1, &area2);
+
+			arr[area1][area2] = 1;
+			arr[area2][area1] = 1;
+		}
+
+		chk = 1;
+
+		func(1, 0, 0);
+
+		printf("Case #%d\n%d\n", t, chk);
+	}
+
+	return 0;
+}
+
+//test case
+
+2
+5
+4
+1 2
+2 3
+2 4
+4 5
+5
+5
+1 2
+2 3
+2 4
+2 5
+4 5
