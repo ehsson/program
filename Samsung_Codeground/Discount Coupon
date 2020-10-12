@@ -1,0 +1,98 @@
+#include <stdio.h>
+
+int N, M, K, P, cnt;
+int stop[101][101];
+
+int min(int a, int b)
+{
+	if (a >= b)
+		return b;
+	else
+		return a;
+}
+
+int main(void)
+{
+	int T;
+	int stop1, stop2, bill, start, end;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &N, &M, &K);
+
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= N; j++)
+			{
+				if (i == j)
+				{
+					stop[i][j] = 0;
+					continue;
+				}
+
+				stop[i][j] = 10001;
+			}
+
+		for (int m = 1; m <= M; m++)
+		{
+			scanf_s("%d %d %d", &stop1, &stop2, &bill);
+
+			stop[stop1][stop2] = bill;
+			stop[stop2][stop1] = bill;
+		}
+
+		scanf_s("%d", &P);
+
+		cnt = 0;
+
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= N; j++)
+				for (int k = 1; k <= N; k++)
+					stop[i][j] = min(stop[i][j], stop[i][k] + stop[k][j]);
+
+		for (int p = 1; p <= P; p++)
+		{
+			scanf_s("%d %d", &start, &end);
+
+			if (stop[start][end] > K)
+				cnt++;
+		}
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
+
+//test case
+
+2
+4 5 4
+1 2 3
+2 3 2
+4 2 5
+1 4 6
+3 4 3
+4
+1 2
+1 3
+4 2
+4 3
+5 7 20
+4 2 14
+3 1 21
+3 4 19
+1 5 20
+2 1 7
+5 2 15
+2 3 24
+6
+5 1
+2 3
+4 1
+3 4
+2 5
+3 5
