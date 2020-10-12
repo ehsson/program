@@ -1,0 +1,51 @@
+#include <stdio.h>
+
+int N, M;
+int Array[5000];
+
+int main(void)
+{
+	int T, test_case;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int temp_max = 0;
+		int result = 0;
+
+		scanf_s("%d %d", &N, &M);
+
+		for (int n = 0; n < N; n++)
+			scanf_s("%d", &Array[n]);
+
+		for (int i = 0;i < N;i++)
+		{
+			for (int j = i; j < N; j++)
+			{
+				if (temp_max + Array[j] <= M)
+					temp_max += Array[j];
+			}
+
+			if (result < temp_max)
+				result = temp_max;
+
+			temp_max = 0;
+		}
+
+		printf("Case #%d\n%d\n", t, result);
+	}
+
+	return 0;
+}
+
+//test case
+
+1
+4 13
+6
+8
+2
+4
