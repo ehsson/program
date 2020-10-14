@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <string.h>
+
+int arr[26];
+char input[10000];
+
+int min_func(int a, int b)
+{
+	if (a >= b)
+		return b;
+	else
+		return a;
+}
+
+int main(void)
+{
+	int T;
+	int len, min, answer;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%s", input, 10000);
+
+		for (int j = 0; j < 26; j++)
+			arr[j] = 0;
+
+		len = strlen(input);
+		
+		for (int i = 0; i < len; i++)
+			arr[input[i] - 97]++;
+
+		min = min_func(arr[7], arr[4]);
+		min = min_func(min, arr[14]);
+
+		if (min * 2 >= arr[11])
+		{
+			if (arr[11] % 2 == 1)
+				arr[11]--;
+
+			answer = arr[11] / 2;
+		}
+		else
+			answer = min;
+
+		printf("Case #%d\n%d\n", t, answer);
+	}
+
+	return 0;
+}
+
+//test case
+
+3
+hellohellohello
+hellhellhelloo
+hihihibyebyebye
