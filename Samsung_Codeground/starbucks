@@ -1,0 +1,64 @@
+#include <stdio.h>
+
+int arr[31];
+int coffee[21];
+
+int main(void)
+{
+	int T, N, M, K;
+	int sum;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &N, &M, &K);
+
+		for (int n = 1; n <= N; n++)
+			scanf_s("%d", &arr[n]);
+
+		for (int m = 1; m <= M; m++)
+			scanf_s("%d", &coffee[m]);
+
+		sum = 0;
+
+		for (int i = 1; i <= N; i++)
+		{
+			sum += coffee[arr[i]];
+
+			if (sum > K)
+			{
+				sum = K + 1;
+
+				break;
+			}
+		}
+
+		printf("Case #%d\n", t);
+
+		if (sum <= K)
+			printf("Y\n");
+		else
+			printf("N\n");
+	}
+
+	return 0;
+}
+
+//test case
+
+2
+3 2 10000
+1
+2
+2
+4000
+3000
+3 2 10000
+1
+2
+2
+5000
+3000
