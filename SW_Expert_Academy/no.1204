@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int chk[101];
+
+int main(void)
+{
+	int T, tc;
+	int input;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &tc);
+
+		for (int k = 0; k <= 100; k++)
+			chk[k] = 0;
+
+		for (int i = 0; i < 1000; i++)
+		{
+			scanf_s("%d", &input);
+
+			chk[input]++;
+		}
+
+		int max = 0;
+		int pos;
+
+		for (int j = 100; j >= 0; j--)
+		{
+			if (max < chk[j])
+			{
+				max = chk[j];
+				pos = j;
+			}
+		}
+
+		printf("#%d %d\n", tc, pos);
+	}
+
+	return 0;
+}
