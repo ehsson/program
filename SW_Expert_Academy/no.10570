@@ -1,0 +1,89 @@
+#include <stdio.h>
+
+int arr[1001];
+
+int num_len(int num)
+{
+	int cnt = 1;
+
+	while (1)
+	{
+		if (num / 10 == 0)
+			return cnt;
+
+		num /= 10;
+		cnt++;
+	}
+}
+
+int rotate_num(int num)
+{
+	int len = num_len(num) - 1, pos = 0, temp;
+	int save[4];
+
+	temp = len;
+
+	while (1)
+	{
+		save[temp] = num % 10;
+		num /= 10;
+		temp--;
+
+		if (temp < 0)
+			break;
+	}
+
+	while (1)
+	{
+		if (save[pos] != save[len])
+			return 0;
+
+		pos++;
+		len--;
+
+		if (pos >= len)
+			break;
+	}
+
+	return 1;
+}
+
+int main(void)
+{
+	int T, A, B;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int i = 1; i * i <= 1000; i++)
+	{
+		if (rotate_num(i))
+			if(rotate_num(i * i))
+				arr[i * i] = rotate_num(i * i);
+
+		T = T;
+	}
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d", &A, &B);
+
+		int cnt = 0;
+
+		for (int j = A; j <= B; j++)
+			if (arr[j] > 0)
+				cnt++;
+
+		printf("#%d %d\n", t, cnt);
+	}
+
+	return 0;
+}
+
+//test case
+
+3
+1 9
+10 99
+100 1000
