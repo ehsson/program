@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int T, N, M;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d", &N, &M);
+
+		int chk = 1;
+
+		for (int i = 1; i <= N; i++)
+		{
+			if ((M & chk) == 0)
+			{
+				chk = 0;
+				break;
+			}
+
+			chk <<= 1;
+		}
+
+		if (chk != 0)
+			printf("#%d ON\n", t);
+		else
+			printf("#%d OFF\n", t);
+	}
+
+	return 0;
+}
+
+//test case
+
+5
+4 0
+4 30
+4 47
+6 31
+27 67108863
