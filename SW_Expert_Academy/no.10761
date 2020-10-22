@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <math.h>
+
+char robot[100];
+int num[100];
+
+int main(void)
+{
+	int T, N;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+		getchar();
+
+		int time = 0;
+		int posO = 1, posB = 1;
+		int prev_timeO = 0, prev_timeB = 0;
+
+		for (int n = 0; n < N; n++)
+		{
+			robot[n] = getchar();
+			scanf_s("%d", &num[n]);
+			getchar();
+
+			if (robot[n] == 'O')
+			{
+				if (abs(posO - num[n]) > time - prev_timeO)
+					time += (abs(posO - num[n]) - (time - prev_timeO));
+
+				time++;
+
+				posO = num[n];
+				prev_timeO = time;
+			}
+			else if (robot[n] == 'B')
+			{
+				if (abs(posB - num[n]) > time - prev_timeB)
+					time += (abs(posB - num[n]) - (time - prev_timeB));
+
+				time++;
+
+				posB = num[n];
+				prev_timeB = time;
+			}
+		}
+
+		printf("#%d %d\n", t, time);
+	}
+
+	return 0;
+}
+
+//test case
+
+3
+4 B 2 O 1 O 2 B 4
+3 B 5 B 8 O 100
+2 O 2 O 1
