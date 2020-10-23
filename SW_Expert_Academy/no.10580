@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+int Ai[10001] = { 0 };
+
+int main(void)
+{
+	int T, N, A, B;
+	int input1, input2;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		int cnt = 0, max = 0;
+		int temp;
+
+		for (int n = 1; n <= N; n++)
+		{
+			scanf_s("%d %d", &input1, &input2);
+
+			Ai[input1] = input2;
+
+			temp = input1 >= input2 ? input1 : input2;
+
+			if (max < temp)
+				max = temp;
+		}
+
+		for (int j = 1; j < max; j++)
+		{
+			if (Ai[j] != 0)
+			{
+				for (int k = j + 1; k <= max; k++)
+				{
+					if (Ai[k] != 0)
+						if (Ai[j] > Ai[k])
+							cnt++;
+				}
+			}
+
+			Ai[j] = 0;
+		}
+
+		Ai[max] = 0;
+
+		printf("#%d %d\n", t, cnt);
+	}
+
+	return 0;
+}
+
+//test case
+
+2
+3
+1 10
+5 5
+7 7
+2
+1 1
+2 2
