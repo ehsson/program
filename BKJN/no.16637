@@ -1,3 +1,5 @@
+1st
+
 #include <stdio.h>
 
 char input[19];
@@ -66,6 +68,77 @@ int main(void)
 	}
 
 	printf("%d\n", DFS(0, num[0]));
+
+	return 0;
+}
+
+2nd
+
+#include <stdio.h>
+
+char input[19];
+int num[10];
+int save[9];
+char oper[9];
+int N;
+int max = 0b1111111111111111111111111111111 + 1;
+
+int operate(int a, int b, char op)
+{
+	switch (op)
+	{
+	case '+':
+		return a + b;
+		break;
+	case '-':
+		return a - b;
+		break;
+	case '*':
+		return a * b;
+		break;
+	default:
+		break;
+	}
+}
+
+void DFS(int pos, int sum)
+{
+	if (pos >= (int)(N / 2))
+	{
+		if (max < sum)
+			max = sum;
+
+		return;
+	}
+
+	if(pos + 2 <= (int)(N / 2))
+		DFS(pos + 2, operate(sum, save[pos + 1], oper[pos]));
+
+	DFS(pos + 1, operate(sum, num[pos + 1], oper[pos]));
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	scanf_s("%d", &N);
+
+	scanf_s("%s", input, N + 1);
+
+	for (int n = 0; n < N; n++)
+	{
+		if (n & 1)
+			oper[(int)(n / 2)] = input[n];
+		else
+			num[n / 2] = input[n] - '0';
+	}
+
+	for (int i = 0; i < (int)(N / 2); i++)
+		save[i] = operate(num[i], num[i + 1], oper[i]);
+
+	DFS(0, num[0]);
+
+	printf("%d\n", max);
 
 	return 0;
 }
