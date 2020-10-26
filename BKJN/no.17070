@@ -1,0 +1,66 @@
+#include <stdio.h>
+
+int N;
+int cnt = 0;
+int arr[17][17];
+
+enum
+{
+	RIGHT = 0,
+	DIAGONAL,
+	DOWN
+};
+
+void DFS(int y, int x, int direction)
+{
+	if (y > N || x > N)
+		return;
+
+	if (arr[y][x] == 1)
+		return;
+
+	if (direction == DIAGONAL)
+		if (arr[y][x - 1] == 1 || arr[y - 1][x] == 1)
+			return;
+
+	if (x == N && y == N)
+	{
+		cnt++;
+
+		return;
+	}
+
+	if (direction == RIGHT)
+	{
+		DFS(y, x + 1, RIGHT);
+		DFS(y + 1, x + 1, DIAGONAL);
+	}
+	else if (direction == DIAGONAL)
+	{
+		DFS(y + 1, x + 1, DIAGONAL);
+		DFS(y + 1, x, DOWN);
+		DFS(y, x + 1, RIGHT);
+	}
+	else if (direction == DOWN)
+	{
+		DFS(y + 1, x, DOWN);
+		DFS(y + 1, x + 1, DIAGONAL);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	scanf_s("%d", &N);
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= N; m++)
+			scanf_s("%d", &arr[n][m]);
+
+	DFS(1, 2, RIGHT);
+
+	printf("%d", cnt);
+
+	return 0;
+}
