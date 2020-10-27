@@ -1,0 +1,166 @@
+#include <stdio.h>
+
+int N, M, D;
+int arr[16][16];
+int chk[16][16];
+
+int solve(int a1, int a2, int a3)
+{
+	int y, x;
+	int cnt = 0;
+	int enemy[4][3];
+
+	for (int line = N + 1; line > 1; line--)
+	{
+		// 1번 궁수
+		enemy[1][0] = -1;
+
+		for (int dis = 1; dis <= D; dis++)
+		{
+			y = line;
+
+			for (x = a1 - (dis - 1); x <= a1 + (dis - 1); x++)
+			{
+				if (x <= a1)
+					y--;
+				else
+					y++;
+
+				if (x < 1 || x > M || y < 1)
+					continue;
+
+				if (chk[y][x] == 1)
+				{
+					enemy[1][0] = dis;
+					enemy[1][1] = y;
+					enemy[1][2] = x;
+
+					break;
+				}
+			}
+
+			if (enemy[1][0] != -1)
+				break;
+		}
+
+		// 2번 궁수
+		enemy[2][0] = -1;
+
+		for (int dis = 1; dis <= D; dis++)
+		{
+			y = line;
+
+			for (x = a2 - (dis - 1); x <= a2 + (dis - 1); x++)
+			{
+				if (x <= a2)
+					y--;
+				else
+					y++;
+
+				if (x < 1 || x > M || y < 1)
+					continue;
+
+				if (chk[y][x] == 1)
+				{
+					enemy[2][0] = dis;
+					enemy[2][1] = y;
+					enemy[2][2] = x;
+
+					break;
+				}
+			}
+
+			if (enemy[2][0] != -1)
+				break;
+		}
+
+		// 3번 궁수
+		enemy[3][0] = -1;
+
+		for (int dis = 1; dis <= D; dis++)
+		{
+			y = line;
+
+			for (x = a3 - (dis - 1); x <= a3 + (dis - 1); x++)
+			{
+				if (x <= a3)
+					y--;
+				else
+					y++;
+
+				if (x < 1 || x > M || y < 1)
+					continue;
+
+				if (chk[y][x] == 1)
+				{
+					enemy[3][0] = dis;
+					enemy[3][1] = y;
+					enemy[3][2] = x;
+
+					break;
+				}
+			}
+
+			if (enemy[3][0] != -1)
+				break;
+		}
+
+		// 계산
+
+		if (enemy[1][0] > 0)
+		{
+			cnt++;
+			chk[enemy[1][1]][enemy[1][2]] = 0;
+		}
+
+		if (enemy[2][0] > 0 && chk[enemy[2][1]][enemy[2][2]] != 0)
+		{
+			cnt++;
+			chk[enemy[2][1]][enemy[2][2]] = 0;
+		}
+
+		if (enemy[3][0] > 0 && chk[enemy[3][1]][enemy[3][2]] != 0)
+		{
+			cnt++;
+			chk[enemy[3][1]][enemy[3][2]] = 0;
+		}
+	}
+
+	return cnt;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	int max = 0, temp;
+
+	scanf_s("%d %d %d", &N, &M, &D);
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= M; m++)
+			scanf_s("%d", &arr[n][m]);
+
+	for (int i = 1; i <= M - 2; i++)
+	{
+		for (int j = i + 1; j <= M - 1; j++)
+		{
+			for (int k = j + 1; k <= M; k++)
+			{
+				for (int n = 1; n <= N; n++)
+					for (int m = 1; m <= M; m++)
+						chk[n][m] = arr[n][m];
+
+				temp = solve(i, j, k);
+
+				if (max < temp)
+					max = temp;
+			}
+		}
+	}
+
+	printf("%d", max);
+
+	return 0;
+}
