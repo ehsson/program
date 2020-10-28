@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 int N, M, D;
+int max = 0;
+int all_cnt = 0;
 int arr[16][16];
 int chk[16][16];
 
@@ -8,10 +10,14 @@ int solve(int a1, int a2, int a3)
 {
 	int y, x;
 	int cnt = 0;
+	int death_cnt = 0;
 	int enemy[4][3];
 
 	for (int line = N + 1; line > 1; line--)
 	{
+		if (max > (all_cnt - death_cnt) + cnt)
+			return cnt;
+		
 		// 1번 궁수
 		enemy[1][0] = -1;
 
@@ -124,6 +130,14 @@ int solve(int a1, int a2, int a3)
 			cnt++;
 			chk[enemy[3][1]][enemy[3][2]] = 0;
 		}
+
+		int temp = 0;
+
+		for (int p = 1; p <= M; p++)
+			if (arr[line - 1][p] == 1)
+				temp++;
+
+		death_cnt += temp;
 	}
 
 	return cnt;
@@ -134,13 +148,18 @@ int main(void)
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
 
-	int max = 0, temp;
+	int temp;
 
 	scanf_s("%d %d %d", &N, &M, &D);
 
 	for (int n = 1; n <= N; n++)
 		for (int m = 1; m <= M; m++)
+		{
 			scanf_s("%d", &arr[n][m]);
+
+			if (arr[n][m] == 1)
+				all_cnt++;
+		}
 
 	for (int i = 1; i <= M - 2; i++)
 	{
