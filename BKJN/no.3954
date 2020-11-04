@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50000000
+
+int arr[100000];
+char oper[4096];
+char input[4096];
+int bracket_chk[4096];
+int bracket_cnt[4096];
+
+typedef struct Bracket
+{
+	int start;
+	int end;
+} Bracket;
+
+Bracket bracket[2048];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T, M, C, I;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d %d %d", &M, &C, &I);
+
+		memset(arr, 0, sizeof(int) * 100000);
+		memset(bracket_chk, 0, sizeof(int) * 4096);
+		memset(bracket_cnt, 0, sizeof(int) * 4096);
+
+		scanf_s("%s", oper, C + 1);
+
+		scanf_s("%s", input, I + 1);
+
+		int r_pos = 0, l_pos;
+
+		for (int c = 0; c < C; c++)
+		{
+			if (oper[c] == '[')
+			{
+				bracket[r_pos].start = c;
+				bracket[r_pos].end = 0;
+				l_pos = r_pos;
+				r_pos++;
+			}
+			else if (oper[c] == ']')
+			{
+				while (1)
+				{
+					if (bracket[l_pos].end == 0)
+						break;
+
+					l_pos--;
+				}
+
+				bracket[l_pos].end = c;
+				bracket_chk[bracket[l_pos].end] = bracket[l_pos].start;
+				bracket_chk[bracket[l_pos].start] = bracket[l_pos].end;
+			}
+		}
+
+		int cnt = 0, chk = 0;
+		int pos = 0, op_pos = 0, input_pos = 0;
+
+		while (cnt < MAX)
+		{
+			switch (oper[op_pos])
+			{
+				case '+':
+					arr[pos] = (arr[pos] + 1) % 256;
+					break;
+				case '-':
+					arr[pos] = (arr[pos] + 255) % 256;
+					break;
+				case '<':
+					pos = (pos - 1 + M) % M;
+
+					break;
+				case '>':
+					pos = (pos + 1 + M) % M;
+
+					break;
+				case '.':
+					//printf("%c\n", arr[pos]);
+
+					break;
+				case ',':
+					if (input_pos < I)
+					{
+						arr[pos] = (int)input[input_pos];
+
+						input_pos++;
+					}
+					else if(input_pos == I)
+						arr[pos] = 255;
+
+					break;
+				case '[':
+					if (arr[pos] == 0)
+						op_pos = bracket_chk[op_pos];
+
+					break;
+				case ']':
+					if (arr[pos] != 0)
+						op_pos = bracket_chk[op_pos];
+
+					bracket_cnt[op_pos]++;
+
+					break;
+				default:
+					break;
+			}
+
+			op_pos++;
+
+			if (op_pos >= C)
+			{
+				chk = 1;
+				break;
+			}
+
+			cnt++;
+		}
+
+		int idx = 0;
+
+		if (chk == 0)
+		{
+			for (int j = C; j >= 0; j--)
+			{
+				if (bracket_cnt[j] != 0)
+				{
+					for (int k = 0; k <= r_pos; k++)
+					{
+						if (bracket[k].start == j)
+						{
+							idx = k;
+							break;
+						}
+					}
+
+					break;
+				}
+			}
+		}
+
+		if (chk == 1)
+			printf("Terminates\n");
+		else
+			printf("Loops %d %d\n", bracket[idx].start, bracket[idx].end);
+	}
+
+	return 0;
+}
