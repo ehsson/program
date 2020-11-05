@@ -1,0 +1,181 @@
+#include <stdio.h>
+
+int N, M, K;
+int min = 5000;
+int arr[51][51];
+int capital[51][51];
+int chk[51][51];
+
+enum
+{
+	RIGHT = 0,
+	DOWN,
+	LEFT,
+	UP
+};
+
+typedef struct
+{
+	int r;
+	int c;
+	int s;
+} Input;
+
+Input input[6];
+
+void init(int k)
+{
+	for (int n = input[k].r - input[k].s; n <= input[k].r + input[k].s; n++)
+		for (int m = input[k].c - input[k].s; m <= input[k].c + input[k].s;m++)
+			chk[n][m] = 0;
+
+	for (int i = input[k].r - input[k].s; i <= input[k].r + input[k].s; i++)
+		chk[i][input[k].c - input[k].s - 1] = chk[i][input[k].c + input[k].s + 1] = -1;
+
+	for (int i = input[k].c - input[k].s; i <= input[k].c + input[k].s; i++)
+		chk[input[k].r - input[k].s - 1][i] = chk[input[k].r + input[k].s + 1][i] = -1;
+}
+
+void func(int k, int direction, int y, int x, int now_temp, int next_temp)
+{
+	if (chk[y][x] != 0)
+		return;
+	else
+		chk[y][x] = 1;
+
+	if (y == input[k].r && x == input[k].c)
+	{
+		chk[y][x] = 1;
+		arr[y][x] = next_temp;
+		return;
+	}
+
+	arr[y][x] = now_temp;
+	now_temp = next_temp;
+
+	int next_y = y, next_x = x;
+
+	switch (direction)
+	{
+		case RIGHT:
+			next_x++;
+			next_temp = arr[next_y][next_x];
+			break;
+		case DOWN:
+			next_y++;
+			next_temp = arr[next_y][next_x];
+			break;
+		case LEFT:
+			next_x--;
+			next_temp = arr[next_y][next_x];
+			break;
+		case UP:
+			next_y--;
+			next_temp = arr[next_y][next_x];
+			break;
+		default:
+			break;
+	}
+
+	func(k, direction, next_y, next_x, now_temp, next_temp);
+
+	next_y = y;
+	next_x = x;
+
+	switch (direction)
+	{
+		case RIGHT:
+			next_y++;
+			next_temp = arr[next_y][next_x];
+			break;
+		case DOWN:
+			next_x--;
+			next_temp = arr[next_y][next_x];
+			break;
+		case LEFT:
+			next_y--;
+			next_temp = arr[next_y][next_x];
+			break;
+		case UP:
+			next_x++;
+			now_temp = arr[next_y + 1][next_x];
+			next_temp = arr[next_y][next_x];
+			break;
+		default:
+			break;
+	}
+
+	func(k, (direction + 1) % 4, next_y, next_x, now_temp, next_temp);
+}
+
+void swap(int a, int b)
+{
+	Input temp = input[a];
+	input[a] = input[b];
+	input[b] = temp;
+}
+
+void permutation(int n)
+{
+	if (n == 1)
+	{
+		for (int r = 1; r <= N; r++)
+			for (int m = 1; m <= M; m++)
+				arr[r][m] = capital[r][m];
+
+		for (int k = 0; k < K; k++)
+		{
+			init(k);
+
+			func(k, RIGHT, input[k].r - input[k].s, input[k].c - input[k].s,
+				arr[input[k].r - input[k].s + 1][input[k].c - input[k].s],
+				arr[input[k].r - input[k].s][input[k].c - input[k].s]);
+		}
+
+		for (int h = 1; h <= N; h++)
+		{
+			int sum = 0;
+
+			for (int w = 1; w <= M; w++)
+				sum += arr[h][w];
+
+			if (min > sum)
+				min = sum;
+		}
+
+		return;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		swap(i, n - 1);
+
+		permutation(n - 1);
+
+		swap(i, n - 1);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d %d %d", &N, &M, &K);
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= M; m++)
+		{
+			scanf_s("%d", &capital[n][m]);
+			arr[n][m] = capital[n][m];
+		}
+
+	for (int k = 0; k < K; k++)
+		scanf_s("%d %d %d", &input[k].r, &input[k].c, &input[k].s);
+
+	permutation(K);
+
+	printf("%d", min);
+
+	return 0;
+}
