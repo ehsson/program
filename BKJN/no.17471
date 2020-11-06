@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <math.h>
+
+int N;
+int area1 = 0, area2 = 0, min, chk;
+int area[11][11] = { 0 };
+int population[11] = { 0 };
+int subset_arr[11] = { 0 };
+int route[11] = { 0 };
+
+void find_route(int start, int end, int pos)
+{
+	if (pos == end)
+	{
+		chk = 1;
+
+		return;
+	}
+
+	for (int i = 1; i <= N; i++)
+	{
+		if (pos == i || (subset_arr[start] != subset_arr[i]) || route[i] != 0 || area[pos][i] == 0)
+			continue;
+
+		route[i] = 1;
+
+		find_route(start, end, i);
+
+		route[i] = 0;
+
+		if (chk == 1)
+			break;
+	}
+
+	return;
+}
+
+void get_sum(void)
+{
+	int sub;
+
+	for (int i = 1; i <= N; i++)
+	{
+		if (subset_arr[i] == 1)
+			area1 += population[i];
+		else
+			area2 += population[i];
+	}
+
+	sub = abs(area1 - area2);
+
+	area1 = area2 = 0;
+
+	if (min > sub)
+		min = sub;
+
+	return;
+}
+
+void subset(int num)
+{
+	if (num == N + 1)
+	{
+		//모두 0 or 1인지 확인
+		int chk2 = 1;
+
+		for (int k = 2; k <= N; k++)
+		{
+			if (subset_arr[k] != subset_arr[k - 1])
+				chk2 = 0;
+
+			if (chk2 == 0)
+				break;
+		}
+
+		if (chk2 == 1)
+			return;
+
+		//지역끼리 이동 가능한지 확인
+		for (int i = 1; i <= N - 1; i++)
+		{
+			for (int j = i + 1; j <= N; j++)
+			{
+				if (subset_arr[i] != subset_arr[j])
+					continue;
+				else
+				{
+					chk = 0;
+					route[i] = 1;
+
+					find_route(i, j, i);
+
+					route[i] = 0;
+
+					if (chk == 0)
+						return;
+				}
+			}
+		}
+
+		get_sum();
+
+		return;
+	}
+
+	subset_arr[num] = 1;
+	subset(num + 1);
+
+	subset_arr[num] = 0;
+	subset(num + 1);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int temp, input;
+
+	scanf_s("%d", &N);
+
+	for (int n = 1; n <= N; n++)
+		scanf_s("%d", &population[n]);
+
+	for (int n = 1; n <= N; n++)
+	{
+		scanf_s("%d", &temp);
+
+		for (int m = 1; m <= temp; m++)
+		{
+			scanf_s("%d", &input);
+
+			area[n][input] = 1;
+			area[input][n] = 1;
+		}
+	}
+
+	min = 1000;
+
+	subset(1);
+
+	if (min == 1000)
+		printf("-1");
+	else
+		printf("%d", min);
+
+	return 0;
+}
