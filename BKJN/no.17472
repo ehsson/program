@@ -1,0 +1,229 @@
+#include <stdio.h>
+#include <string.h>
+
+int N, M;
+int min = 1000, sum, TF;
+int island_cnt = 0;
+int arr[10][10];
+int bridge[7][7];
+int len[15];
+int node[15][2];
+int subset_chk[15] = { 0 };
+int island_chk[7] = { 0 };
+int temp[7][7] = { 0 };
+
+void get_order(int y, int x, int cnt)
+{
+	if (arr[y][x] != -1)
+		return;
+
+	arr[y][x] = cnt;
+
+	if (x - 1 >= 0)
+		get_order(y, x - 1, cnt);
+
+	if (x + 1 < M)
+		get_order(y, x + 1, cnt);
+
+	if (y + 1 < N)
+		get_order(y + 1, x, cnt);
+
+	if (y - 1 >= 0)
+		get_order(y - 1, x, cnt);
+}
+
+void build_bridge(void)
+{
+	for (int n = 0; n < N; n++)
+	{
+		for (int m = 0; m < M; m++)
+		{
+			if (arr[n][m] != 0)
+			{
+				int right_len = 1, down_len = 1;
+
+				if (m < M - 1) {
+					while (arr[n][m + right_len] != arr[n][m] && arr[n][m + right_len] == 0)
+					{
+						if (m + right_len == M - 1)
+						{
+							right_len = 1;
+							break;
+						}
+
+						right_len++;
+					}
+				}
+
+				if (n < N - 1)
+				{
+					while (arr[n + down_len][m] != arr[n][m] && arr[n + down_len][m] == 0)
+					{
+						if (n + down_len == N - 1)
+						{
+							down_len = 1;
+							break;
+						}
+
+						down_len++;
+					}
+				}
+
+				if (bridge[arr[n][m]][arr[n][m + right_len]] > right_len - 1 && right_len - 1 > 1)
+				{
+					bridge[arr[n][m]][arr[n][m + right_len]] = right_len - 1;
+					bridge[arr[n][m + right_len]][arr[n][m]] = right_len - 1;
+				}
+
+				if (bridge[arr[n][m]][arr[n + down_len][m]] > down_len - 1 && down_len - 1 > 1)
+				{
+					bridge[arr[n][m]][arr[n + down_len][m]] = down_len - 1;
+					bridge[arr[n + down_len][m]][arr[n][m]] = down_len - 1;
+				}
+			}
+		}
+	}
+}
+
+void DFS(int child)
+{
+	int chk = 1;
+
+	for (int k = 1; k <= island_cnt; k++)
+	{
+		if (island_chk[k] == 0)
+		{
+			chk = 0;
+			break;
+		}
+	}
+
+	if (chk == 1)
+	{
+		TF = 1;
+
+		return;
+	}
+
+	if (island_chk[child] == 1)
+		return;
+
+	island_chk[child] = 1;
+
+	for (int i = 1; i <= island_cnt; i++)
+	{
+		if (temp[child][i] > 0)
+			DFS(i);
+	}
+}
+
+void subset(int num, int bridge_cnt)
+{
+	if (num == bridge_cnt + 1)
+	{
+		int chk_sum = 0;
+
+		for (int i = 0; i <= bridge_cnt; i++)
+			chk_sum += subset_chk[i];
+
+		if (chk_sum == island_cnt - 1)
+		{
+			for (int n = 1; n <= 6; n++)
+				for (int m = 1; m <= 6; m++)
+					temp[n][m] = 0;
+
+			int sum = 0;
+
+			for (int i = 0; i <= bridge_cnt; i++)
+			{
+				if (subset_chk[i] == 1)
+				{
+					sum += len[i];
+
+					temp[node[i][0]][node[i][1]] = len[i];
+					temp[node[i][1]][node[i][0]] = len[i];
+				}
+			}
+
+			memset(island_chk, 0, sizeof(int) * 7);
+
+			TF = 0;
+
+			DFS(1);
+
+			if (TF == 1)
+			{
+				if (min > sum)
+					min = sum;
+			}
+		}
+
+		return;
+	}
+
+	subset_chk[num] = 1;
+	subset(num + 1, bridge_cnt);
+
+	subset_chk[num] = 0;
+	subset(num + 1, bridge_cnt);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d %d", &N, &M);
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+		{
+			scanf_s("%d", &arr[n][m]);
+
+			if (arr[n][m] == 1)
+				arr[n][m] = -1;
+		}
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+		{
+			if (arr[n][m] == -1)
+			{
+				island_cnt++;
+				get_order(n, m, island_cnt);
+			}
+		}
+
+	for (int i = 0; i < 7; i++)
+		for (int j = 0; j < 7; j++)
+			bridge[i][j] = 10;
+
+	build_bridge();
+
+	int bridge_cnt = 0;
+
+	for (int i = 1; i <= island_cnt - 1; i++)
+	{
+		for (int j = i + 1; j <= island_cnt; j++)
+		{
+			if (bridge[i][j] < 10)
+			{
+				len[bridge_cnt] = bridge[i][j];
+				node[bridge_cnt][0] = i;
+				node[bridge_cnt][1] = j;
+				bridge_cnt++;
+			}
+		}
+	}
+
+	bridge_cnt--;
+
+	subset(0, bridge_cnt);
+
+	if (min == 1000)
+		printf("-1");
+	else
+		printf("%d", min);
+
+	return 0;
+}
