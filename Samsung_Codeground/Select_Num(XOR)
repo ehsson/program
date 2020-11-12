@@ -2,22 +2,24 @@
 
 int main(void)
 {
-	int T, N, result, input;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 
-	scanf("%d", &T);
+	int T, N;
+
+	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf("%d", &N);
+		scanf_s("%d", &N);
 
-		for (int n = 1; n <= N; n++)
+		int result = 0, input;
+
+		for (int i = 0; i < N; i++)
 		{
-			scanf("%d", &input);
+			scanf_s("%d", &input);
 
-			if (n == 1)
-				result = input;
-			else
-				result ^= input;
+			result ^= input;
 		}
 
 		printf("Case #%d\n%d\n", t, result);
@@ -25,3 +27,9 @@ int main(void)
 
 	return 0;
 }
+
+//test case
+
+1
+4
+2 5 3 3
