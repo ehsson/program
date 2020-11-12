@@ -117,8 +117,59 @@ void DFS(int child)
 	}
 }
 
+void QuickSort(int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+	
+	while (low <= high) {
+		while (len[low] <= len[pivot] && low <= end)
+			low++;
+
+		while (len[high] > len[pivot])
+			high--;
+
+		if (low < high) {
+			temp = len[low];
+			len[low] = len[high];
+			len[high] = temp;
+
+			temp = node[low][0];
+			node[low][0] = node[high][0];
+			node[high][0] = temp;
+
+			temp = node[low][1];
+			node[low][1] = node[high][1];
+			node[high][1] = temp;
+		}
+	}
+
+	temp = len[pivot];
+	len[pivot] = len[high];
+	len[high] = temp;
+
+	temp = node[pivot][0];
+	node[pivot][0] = node[high][0];
+	node[high][0] = temp;
+
+	temp = node[pivot][1];
+	node[pivot][1] = node[high][1];
+	node[high][1] = temp;
+
+	QuickSort(start, high - 1);
+	QuickSort(high + 1, end);
+}
+
 void subset(int num, int bridge_cnt)
 {
+	if (min != 1000)
+		return;
+
 	if (num == bridge_cnt + 1)
 	{
 		int chk_sum = 0;
@@ -155,6 +206,8 @@ void subset(int num, int bridge_cnt)
 			{
 				if (min > sum)
 					min = sum;
+				
+				return;
 			}
 		}
 
@@ -217,6 +270,8 @@ int main(void)
 	}
 
 	bridge_cnt--;
+
+	QuickSort(0, bridge_cnt);
 
 	subset(0, bridge_cnt);
 
