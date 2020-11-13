@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define PI 3.14159265358979
+
+int score_board[20] = { 6, 13, 4, 18, 1, 20, 5, 12, 9, 14, 11, 8, 16, 7, 19, 3, 17, 2, 15, 10 };
+int rad[5];
+
+typedef struct Shoot
+{
+	int x;
+	int y;
+} Shoot;
+
+Shoot shoot[10000];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	int N;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		for (int i = 0; i < 5; i++)
+			scanf_s("%d", &rad[i]);
+
+		scanf_s("%d", &N);
+
+		int score_sum = 0;
+
+		for (int n = 0; n < N; n++)
+		{
+			scanf_s("%d %d", &shoot[n].x, &shoot[n].y);
+
+			int len = pow(shoot[n].x, 2) + pow(shoot[n].y, 2);
+			double angle = atan2((double)shoot[n].y, (double)shoot[n].x);
+
+			angle = angle / (PI / 180.0) + 9.0;
+
+			if (angle < 0)
+				angle += 360.0;
+
+			int score = score_board[(int)(angle / 18.0)];
+
+			if (len < pow(rad[0], 2))
+				score_sum += 50;
+			else if (pow(rad[0], 2) < len && len < pow(rad[1], 2))
+				score_sum += score;
+			else if (pow(rad[1], 2) < len && len < pow(rad[2], 2))
+				score_sum += 3 * score;
+			else if (pow(rad[2], 2) < len && len < pow(rad[3], 2))
+				score_sum += score;
+			else if (pow(rad[3], 2) < len && len < pow(rad[4], 2))
+				score_sum += 2 * score;
+		}
+
+		printf("Case #%d\n%d\n", t, score_sum);
+	}
+
+	return 0;
+}
+
+//test case
+
+1
+10 50 60 80 90
+5
+5 5
+0 55
+45 -50
+-77 88
+-85 0
