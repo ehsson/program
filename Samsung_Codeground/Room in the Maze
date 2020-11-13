@@ -90,3 +90,13 @@ int main(void)
 
 	return 0;
 }
+
+//test case
+
+3
+6 8
+DDRRUULL
+3 8
+DDRRUULL
+6 10
+RRRRRDDDDD
