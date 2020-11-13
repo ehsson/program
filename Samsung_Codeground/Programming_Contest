@@ -97,3 +97,92 @@ int main(void)
 
 	return 0;
 }
+
+
+// case 2
+
+#include <stdio.h>
+
+int arr[300000];
+
+void QuickSort(int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int pivot = start;
+	int low = start + 1;
+	int high = end;
+	int temp;
+
+	while (low <= high) {
+		while (arr[low] >= arr[pivot] && low <= end)
+			low++;
+
+		while (arr[high] < arr[pivot])
+			high--;
+
+		if (low < high) {
+			temp = arr[low];
+			arr[low] = arr[high];
+			arr[high] = temp;
+		}
+	}
+
+	temp = arr[pivot];
+	arr[pivot] = arr[high];
+	arr[high] = temp;
+
+	QuickSort(start, high - 1);
+	QuickSort(high + 1, end);
+}
+
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	int N;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		for (int n = 0; n < N; n++)
+			scanf_s("%d", &arr[n]);
+
+		QuickSort(0, N - 1);
+
+		int max = 0, pos = 0;
+
+		for (int i = 0; i < N; i++)
+		{
+			if (arr[i] + N < max)
+			{
+				pos = i;
+				break;
+			}
+
+			arr[i] += i + 1;
+
+			if (max <= arr[i])
+				max = arr[i];
+		}
+
+		printf("Case #%d\n%d\n", t, pos);
+	}
+
+	return 0;
+}
+
+//test case
+
+1
+4
+3
+5
+6
+9
