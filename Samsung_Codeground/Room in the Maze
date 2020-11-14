@@ -91,6 +91,90 @@ int main(void)
 	return 0;
 }
 
+//2nd try
+
+#include <stdio.h>
+#include <string.h>
+
+int arr[200000];
+char input[300000];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N, K;
+		int i;
+
+		scanf_s("%d %d", &N, &K);
+
+		memset(arr, 0, sizeof(int) * 2 * N + 1);
+		arr[1] = 1;
+
+		for (i = 2; i <= N + 1; i++)
+			arr[i] = arr[i - 1] + i - 1;
+
+		for (i = i; i <= 2 * N - 1; i++)
+			arr[i] = arr[i - 1] + 2 * N - i + 1;
+
+		scanf_s("%s", input, K + 1);
+
+		int y = 0, x = 0;
+		long long sum = 0;
+
+		for (int j = 0; j < K; j++)
+		{
+			if (j == 0)
+				sum += arr[1];
+
+			switch (input[j])
+			{
+				case 'R':
+					x++;
+					break;
+				case 'D':
+					y++;
+					break;
+				case 'L':
+					x--;
+					break;
+				case 'U':
+					y--;
+					break;
+				default:
+					break;
+			}
+
+			if (x + y < N)
+			{
+				if ((x + y) % 2 == 0)
+					sum += (long long)(arr[x + y + 1] + x);
+				else
+					sum += (long long)(arr[x + y + 1] + y);
+			}
+			else
+			{
+				if ((x + y) % 2 == 0)
+					sum += (long long)(arr[x + y + 1] + (x - (x + y - (N - 1))));
+				else
+					sum += (long long)(arr[x + y + 1] + (y - (x + y - (N - 1))));
+			}
+
+			sum = sum;
+		}
+
+		printf("Case #%d\n%lld\n", t, sum);
+	}
+
+	return 0;
+}
+
 //test case
 
 3
