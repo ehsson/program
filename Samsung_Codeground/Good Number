@@ -1,40 +1,41 @@
 #include <stdio.h>
 
-#define TMP 200000
+#define MAX 200000
 
-int num[5001];
+int input[5000];
 int sum[400001];
 
 int main(void)
 {
-	int T, N;
-	int cnt;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+
+	int T;
 
 	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
+		int N;
+		int cnt = 0;
+		
+		for (int n = 0; n < 400001; n++)
+			sum[n] = MAX;
+
 		scanf_s("%d", &N);
 
-		for (int q = 0; q < 400001; q++)
-			sum[q] = 0;
+		for (int n = 0; n < N; n++)
+			scanf_s("%d", &input[n]);
 
-		cnt = 0;
+		for (int i = N - 1; i >= 0; i--)
+			for (int j = i; j >= 0; j--)
+				sum[input[i] + input[j] + MAX] = i;
 
-		for (int n = 1; n <= N; n++)
-			scanf_s("%d", &num[n]);
-
-		for (int i = N - 1; i >= 1; i--)
-			for (int j = i; j >= 1; j--)
-				sum[num[i] + num[j] + TMP] = i;
-
-		for (int k = 2; k <= N; k++)
+		for (int i = 0; i < N; i++)
 		{
-			for (int l = 1; l < k; l++)
+			for (int j = 0; j < i; j++)
 			{
-				if (sum[num[k] - num[l] + TMP] > 0 && k > sum[num[k] - num[l] + TMP])
+				if (sum[input[i] - input[j] + MAX] < i)
 				{
 					cnt++;
 					break;
@@ -47,3 +48,11 @@ int main(void)
 
 	return 0;
 }
+
+//test case
+
+2
+6
+1 2 3 5 7 10
+5
+1 4 2 5 6
