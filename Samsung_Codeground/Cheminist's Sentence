@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 const char chem[][3] = { "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al",
 	"Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe",
@@ -11,48 +12,63 @@ const char chem[][3] = { "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "
 	"Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md",
 	"No", "Lr" };
 
+char input[50002];
+int alp_chk[50002];
 int one[26];
 int two[26][26];
 
-int dp[50001];
-char s[50002];
-
-void precalc()
+void conversion(void)
 {
 	for (int i = 0; i < sizeof(chem) / 3; i++)
+	{
 		if (!chem[i][1])
-			one[ chem[i][0] - 'A'] = 1;
+			one[chem[i][0] - 'A'] = 1;
 		else
-			two[ chem[i][0] - 'A' ][chem[i][1] - 'a'] = 1;
+			two[chem[i][0] - 'A'][chem[i][1] - 'a'] = 1;
+	}
 }
 
-int main()
+int main(void)
 {
-	int tc;
-	scanf_s("%d", &tc);
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
-	precalc();
+	conversion();
 
-	for (int t_case = 1; t_case <= tc; t_case++)
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
 	{
-
-		scanf_s("%s", s + 1, sizeof(s) + 1);
-
 		int i;
-		dp[0] = 1;
 
-		for (i = 1; s[i]; i++)
+		scanf_s("%s", input + 1, sizeof(input) + 1);
+
+		alp_chk[0] = 1;
+
+		for (i = 1; i <= strlen(input + 1); i++)
 		{
-			dp[i] = 0;
-			if (one[s[i] - 'a'])
-				dp[i] |= dp[i - 1];
+			alp_chk[i] = 0;
 
-			if (two[s[i - 1] - 'a'][ s[i] - 'a' ])
-				dp[i] |= dp[i - 2];
+			if (one[input[i] - 'a'])
+				alp_chk[i] |= alp_chk[i - 1];
+
+			if (two[input[i - 1] - 'a'][input[i] - 'a'])
+				alp_chk[i] |= alp_chk[i - 2];
 		}
 
-		printf("Case #%d\n", t_case);
-		printf("%s\n", dp[i - 1] ? "YES" : "NO");
+		printf("Case #%d\n%s\n", t, alp_chk[i - 1] ? "YES" : "NO");
 	}
+
 	return 0;
 }
+
+//test case
+
+6
+international
+acacaceac
+iamsimon
+iamsmart
+iamchemist
+ase
