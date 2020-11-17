@@ -1,64 +1,78 @@
 #include <stdio.h>
+#include <string.h>
 
-int rock[1000002] = { 0 };
+int arr[1000001];
 
 int main(void)
 {
-	int T, N, K;
-	int min_cnt;
-	int pos, cnt;
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
-	scanf("%d", &T);
+	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf("%d", &N);
+		int N, K;
+		int stone_input, cnt = 0;
+
+		scanf_s("%d", &N);
 
 		for (int n = 1; n <= N; n++)
-			scanf("%d", &rock[n]);
+			scanf_s("%d", &arr[n]);
 
-		rock[N + 1] = 0;
+		arr[0] = 0;
 
-		scanf("%d", &K);
+		scanf_s("%d", &K);
 
-		min_cnt = 0;
-		pos = 0;
-		cnt = 1;
+		int stand = 0, temp;
 
-		while (pos < rock[N])
+		for (int i = 1; i <= N; i++)
 		{
-			if (rock[cnt] - rock[cnt - 1] > K)
+			if (arr[i] - stand < K)
 			{
-				min_cnt = -1;
-				break;
-			}
+				if (i == N)
+				{
+					cnt++;
+					break;
+				}
 
-			if (rock[cnt] == 0)
-			{
-				pos = rock[cnt - 1];
-				min_cnt++;
-				break;
+				temp = arr[i];
 			}
-
-			if (rock[cnt] - pos < K)
+			else if (arr[i] - stand == K)
 			{
-				cnt++;
-			}
-			else if (rock[cnt] - pos == K)
-			{
-				pos = rock[cnt];
-				min_cnt++;
+				stand = arr[i];
 				cnt++;
 			}
 			else
 			{
-				pos = rock[cnt - 1];
-				min_cnt++;
+				if (stand == temp)
+				{
+					cnt = -1;
+					break;
+				}
+
+				stand = temp;
+				cnt++;
+				i--;
 			}
 		}
 
-		printf("Case #%d\n%d\n", t, min_cnt);
+		printf("Case #%d\n%d\n", t, cnt);
 	}
 
-		return 0;
+	return 0;
 }
+
+//test case
+
+3
+8
+1 2 5 7 9 10 12 15
+4
+8
+1 2 5 7 9 10 12 15
+2
+17
+3 4 8 10 14 18 20 22 23 25 30 33 34 36 38 39 42
+7
