@@ -61,3 +61,105 @@ int main(void)
 
 	return 0;
 }
+
+
+// 88.5 code
+
+#include <stdio.h>
+
+int main(void)
+{
+	setbuf(stdout, NULL);
+	int T;
+
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N;
+		int b = 0;
+
+		scanf("%d", &N);
+
+		for (int i = 2; i < N; i++)
+		{
+			int sum = 0, idx = 0;
+
+			while (sum < N)
+			{
+				sum += (int)(pow(i, idx));
+				idx++;
+
+				if (N % sum == 0 && (int)(N / sum) < i)
+				{
+					b = i;
+					break;
+				}
+			}
+
+			if (b > 0)
+				break;
+		}
+
+		if (b == 0)
+			b = N + 1;
+
+		printf("Case #%d\n%d\n", t, b);
+	}
+
+	return 0;
+}
+
+// 105 code
+
+#include <stdio.h>
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N;
+		int b;
+
+		scanf_s("%d", &N);
+
+		for (int i = 2; i < N; i++)
+		{
+			int val_temp = N, res_temp = val_temp % i, chk = 1;
+
+			while (val_temp != 0)
+			{
+				if (res_temp != val_temp % i)
+				{
+					chk = 0;
+					break;
+				}
+
+				res_temp = val_temp % i;
+				val_temp = (int)(val_temp / i);
+			}
+
+			if (chk == 1)
+			{
+				b = i;
+				break;
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, b);
+	}
+
+	return 0;
+}
+
+//test case
+
+2
+36
+127
