@@ -1,3 +1,5 @@
+//Use DFS
+
 #include <stdio.h>
 
 int univ[1001][1001];
@@ -123,6 +125,97 @@ int main(void)
 		for (int p = 1; p <= N; p++)
 			if (chk[p] == 0)
 				printf("%d ", p);
+
+		printf("\n");
+	}
+
+	return 0;
+}
+
+
+//85 scored code
+
+#include <stdio.h>
+#define MAX 5000000
+
+int arr[1001][1001];
+int chk[1001];
+
+int min(int a, int b)
+{
+	if (a <= b)
+		return a;
+	else
+		return b;
+}
+
+int main(void)
+{
+	int T, N, M;
+	int univ1, univ2, len, cnt, temp;
+	setbuf(stdout, NULL);
+
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf("%d %d", &N, &M);
+
+		cnt = N;
+		temp = 0;
+
+		for (int i = 1; i <= N; i++)
+		{
+			chk[i] = 0;
+
+			for (int j = 1; j <= N; j++)
+				if (i == j)
+					arr[i][j] = 0;
+				else
+					arr[i][j] = MAX;
+		}
+
+		chk[0] = 1;
+
+		for (int m = 1; m <= M; m++)
+		{
+			scanf("%d %d %d", &univ1, &univ2, &len);
+
+			arr[univ1][univ2] = len;
+			arr[univ2][univ1] = len;
+		}
+
+		for (int i = 1; i <= N; i++)
+		{
+			for (int j = 1; j <= N; j++)
+			{
+				if (j == i)
+					continue;
+
+				for (int k = 1; k <= N; k++)
+				{
+					if (k == i || k == j)
+						continue;
+
+					if (min(arr[i][j], arr[i][k] + arr[k][j]) == arr[i][k] + arr[k][j])
+						temp = k;
+
+					arr[i][j] = min(arr[i][j], arr[i][k] + arr[k][j]);
+				}
+
+				if (chk[temp] == 0)
+				{
+					chk[temp]++;
+					cnt--;
+				}
+			}
+		}
+
+		printf("Case #%d\n%d ", t, cnt);
+
+		for (int a = 1; a <= N; a++)
+			if (chk[a] == 0)
+				printf("%d ", a);
 
 		printf("\n");
 	}
