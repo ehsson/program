@@ -93,6 +93,118 @@ int main(void)
 	return 0;
 }
 
+// ver2
+
+#include <stdio.h>
+
+long long arr[100000];
+long long dif[100000];
+
+int cnt;
+
+int get_gcd(long long num1, long long num2)
+{
+	long long temp;
+
+	if (num1 < num2)
+	{
+		temp = num1;
+		num1 = num2;
+		num2 = temp;
+	}
+
+	while (1)
+	{
+		temp = num1 % num2;
+
+		if (temp == 0)
+			return num2;
+
+		num1 = num2;
+		num2 = temp;
+	}
+}
+
+void get_div(long long num)
+{
+	for (int i = 1; i <= (int)(num / 2); i++)
+	{
+		if (num % i == 0)
+			cnt++;
+	}
+
+	cnt++;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int M;
+		int chk = 1;
+		cnt = 0;
+
+		scanf_s("%d", &M);
+
+		for (int m = 0; m < M; m++)
+		{
+			scanf_s("%lld", &arr[m]);
+
+			if (m > 0)
+				dif[m - 1] = arr[m] - arr[m - 1];
+		}
+
+		if (M == 2)
+		{
+			get_div(dif[0]);
+			printf("Case #%d\n%d\n", t, cnt);
+			continue;
+		}
+
+		for (int i = 0; i < M - 1; i++)
+		{
+			if (dif[i] == 0)
+			{
+				for (int j = 0; j < M - 1; j++)
+				{
+					if (dif[j] != 0)
+					{
+						printf("Case #%d\n0\n", t);
+						chk = 0;
+						break;
+					}
+				}
+
+				if(chk == 1)
+					printf("Case #%d\n1\n", t);
+
+				chk = 0;
+				break;
+			}
+		}
+
+		if (chk == 0)
+			continue;
+
+		int gcd = get_gcd(dif[0], dif[1]);
+
+		for (int i = 2; i < M - 1; i++)
+			gcd = get_gcd(gcd, dif[i]);
+
+		get_div(gcd);
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
+
 // Test Case
 
 3
