@@ -222,3 +222,91 @@ int main(void)
 
 	return 0;
 }
+
+
+// 250 scored code
+
+#include <stdio.h>
+#define MAX 5000000
+
+#define min(a, b) a < b ? a : b
+
+int arr[1001][1001];
+int chk[1001];
+
+
+int main(void)
+{
+    FILE* pf;
+    freopen_s(&pf, "input.txt", "r", stdin);
+    int T, N, M;
+    int univ1, univ2, len, cnt, temp;
+
+    scanf_s("%d", &T);
+
+    for (int t = 1; t <= T; t++)
+    {
+        scanf_s("%d %d", &N, &M);
+
+        cnt = 0;
+        temp = 0;
+
+        for (int i = 1; i <= N; i++)
+        {
+            chk[i] = 0;
+
+            for (int j = 1; j <= N; j++)
+                if (i == j)
+                    arr[i][j] = 0;
+                else
+                    arr[i][j] = MAX;
+        }
+
+        chk[0] = 1;
+
+        for (int m = 1; m <= M; m++)
+        {
+            scanf_s("%d %d %d", &univ1, &univ2, &len);
+
+            arr[univ1][univ2] = len;
+            arr[univ2][univ1] = len;
+        }
+
+        for (int k = 1; k <= N; k++)
+            for (int i = 1; i <= N; i++)
+                for (int j = 1; j <= N; j++)
+                    arr[i][j] = min(arr[i][j], arr[i][k] + arr[k][j]);
+
+        for (int k = 1; k <= N; k++) {
+            if (chk[k] > 0)
+                continue;
+
+            for (int i = 1; i <= N; i++) {
+                if (i == k || chk[k] > 0)
+                    continue;
+
+                for (int j = i + 1; j <= N; j++) {
+                    if (j == i || j == k || chk[k] > 0)
+                        continue;
+
+                    if (arr[i][j] == arr[i][k] + arr[k][j])
+                        chk[k]++;
+                }
+            }
+        }
+
+        for (int i = 1; i <= N; i++)
+            if (chk[i] == 0)
+                cnt++;
+
+        printf("Case #%d\n%d ", t, cnt);
+
+        for (int a = 1; a <= N; a++)
+            if (chk[a] == 0)
+                printf("%d ", a);
+
+        printf("\n");
+    }
+
+    return 0;
+}
