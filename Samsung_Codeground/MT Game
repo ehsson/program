@@ -2,50 +2,52 @@
 
 int main(void)
 {
-	int T, N, K, a, b, c;
-	int chk, temp, tc;
-	char arr[7];
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
+		int a, b, c;
+
 		scanf_s("%d %d %d", &a, &b, &c);
 
-		for (tc = 0; tc < c; tc++)
+		for (int i = 0; i < c; i++)
 		{
+			int N, K;
+			int temp, TF = 0;
+
 			scanf_s("%d %d", &N, &K);
 
-			chk = 0;
-
-			for (int i = 1; i <= b; i++)
+			for (int j = 1; j <= b; j++)
 			{
-				for (int j = b * K + a; j <= a * K + b; j++)
+				for (int k = b * K + a; k <= a * K + b; k++)
 				{
-					temp = (N - i) % j;
+					temp = (N - j) % k;
 
 					if (a <= temp && temp <= a * K)
 					{
-						chk = 1;
+						TF = 1;
 						break;
 					}
 				}
 
-				if (chk)
+				if (TF)
 					break;
 			}
 
-			if (chk)
-				arr[tc] = 'a';
+			if (i == 0)
+				printf("Case #%d\n", t);
+
+			if (TF)
+				printf("a");
 			else
-				arr[tc] = 'b';
+				printf("b");
 		}
 
-		arr[tc] = 0;
-
-		printf("Case #%d\n%s\n", t, arr);
+		printf("\n");
 	}
 
 	return 0;
