@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+char stone[12501];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	int T, N, K, stone_stand, stone_temp, cnt, input, temp;
+
+	char bin;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		scanf_s("%d", &N);
+
+		for (int k = 0; k < 12501; k++)
+			stone[k] = 0;
+
+		for (int i = 0; i < N; i++) {
+			scanf_s("%d", &input);
+
+			bin = 128 >> (input % 8);
+			stone[(int)(input / 8)] |= bin;
+		}
+
+		scanf_s("%d", &K);
+
+		stone_stand = 0;
+		stone_temp = 0;
+		cnt = 0;
+
+		while (stone_stand < input)
+		{
+			temp = stone_stand;
+
+			for (int j = K; j >= 1; j--)
+			{
+				bin = 128 >> ((j + stone_stand) % 8);
+
+				if ((stone[(int)((j + stone_stand) / 8)] & bin) > 0)
+				{
+					stone_stand += j;
+					cnt++;
+					break;
+				}
+			}
+
+			if (temp == stone_stand)
+			{
+				cnt = -1;
+				break;
+			}
+		}
+
+		printf("Case #%d\n%d\n", t, cnt);
+	}
+
+	return 0;
+}
