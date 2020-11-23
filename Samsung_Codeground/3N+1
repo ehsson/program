@@ -1,40 +1,47 @@
 #include <stdio.h>
 #include <math.h>
 
-int K;
-unsigned long long max, min;
+typedef unsigned long long ULL;
 
-void find(long long num, int cnt, int oe)
+int K;
+ULL small;
+
+void func(ULL num, int cnt, int chk)
 {
 	if (cnt > 0)
 		if (num == 1)
 			return;
 
-	if (oe == 1)
-	{
-		if (num % 2 == 0)
-			return;
-	}
+	if (chk && !(num & 1))
+		return;
+
+	if (cnt > 0 && !chk && num & 1)
+		return;
 
 	if (cnt == K)
-	{	
-		if (min > num)
-			min = num;
+	{
+		if (small > num)
+			small = num;
 
 		return;
 	}
 
-	find(num * 2, cnt + 1, 0);
+	if (cnt < 4)
+		func(num * 2, cnt + 1, 0);
+	else
+	{
+		func(num * 2, cnt + 1, 0);
 
-	if (num > 3 && (num - 1) % 3 == 0)
-		find(((num - 1) / 3), cnt + 1, 1);
+		if ((num - 1) % 3 == 0)
+			func((num - 1) / 3, cnt + 1, 1);
+	}
 }
 
 int main(void)
 {
-	int T;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
@@ -42,12 +49,16 @@ int main(void)
 	{
 		scanf_s("%d", &K);
 
-		max = pow(2, K);
-		min = max;
-		
-		find(1, 0, 0);
+		ULL large;
 
-		printf("Case #%d\n%llu %llu\n", t, min, max);
+		large = pow(2, K);
+
+		ULL num = 1;
+		small = large;
+
+		func(1, 0, 0);
+
+		printf("Case #%d\n%llu %llu\n", t, small, large);
 	}
 
 	return 0;
