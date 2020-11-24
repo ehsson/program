@@ -1,44 +1,42 @@
 #include <stdio.h>
 
-int arr[200001];
+int tree[200000];
 
 int main(void)
 {
-	int T, N;
-	int cut, min;
-	long long sum;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
+		int N;
+		int cut;
+		int min_cut = 100001;
+		long long answer = 0;
+
 		scanf_s("%d", &N);
 
-		for (int j = 0; j < N; j++)
-			scanf_s("%d", &arr[j]);
+		for (int n = 0; n < N; n++)
+			scanf_s("%d", &tree[n]);
 
-		for (int i = 0; i < N; i++)
+		for (int n = 0; n < N; n++)
 		{
 			scanf_s("%d", &cut);
 
-			if (i == 0)
-				min = cut;
-
-			if (min > cut - i)
-				min = cut - i;
+			if (min_cut >= cut - n)
+				min_cut = cut - n;
 		}
 
-		sum = 0;
-
-		for (int k = 0; k < N; k++)
+		for (int i = 0; i < N; i++)
 		{
-			if (arr[k] > min)
-				sum += arr[k] - min;
+			if(tree[i] > min_cut)
+				answer += (tree[i] - min_cut);
 		}
 
-		printf("Case #%d\n%lld\n", t, sum);
+		printf("Case #%d\n%lld\n", t, answer);
 	}
 
 	return 0;
