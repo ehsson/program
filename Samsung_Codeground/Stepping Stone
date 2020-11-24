@@ -1,17 +1,20 @@
 #include <stdio.h>
+#include <string.h>
 
 #define DIV 1000000009
+typedef unsigned long long ULL;
 
 int stone[50001];
-unsigned long long sum[50001];
-unsigned long long temp[50001][101];
+ULL sum[50001];
+ULL temp[50001][101];
+
+int N, K, L;
 
 int main(void)
 {
-	int T, N, K, L;
-	int mine;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
@@ -19,10 +22,12 @@ int main(void)
 	{
 		scanf_s("%d %d %d", &N, &K, &L);
 
-		for (int i = 1; i <= N; i++)
-			stone[i] = sum[i] = 0;
+		int mine;
+		
+		memset(stone, 0, sizeof(int) * 50001);
+		memset(sum, 0, sizeof(ULL) * 50001);
 
-		for (int l = 1; l <= L; l++)
+		for (int l = 0; l < L; l++)
 		{
 			scanf_s("%d", &mine);
 
@@ -37,6 +42,7 @@ int main(void)
 					temp[i][j] = 0;
 
 				sum[i] = 0;
+
 				continue;
 			}
 
@@ -51,7 +57,7 @@ int main(void)
 					temp[i][j] = sum[i - j] - temp[i - j][j];
 					temp[i][j] %= DIV;
 				}
-
+			
 				sum[i] += temp[i][j];
 			}
 		}
