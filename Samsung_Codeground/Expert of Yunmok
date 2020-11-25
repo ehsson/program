@@ -1,74 +1,80 @@
 #include <stdio.h>
+#include <string.h>
 
-int answer[6];
+int arr[6] = { 0 };
 
-long long GCD(long long a, long long b)
+long long get_int(double P)
 {
-	long long temp;
+	int mul = 10;
+	long long num;
 
-	while (1)
-	{
-		temp = a % b;
-		
-		if (temp == 0)
-			return b;
+	while (P != (long long)P)
+		P *= mul;
 
-		a = b;
-		b = temp;
-	}
+	if (!((int)P % 2) && P != 2)
+		P /= 2;
+	else if (!((long long)P % 5) && P != 5)
+		P /= 5;
+
+	num = P;
+
+	return num;
 }
 
-void DFS(int idx, int totalsum, int totalcnt)
+void DFS(int sum, int num, int cnt)
 {
-	int cnt = (int)(totalsum / idx);
+	if (!num)
+		return;
+
+	int a = (int)(sum / num);
 
 	while (1)
 	{
-		int tempsum = totalsum - idx * cnt;
-		int tempcnt = totalcnt - cnt;
+		int tempsum = sum - num * a;
+		int tempcnt = cnt - a;
 
-		if (tempsum - tempcnt > 0)
+		if (tempsum > tempcnt)
 		{
-			answer[idx] = cnt;
-			DFS(idx - 1, tempsum, tempcnt);
+			arr[num] = a;
+			DFS(tempsum, num - 1, tempcnt);
 			return;
 		}
-		else if (tempsum - tempcnt == 0)
+		else if (tempsum == tempcnt)
 		{
-			answer[idx] = cnt;
-			answer[1] = tempcnt;
+			arr[num] = a;
+			arr[1] = tempcnt;
 			return;
 		}
 
-		cnt--;
+		a--;
 	}
 }
 
 int main(void)
 {
 	int T;
-	double P;
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
 
-	scanf_s("%d", &T);
+	scanf("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf_s("%lf", &P);
+		double P;
+		int cnt;
+		int sum;
+		memset(arr, 0, sizeof(int) * 6);
 
-		for (int k = 1; k <= 5; k++)
-			answer[k] = 0;
+		scanf("%lf", &P);
 
-		long long j = 10e9;
-		long long i = P * j;
-		long long gcd = GCD(i, j);
-		int TotalSum = i / gcd;
-		int TotalCnt = TotalSum / P;
+		sum = get_int(P);
+		cnt = sum / P;
 
-		DFS(5, TotalSum, TotalCnt);
+		DFS(sum, 5, cnt);
 
-		printf("#testcase%d\n%d %d %d %d %d\n", t, answer[1], answer[2], answer[3], answer[4], answer[5]);
+		printf("#testcase%d\n", t);
+
+		printf("%d %d %d %d %d", arr[1], arr[2], arr[3], arr[4], arr[5]);
+
+		printf("\n");
 	}
 
 	return 0;
@@ -76,7 +82,8 @@ int main(void)
 
 //test case
 
-3
+4
+5.0
 1.1
 4.5
 3.20
