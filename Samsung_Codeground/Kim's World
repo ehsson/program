@@ -1,41 +1,42 @@
 #include <stdio.h>
+#include <string.h>
 
-int arr[201][201];
-int save[201];
+int vil[201][201];
+int chk[201];
 
-int T, N, M;
-int chk;
+int N, M;
+int ans_chk;
 
-void func(int pos, int cnt, int prev)
+void DFS(int pos, int cnt, int prev_pos)
 {
-	if (save[pos] > 0)
+	if (chk[pos] > 0)
 	{
-		if ((cnt - save[pos]) % 2 == 1)
-			chk = 0;
+		if ((cnt - chk[pos]) % 2 == 1)
+			ans_chk = 0;
 
 		return;
 	}
 
-	save[pos] = cnt;
+	chk[pos] = cnt;
 
 	for (int i = 1; i <= N; i++)
 	{
-		if (chk == 0)
-			break;
-
-		if (prev == i)
+		if (i == prev_pos)
 			continue;
 
-		if (arr[pos][i] == 1)
-			func(i, cnt + 1, pos);
+		if (ans_chk == 0)
+			return;
+
+		if(vil[pos][i] == 1)
+			DFS(i, cnt + 1, pos);
 	}
 }
 
 int main(void)
 {
-	int area1, area2;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
@@ -45,27 +46,30 @@ int main(void)
 
 		scanf_s("%d", &M);
 
+		int vil1, vil2;
+
 		for (int i = 1; i <= N; i++)
-		{
-			save[i] = 0;
-
 			for (int j = 1; j <= N; j++)
-				arr[i][j] = 0;
-		}
+				vil[i][j] = 0;
 
-		for (int m = 1; m <= M; m++)
+		memset(chk, 0, sizeof(int) * 201);
+
+		for (int m = 0; m < M; m++)
 		{
-			scanf_s("%d %d", &area1, &area2);
+			scanf_s("%d %d", &vil1, &vil2);
 
-			arr[area1][area2] = 1;
-			arr[area2][area1] = 1;
+			vil[vil1][vil2] = 1;
+			vil[vil2][vil1] = 1;
 		}
 
-		chk = 1;
+		ans_chk = 1;
 
-		func(1, 0, 0);
+		DFS(1, 1, 0);
 
-		printf("Case #%d\n%d\n", t, chk);
+		if (ans_chk)
+			printf("Case #%d\n1\n", t);
+		else
+			printf("Case #%d\n0\n", t);
 	}
 
 	return 0;
