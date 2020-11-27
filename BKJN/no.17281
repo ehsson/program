@@ -1,0 +1,168 @@
+#include <stdio.h>
+
+int N;
+int max = 0;
+int arr[51][10];
+int chk[10] = {0, 2, 3, 4, 1, 5, 6, 7, 8, 9};
+int base[5] = { 0 };
+
+void swap(int a, int b)
+{
+	int temp = chk[a];
+	chk[a] = chk[b];
+	chk[b] = temp;
+}
+
+void get_score(int inning, int out_count)
+{
+	int pos = 1;
+
+	for (int i = 1; i <= 4; i++)
+		base[i] = 0;
+
+	while (1)
+	{
+		if (pos == 10)
+			pos = 1;
+
+		if (out_count == 3)
+		{
+			if (inning == N)
+			{
+				if (max < base[4])
+					max = base[4];
+
+				return;
+			}
+
+			inning++;
+			out_count = 0;
+			
+			for (int j = 0; j < 4; j++)
+				base[j] = 0;
+		}
+		
+		base[0] = 1;
+
+		switch (arr[inning][chk[pos]])
+		{
+			case 0:
+				out_count++;
+				pos++;
+
+				break;
+			case 1:
+				for (int i = 3; i >= 0; i--)
+				{
+					base[i + 1] += base[i];
+					base[i] = 0;
+				}
+
+				pos++;
+
+				break;
+			case 2:
+				base[4] += base[3];
+				base[3] = 0;
+
+				for (int i = 2; i >= 0; i--)
+				{
+					base[i + 2] += base[i];
+					base[i] = 0;
+				}
+
+				pos++;
+
+				break;
+			case 3:
+				base[4] += base[3];
+				base[3] = 0;
+
+				base[4] += base[2];
+				base[2] = 0;
+
+				for (int i = 1; i >= 0; i--)
+				{
+					base[i + 3] += base[i];
+					base[i] = 0;
+				}
+
+				pos++;
+
+				break;
+			case 4:
+				for (int i = 0; i < 4; i++)
+				{
+					base[4] += base[i];
+					base[i] = 0;
+				}
+
+				pos++;
+
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+void permutation(int n)
+{
+	if (n == 4)
+	{
+		permutation(n - 1);
+		return;
+	}
+
+	if (n == 1)
+	{
+		get_score(1, 0);
+
+		return;
+	}
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (i == 4)
+			continue;
+		else
+		{
+			swap(i, n);
+
+			permutation(n - 1);
+
+			swap(i, n);
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	scanf_s("%d", &N);
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= 9; m++)
+			scanf_s("%d", &arr[n][m]);
+
+	permutation(9);
+
+	printf("%d", max);
+
+	return 0;
+}
+
+//test case
+
+9
+1 2 4 3 0 2 1 0 3
+1 2 1 2 0 0 0 0 1
+3 4 2 3 1 2 3 4 0
+0 1 2 3 4 2 1 0 0
+0 0 0 0 0 0 1 4 4
+0 4 0 4 0 4 0 4 0
+0 4 2 2 2 2 2 2 2
+1 1 1 1 1 1 1 1 0
+0 2 0 3 0 1 0 2 0
