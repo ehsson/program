@@ -1,22 +1,16 @@
 #include <stdio.h>
 
-int N, M, K, P, cnt;
+#define min(a, b) a < b ? a : b
+
 int stop[101][101];
 
-int min(int a, int b)
-{
-	if (a >= b)
-		return b;
-	else
-		return a;
-}
+int N, M, K;
 
 int main(void)
 {
-	int T;
-	int stop1, stop2, bill, start, end;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
 	scanf_s("%d", &T);
 
@@ -24,19 +18,13 @@ int main(void)
 	{
 		scanf_s("%d %d %d", &N, &M, &K);
 
+		int stop1, stop2, bill;
+
 		for (int i = 1; i <= N; i++)
 			for (int j = 1; j <= N; j++)
-			{
-				if (i == j)
-				{
-					stop[i][j] = 0;
-					continue;
-				}
-
 				stop[i][j] = 10001;
-			}
 
-		for (int m = 1; m <= M; m++)
+		for (int m = 0; m < M; m++)
 		{
 			scanf_s("%d %d %d", &stop1, &stop2, &bill);
 
@@ -44,20 +32,22 @@ int main(void)
 			stop[stop2][stop1] = bill;
 		}
 
-		scanf_s("%d", &P);
-
-		cnt = 0;
-
 		for (int i = 1; i <= N; i++)
 			for (int j = 1; j <= N; j++)
 				for (int k = 1; k <= N; k++)
 					stop[i][j] = min(stop[i][j], stop[i][k] + stop[k][j]);
 
-		for (int p = 1; p <= P; p++)
+		int P;
+
+		scanf_s("%d", &P);
+
+		int start, end, cnt = 0;
+
+		for (int p = 0; p < P; p++)
 		{
 			scanf_s("%d %d", &start, &end);
 
-			if (stop[start][end] > K)
+			if (K < stop[start][end])
 				cnt++;
 		}
 
