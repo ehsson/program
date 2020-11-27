@@ -41,11 +41,76 @@ int main(void)
 	return 0;
 }
 
+//case 2
+
+#include <stdio.h>
+#include <string.h>
+
+int arr[10001];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N, M, input;
+		int answer = 0;
+
+		scanf_s("%d %d", &N, &M);
+
+		memset(arr, 0, sizeof(int) * 10001);
+
+		for (int n = 0; n < N; n++)
+		{
+			scanf_s("%d", &input);
+
+			if (n == 0)
+			{
+				arr[input] = 1;
+				continue;
+			}
+
+			for (int i = 1; i <= M; i++)
+			{
+				if (arr[i] > 0)
+				{
+					if (input + i > M)
+						continue;
+
+					arr[input + i] = 1;
+				}
+			}
+		}
+
+		for(int j = M; j >= 1; j--)
+			if (arr[j] > 0)
+			{
+				answer = j;
+				break;
+			}
+
+		printf("Case #%d\n%d\n", t, answer);
+	}
+
+	return 0;
+}
+
 //test case
 
-1
+2
 4 13
 6
 8
 2
 4
+5 10
+1
+4
+4
+4
+9
