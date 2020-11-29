@@ -1,22 +1,26 @@
-#include <stdio.h>
-#include <math.h>
+#include <iostream>
+#include <cmath>
+using namespace std;
 
 int main(void)
 {
-	int T, A, B, D;
-	int minute;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
-	scanf_s("%d", &T);
+	cin >> T;
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf_s("%d %d %d", &A, &B, &D);
+		int A, B, D;
 
-		minute = ceil(((double)D - (double)A) / ((double)A - (double)B)) + 1;
+		cin >> A >> B >> D;
 
-		printf("Case #%d\n%d\n", t, minute);
+		int answer;
+
+		answer = ceil(((double)D - (double)A) / ((double)A - (double)B)) + 1;
+
+		cout << "Case #" << t << "\n" << answer << "\n";
 	}
 
 	return 0;
