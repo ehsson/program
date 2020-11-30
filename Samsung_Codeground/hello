@@ -1,56 +1,59 @@
-#include <stdio.h>
-#include <string.h>
+#include <iostream>
+using namespace std;
 
-int arr[26];
-char input[10000];
+#define min(a, b) a < b ? a: b
 
-int min_func(int a, int b)
-{
-	if (a >= b)
-		return b;
-	else
-		return a;
-}
+char arr[10000];
 
 int main(void)
 {
-	int T;
-	int len, min, answer;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
-	scanf_s("%d", &T);
+	cin >> T;
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf_s("%s", input, 10000);
+		cin >> arr;
 
-		for (int j = 0; j < 26; j++)
-			arr[j] = 0;
+		int h = 0, e = 0, l = 0, o = 0;
 
-		len = strlen(input);
-		
-		for (int i = 0; i < len; i++)
-			arr[input[i] - 97]++;
-
-		min = min_func(arr[7], arr[4]);
-		min = min_func(min, arr[14]);
-
-		if (min * 2 >= arr[11])
+		for (int i = 0; arr[i] != NULL; i++)
 		{
-			if (arr[11] % 2 == 1)
-				arr[11]--;
-
-			answer = arr[11] / 2;
+			switch (arr[i])
+			{
+				case 'h':
+					h++;
+					break;
+				case 'e':
+					e++;
+					break;
+				case 'l':
+					l++;
+					break;
+				case 'o':
+					o++;
+					break;
+				default:
+					break;
+			}
 		}
-		else
-			answer = min;
 
-		printf("Case #%d\n%d\n", t, answer);
+		int answer = 10000;
+
+		answer = min(answer, h);
+		answer = min(answer, e);
+		answer = min(answer, o);
+		answer = min(answer * 2, l);
+
+		cout << "Case #" << t << "\n" << answer / 2 << "\n";
 	}
 
 	return 0;
 }
+
+// h: 104  e: 101  l: 108  o: 111
 
 //test case
 
