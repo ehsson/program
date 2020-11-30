@@ -1,47 +1,47 @@
-#include <stdio.h>
+#include <iostream>
+#include <cstring>
+using namespace std;
 
-int arr[31];
 int coffee[21];
 
 int main(void)
 {
-	int T, N, M, K;
-	int sum;
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
 
-	scanf_s("%d", &T);
+	cin >> T;
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf_s("%d %d %d", &N, &M, &K);
+		int N, M, K;
 
-		for (int n = 1; n <= N; n++)
-			scanf_s("%d", &arr[n]);
+		cin >> N >> M >> K;
 
-		for (int m = 1; m <= M; m++)
-			scanf_s("%d", &coffee[m]);
+		memset(coffee, 0, sizeof(int) * 21);
 
-		sum = 0;
+		int num;
 
-		for (int i = 1; i <= N; i++)
+		for (int n = 0; n < N; n++)
 		{
-			sum += coffee[arr[i]];
+			cin >> num;
 
-			if (sum > K)
-			{
-				sum = K + 1;
-
-				break;
-			}
+			coffee[num]++;
 		}
 
-		printf("Case #%d\n", t);
+		int price, sum = 0;
+
+		for (int m = 1; m <= M; m++)
+		{
+			cin >> price;
+
+			sum += coffee[m] * price;
+		}
 
 		if (sum <= K)
-			printf("Y\n");
+			cout << "Case #" << t << "\n" << "Y\n";
 		else
-			printf("N\n");
+			cout << "Case #" << t << "\n" << "N\n";
 	}
 
 	return 0;
