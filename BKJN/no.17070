@@ -64,3 +64,81 @@ int main(void)
 
 	return 0;
 }
+
+
+// C++
+
+#include <iostream>
+using namespace std;
+
+int room[17][17];
+
+int N;
+int cnt;
+
+enum
+{
+	RIGHT = 0,
+	DIAGONAL,
+	DOWN
+};
+
+void DFS(int y, int x, int form)
+{
+	if (y > N || x > N)
+		return;
+
+	if (room[y][x])
+		return;
+
+	if(form == DIAGONAL && (room[y][x - 1] == 1 || room[y - 1][x] == 1))
+		return;
+
+	if (y == N && x == N)
+	{
+		cnt++;
+		return;
+	}
+
+	switch (form)
+	{
+		case RIGHT:
+			DFS(y, x + 1, RIGHT);
+			
+			DFS(y + 1, x + 1, DIAGONAL);
+			break;
+		case DIAGONAL:
+			DFS(y, x + 1, RIGHT);
+
+			DFS(y + 1, x, DOWN);
+
+			DFS(y + 1, x + 1, DIAGONAL);
+			break;
+		case DOWN:
+			DFS(y + 1, x, DOWN);
+
+			DFS(y + 1, x + 1, DIAGONAL);
+			break;
+		default:
+			break;
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= N; m++)
+			cin >> room[n][m];
+
+	cnt = 0;
+
+	DFS(1, 2, RIGHT);
+
+	cout << cnt;
+
+	return 0;
+}
