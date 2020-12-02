@@ -157,3 +157,180 @@ int main(void)
 
 	return 0;
 }
+
+
+// C++
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+#define MAX 50000000
+
+typedef struct Bracket
+{
+	int start;
+	int end;
+} Bracket;
+
+Bracket bracket_order[4096];
+int bracket_pos[4096];
+int arr[100000];
+char program[4096];
+char input[4096];
+int chk[4096];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		int M, C, I;
+
+		cin >> M >> C >> I;
+
+		memset(arr, 0, sizeof(int) * 100000);
+		memset(program, 0, sizeof(char) * 4096);
+		memset(input, 0, sizeof(char) * 4096);
+		memset(bracket_pos, 0, sizeof(int) * 4096);
+		memset(chk, 0, sizeof(int) * 4096);
+
+		int open = 0, close;
+
+		for (int c = 0; c < C; c++)
+		{
+			cin >> program[c];
+
+			if (program[c] == '[')
+			{
+				bracket_order[open].start = c;
+				bracket_order[open].end = 0;
+				close = open;
+				open++;
+			}
+			else if (program[c] == ']')
+			{
+				while (bracket_order[close].end)
+					close--;
+
+				bracket_order[close].end = c;
+			}
+		}
+
+		for (int p = 0; p < open; p++)
+		{
+			bracket_pos[bracket_order[p].start] = bracket_order[p].end;
+			bracket_pos[bracket_order[p].end] = bracket_order[p].start;
+		}
+
+		for (int i = 0; i < I; i++)
+			cin >> input[i];
+
+		int cnt = 0, _chk = 0;
+		int pro_pos = 0, point_pos = 0, input_pos = 0;
+
+		while (cnt < MAX)
+		{
+			chk[pro_pos] = 1;
+
+			switch (program[pro_pos])
+			{
+				case '+':
+					arr[point_pos] = (arr[point_pos] + 1) % 256;
+					break;
+				case '-':
+					arr[point_pos] = (arr[point_pos] + 255) % 256;
+					break;
+				case '<':
+					point_pos = (point_pos - 1 + M) % M;
+					break;
+				case '>':
+					point_pos = (point_pos + 1 + M) % M;
+					break;
+				case '.':
+					break;
+				case ',':
+					if (input_pos < I)
+					{
+						arr[point_pos] = (int)input[input_pos];
+						input_pos++;
+					}
+					else
+						arr[point_pos] = 255;
+
+					break;
+				case '[':
+					if (!arr[point_pos])
+						pro_pos = bracket_pos[pro_pos];
+
+					break;
+				case ']':
+					if (arr[point_pos])
+						pro_pos = bracket_pos[pro_pos];
+
+					break;
+				default:
+					break;
+			}
+
+			pro_pos++;
+			cnt++;
+
+			if (pro_pos >= C)
+			{
+				_chk = 1;
+				break;
+			}
+		}
+
+		if (_chk)
+			cout << "Terminates\n";
+		else
+		{
+			int _pos = 0;
+
+			for (int i = C - 1; i >= 0; i--)
+			{
+				if (chk[i])
+				{
+					for (int j = 0; j < open; j++)
+					{
+						if (bracket_order[j].end == i)
+						{
+							_pos = i;
+							break;
+						}
+					}
+
+					if (_pos)
+						break;
+				}
+			}
+
+			cout << "Loops " << bracket_pos[_pos] << " " << _pos << "\n";
+		}
+	}
+
+	return 0;
+}
+
+//test case
+
+4
+10 4 3
++-.,
+qwe
+1000 5 1
++[+-]
+a
+9999 52 14
++++++[>+++++++++<-],+[-[>--.++>+<<-]>+.->[<.>-]<<,+]
+this_is_a_test
+100 74 4
++++++[->++<]>[-<+++++++>]<[->+>+>+>+<<<<]>+++>--->++++++++++>---<<<.>.>.>.
+xxyz
