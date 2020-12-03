@@ -154,6 +154,157 @@ int main(void)
 	return 0;
 }
 
+// C++
+
+#include <iostream>
+using namespace std;
+
+int batter[51][10];
+int seq[10] = { 0, 2, 3, 4, 1, 5, 6, 7, 8, 9 };
+int base[5] = { 0 };
+
+int N;
+int _max = 0;
+
+void swap(int a, int b)
+{
+	int temp = seq[a];
+	seq[a] = seq[b];
+	seq[b] = temp;
+}
+
+void get_score(void)
+{
+	int score = 0, out_count = 0, inning = 1, num = 1;
+
+	for (int j = 0; j <= 4; j++)
+		base[j] = 0;
+
+	while (1)
+	{
+		if (num > 9)
+			num = 1;
+
+		if (out_count == 3)
+		{
+			if (inning == N)
+			{
+				if (_max < base[4])
+					_max = base[4];
+
+				return;
+			}
+
+			for (int i = 0; i <= 3; i++)
+				base[i] = 0;
+
+			out_count = 0;
+			inning++;
+		}
+
+		base[0] = 1;
+
+		switch (batter[inning][seq[num]])
+		{
+			case 0:
+				out_count++;
+				break;
+			case 1:
+				for (int i = 3; i >= 0; i--)
+				{
+					base[i + 1] += base[i];
+					base[i] = 0;
+				}
+
+				break;
+			case 2:
+				base[4] += base[3];
+				base[3] = 0;
+
+				for (int i = 2; i >= 0; i--)
+				{
+					base[i + 2] += base[i];
+					base[i] = 0;
+				}
+
+				break;
+			case 3:
+				base[4] += base[3];
+				base[3] = 0;
+
+				base[4] += base[2];
+				base[2] = 0;
+
+				for (int i = 1; i >= 0; i--)
+				{
+					base[i + 3] += base[i];
+					base[i] = 0;
+				}
+
+				break;
+			case 4:
+				for (int i = 0; i <= 3; i++)
+				{
+					base[4] += base[i];
+					base[i] = 0;
+				}
+
+				break;
+			default:
+				break;
+		}
+
+		num++;
+	}
+}
+
+void permutation(int n)
+{
+	if (n == 4)
+	{
+		permutation(n - 1);
+		return;
+	}
+
+	if (n == 1)
+	{
+		get_score();
+
+		return;
+	}
+
+	for (int i = 1; i <= n; i++)
+	{
+		if (i == 4)
+			continue;
+		else
+		{
+			swap(i, n);
+
+			permutation(n - 1);
+
+			swap(i, n);
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		for (int i = 1; i <= 9; i++)
+			cin >> batter[n][i];
+
+	permutation(9);
+
+	cout << _max;
+
+	return 0;
+}
+
 //test case
 
 9
