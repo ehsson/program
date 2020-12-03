@@ -62,17 +62,19 @@ int main(void)
 	return 0;
 }
 
-//memory limit code
+//time limit code
 
 #include <stdio.h>
 #include <math.h>
 
+#define min(a, b) a < b ? a : b
+
 int arr[101][101][12];
+int chk[101][101][12];
 
 int M, N, K;
-int min;
 
-void DFS(int y, int x, long long height, int water)
+void DFS(int y, int x, int water, int prev_y, int prev_x, int prev_water)
 {
 	if (y > N || x > M)
 		return;
@@ -80,52 +82,63 @@ void DFS(int y, int x, long long height, int water)
 	if (arr[y][x][11] < 0 && water < K)
 		water++;
 
-	if (arr[y][x][water] < height)
-		return;
+	chk[y][x][water] += abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11])) 
+		+ chk[prev_y][prev_x][prev_water];
 
-	if (water >= K)
-		arr[y][x][K] = height;
+	if (min(arr[y][x][water], chk[y][x][water]) == arr[y][x][water])
+	{
+		chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
+			+ chk[prev_y][prev_x][prev_water];
+		return;
+	}
 	else
-		arr[y][x][water] = height;
+		arr[y][x][water] = min(arr[y][x][water], chk[y][x][water]);
 
 	if (y == N && x == M)
 	{
-		if (water >= K)
-			min = arr[y][x][K];
+		chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
+			+ chk[prev_y][prev_x][prev_water];
 
 		return;
 	}
 
-	DFS(y, x + 1, height + abs(abs(arr[y][x][11]) - abs(arr[y][x + 1][11])), water);
+	DFS(y, x + 1, water, y, x, water);
 
-	DFS(y + 1, x, height + abs(abs(arr[y][x][11]) - abs(arr[y + 1][x][11])), water);
+	DFS(y + 1, x, water, y, x, water);
+
+	chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
+		+ chk[prev_y][prev_x][prev_water];
 }
 
 int main(void)
 {
-	setbuf(stdout, NULL);
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 	int T;
 
-	scanf("%d", &T);
+	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
-		scanf("%d %d %d", &M, &N, &K);
+		scanf_s("%d %d %d", &M, &N, &K);
 
 		for (int n = 0; n <= N; n++)
 			for (int m = 0; m <= M; m++)
 			{
-				scanf("%d", &arr[n][m][11]);
+				scanf_s("%d", &arr[n][m][11]);
+
+				chk[n][m][11] = arr[n][m][11];
 
 				for (int k = 0; k <= K; k++)
+				{
 					arr[n][m][k] = 200 * 100;
+					chk[n][m][k] = 0;
+				}
 			}
 
-		min = 200 * 100;
+		DFS(0, 0, 0, 0, 0, 0);
 
-		DFS(0, 0, 0, 0);
-
-		printf("Case #%d\n%d\n", t, min);
+		printf("Case #%d\n%d\n", t, arr[N][M][K]);
 	}
 
 	return 0;
