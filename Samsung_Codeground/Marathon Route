@@ -62,59 +62,33 @@ int main(void)
 	return 0;
 }
 
-//time limit code
+// DP
 
 #include <stdio.h>
-#include <math.h>
 
-#define min(a, b) a < b ? a : b
+#define MIN(a, b) a > b ? b : a
 
-int arr[101][101][12];
-int chk[101][101][12];
+#define INF	100 * 5000
+
+int arr[101][101];
+int sol[101][101][11];
 
 int M, N, K;
 
-void DFS(int y, int x, int water, int prev_y, int prev_x, int prev_water)
+int abs(int a)
 {
-	if (y > N || x > M)
-		return;
-
-	if (arr[y][x][11] < 0 && water < K)
-		water++;
-
-	chk[y][x][water] += abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11])) 
-		+ chk[prev_y][prev_x][prev_water];
-
-	if (min(arr[y][x][water], chk[y][x][water]) == arr[y][x][water])
-	{
-		chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
-			+ chk[prev_y][prev_x][prev_water];
-		return;
-	}
-	else
-		arr[y][x][water] = min(arr[y][x][water], chk[y][x][water]);
-
-	if (y == N && x == M)
-	{
-		chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
-			+ chk[prev_y][prev_x][prev_water];
-
-		return;
-	}
-
-	DFS(y, x + 1, water, y, x, water);
-
-	DFS(y + 1, x, water, y, x, water);
-
-	chk[y][x][water] -= abs(abs(arr[y][x][11]) - abs(arr[prev_y][prev_x][11]))
-		+ chk[prev_y][prev_x][prev_water];
+	if (a > 0) return a;
+	return -a;
 }
 
 int main(void)
 {
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+
 	int T;
+
+	int now_bottle = 0, temp, t1, t2;
 
 	scanf_s("%d", &T);
 
@@ -122,23 +96,45 @@ int main(void)
 	{
 		scanf_s("%d %d %d", &M, &N, &K);
 
-		for (int n = 0; n <= N; n++)
-			for (int m = 0; m <= M; m++)
+		for (int y = 0; y <= N; y++) {
+			for (int x = 0; x <= M; x++)
 			{
-				scanf_s("%d", &arr[n][m][11]);
-
-				chk[n][m][11] = arr[n][m][11];
+				scanf_s("%d", &arr[y][x]);
 
 				for (int k = 0; k <= K; k++)
+					sol[y][x][k] = INF;
+			}
+		}
+
+		sol[0][0][0] = 0;
+
+		for (int y = 0; y <= N; y++)
+		{
+			for (int x = 0; x <= M; x++)
+			{
+				if (y == 0 && x == 0)
+					continue;
+
+				now_bottle = arr[y][x] < 0 ? 1 : 0;
+
+				for (int bottle = 0; bottle <= K; bottle++)
 				{
-					arr[n][m][k] = 200 * 100;
-					chk[n][m][k] = 0;
+					if (x > 0)
+					{
+						sol[y][x][MIN(K, bottle + now_bottle)] =
+							MIN(sol[y][x][MIN(K, bottle + now_bottle)], abs(sol[y][x - 1][bottle] + abs(abs(arr[y][x]) - abs(arr[y][x - 1]))));
+					}
+
+					if (y > 0)
+					{
+						sol[y][x][MIN(K, bottle + now_bottle)] =
+							MIN(sol[y][x][MIN(K, bottle + now_bottle)], abs(sol[y - 1][x][bottle] + abs(abs(arr[y][x]) - abs(arr[y - 1][x]))));
+					}
 				}
 			}
+		}
 
-		DFS(0, 0, 0, 0, 0, 0);
-
-		printf("Case #%d\n%d\n", t, arr[N][M][K]);
+		printf("Case #%d\n%d\n", t, sol[N][M][K]);
 	}
 
 	return 0;
