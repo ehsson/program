@@ -179,3 +179,197 @@ int main(void)
 
 	return 0;
 }
+
+// C++ & using while
+
+#include <iostream>
+using namespace std;
+
+enum
+{
+	R = 0, D, L, U
+};
+
+typedef struct
+{
+	int r, c, s;
+} Operator;
+
+Operator oper[6];
+
+int input[51][51];
+int chk[51][51];
+int _copy[51][51];
+
+int N, M, K;
+int _min = 100 * 50;
+
+void swap(int a, int b)
+{
+	Operator temp = oper[a];
+	oper[a] = oper[b];
+	oper[b] = temp;
+}
+
+void init(int r, int c, int s)
+{
+	for (int k = r - s; k <= r + s; k++)
+		for (int i = c - s; i <= c + s; i++)
+			chk[k][i] = 0;
+
+	for (int j = r - s; j <= r + s; j++)
+		chk[j][c - s - 1] = chk[j][c + s + 1] = -1;
+
+	for (int j = c - s; j <= c + s; j++)
+		chk[r - s - 1][j] = chk[r + s + 1][j] = -1;
+}
+
+void rotate(int y, int x, int no)
+{
+	int next_y = y, next_x = x;
+	int direction = R;
+	int temp1, temp2 = _copy[y][x];
+
+	chk[y][x] = 1;
+
+	while(1)
+	{
+		if (next_y == oper[no].r && next_x == oper[no].c)
+			return;
+
+		switch (direction)
+		{
+			case R:
+				next_x++;
+				
+				if (chk[next_y][next_x] != 0)
+				{
+					next_x--;
+					direction = D;
+				}
+				else
+				{
+					temp1 = _copy[next_y][next_x];
+					_copy[next_y][next_x] = temp2;
+					temp2 = temp1;
+				}
+
+				break;
+			case D:
+				next_y++;
+
+				if (chk[next_y][next_x] != 0)
+				{
+					next_y--;
+					direction = L;
+				}
+				else
+				{
+					temp1 = _copy[next_y][next_x];
+					_copy[next_y][next_x] = temp2;
+					temp2 = temp1;
+				}
+
+				break;
+			case L:
+				next_x--;
+
+				if (chk[next_y][next_x] != 0)
+				{
+					next_x++;
+					direction = U;
+				}
+				else
+				{
+					temp1 = _copy[next_y][next_x];
+					_copy[next_y][next_x] = temp2;
+					temp2 = temp1;
+				}
+
+				break;
+			case U:
+				next_y--;
+
+				if (chk[next_y][next_x] != 0)
+				{
+					_copy[next_y][next_x] = temp2;
+
+					next_y++;
+					next_x++;
+					temp2 = _copy[next_y][next_x];
+					direction = R;
+				}
+				else
+				{
+					temp1 = _copy[next_y][next_x];
+					_copy[next_y][next_x] = temp2;
+					temp2 = temp1;
+				}
+
+				break;
+			default:
+				break;
+		}
+
+		chk[next_y][next_x] = 1;
+	}
+}
+
+void permutation(int n)
+{
+	if (n == 0)
+	{
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= M; j++)
+				_copy[i][j] = input[i][j];
+
+		for (int k = 0; k < K; k++)
+		{
+			init(oper[k].r, oper[k].c, oper[k].s);
+
+			rotate(oper[k].r - oper[k].s, oper[k].c - oper[k].s, k);
+		}
+
+		for (int n = 1; n <= N; n++)
+		{
+			int sum = 0;
+
+			for (int m = 1; m <= M; m++)
+				sum += _copy[n][m];
+
+			if (_min > sum)
+				_min = sum;
+		}
+
+		return;
+	}
+
+	for (int i = 0; i <= n; i++)
+	{
+		swap(i, n);
+
+		permutation(n - 1);
+
+		swap(i, n);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M >> K;
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= M; m++)
+			cin >> input[n][m];
+
+	for (int k = 0; k < K; k++)
+		cin >> oper[k].r >> oper[k].c >> oper[k].s;
+
+	permutation(K - 1);
+
+	cout << _min;
+
+	return 0;
+}
