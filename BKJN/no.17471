@@ -145,3 +145,152 @@ int main(void)
 
 	return 0;
 }
+
+
+// C++
+
+#include <iostream>
+using namespace std;
+
+int population[11];
+int p_chk[11] = { 0 };
+int v_chk[11] = { 0 };
+int area[11][11] = { 0 };
+
+int N;
+int _min;
+int chk;
+
+int ABS(int a)
+{
+	if (a < 0)
+		return -a;
+	else
+		return a;
+}
+
+void DFS(int start, int end, int pos)
+{
+	if (pos == end)
+	{
+		chk = 1;
+
+		return;
+	}
+
+	for (int i = 1; i <= N; i++)
+	{
+		if (v_chk[i] == 1 || pos == i || area[pos][i] != 1 || (p_chk[start] != p_chk[i]))
+			continue;
+		else
+		{
+			v_chk[pos] = 1;
+
+			DFS(start, end, i);
+
+			v_chk[pos] = 0;
+
+			if (chk)
+				break;
+		}
+	}
+}
+
+void subset(int n)
+{
+	if (n == N + 1)
+	{
+		int temp_chk = 1;
+
+		for (int i = 2; i <= N; i++)
+		{
+			if (p_chk[i - 1] != p_chk[i])
+			{
+				temp_chk = 0;
+				break;
+			}
+		}
+
+		if (temp_chk)
+			return;
+
+		for (int i = 1; i <= N - 1; i++)
+		{
+			for (int j = i + 1; j <= N; j++)
+			{
+				if (p_chk[i] == p_chk[j])
+				{
+					chk = 0;
+
+					v_chk[i] = 1;
+
+					DFS(i, j, i);
+
+					v_chk[i] = 0;
+
+					if (!chk)
+						return;
+				}
+			}
+		}
+
+		int sum0 = 0, sum1 = 0;
+
+		for (int i = 1; i <= N; i++)
+		{
+			if (p_chk[i])
+				sum1 += population[i];
+			else
+				sum0 += population[i];
+		}
+
+		if (_min > ABS(sum1 - sum0))
+			_min = ABS(sum1 - sum0);
+
+		return;
+	}
+
+	p_chk[n] = 1;
+	subset(n + 1);
+
+	p_chk[n] = 0;
+	subset(n + 1);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> population[n];
+
+	for (int n = 1; n <= N; n++)
+	{
+		int temp;
+
+		cin >> temp;
+
+		int input;
+
+		for (int i = 1; i <= temp; i++)
+		{
+			cin >> input;
+
+			area[n][input] = 1;
+			area[input][n] = 1;
+		}
+	}
+
+	_min = 100 * 10;
+
+	subset(1);
+
+	if (_min == 100 * 10)
+		cout << -1;
+	else
+		cout << _min;
+
+	return 0;
+}
