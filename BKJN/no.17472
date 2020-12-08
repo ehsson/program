@@ -282,3 +282,225 @@ int main(void)
 
 	return 0;
 }
+
+//C++
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+typedef struct
+{
+	int area1, area2, len;
+} Bridge;
+
+int arr[10][10];
+int bridge[7][7];
+
+Bridge bridge_arr[18];
+int bridge_chk[18];
+
+int temp[7][7];
+int island_chk[7];
+
+int N, M;
+int island_cnt = 0;
+int bridge_cnt = 0;
+int TF, _min = 60;
+
+void get_island_order(int y, int x, int num)
+{
+	if (y >= N || x >= M || y < 0 || x < 0)
+		return;
+
+	if (arr[y][x] != -1)
+		return;
+
+	arr[y][x] = num;
+
+	get_island_order(y, x + 1, num);
+
+	get_island_order(y + 1, x, num);
+
+	get_island_order(y, x - 1, num);
+
+	get_island_order(y - 1, x, num);
+}
+
+void get_bridge_width(int y, int x, int start_island, int len)
+{
+	if (x > M)
+		return;
+
+	if (len > 0 && arr[y][x] != 0)
+	{
+		if (start_island != arr[y][x] && len > 2 && bridge[start_island][arr[y][x]] > len - 1)
+		{
+			bridge[start_island][arr[y][x]] = len - 1;
+			bridge[arr[y][x]][start_island] = len - 1;
+		}
+
+		return;
+	}
+
+	get_bridge_width(y, x + 1, start_island, len + 1);
+}
+
+void get_bridge_height(int y, int x, int start_island, int len)
+{
+	if (y > N)
+		return;
+
+	if (len > 0 && arr[y][x] != 0)
+	{
+		if (start_island != arr[y][x] && len > 2 && bridge[start_island][arr[y][x]] > len - 1)
+		{
+			bridge[start_island][arr[y][x]] = len - 1;
+			bridge[arr[y][x]][start_island] = len - 1;
+		}
+
+		return;
+	}
+
+	get_bridge_height(y + 1, x, start_island, len + 1);
+}
+
+void DFS(int child)
+{
+	int chk = 1;
+
+	for(int i = 1; i <= island_cnt; i++)
+		if (!island_chk[i])
+		{
+			chk = 0;
+			break;
+		}
+
+	if (chk)
+	{
+		TF = 1;
+		return;
+	}
+
+	if (island_chk[child])
+		return;
+
+	island_chk[child] = 1;
+
+	for (int k = 1; k <= island_cnt; k++)
+	{
+		if (temp[child][k] > 0)
+			DFS(k);
+	}
+}
+
+void subset(int n)
+{
+	if (n == bridge_cnt)
+	{
+		int temp_cnt = 0;
+
+		for (int i = 0; i < bridge_cnt; i++)
+			if (bridge_chk[i])
+				temp_cnt++;
+
+		if (temp_cnt == island_cnt - 1)
+		{
+			for (int n = 1; n <= island_cnt; n++)
+				for (int m = 1; m <= island_cnt; m++)
+					temp[n][m] = 0;
+
+			int sum = 0;
+
+			for (int i = 0; i < bridge_cnt; i++)
+				if (bridge_chk[i])
+				{
+					sum += bridge_arr[i].len;
+
+					temp[bridge_arr[i].area1][bridge_arr[i].area2] = bridge_arr[i].len;
+					temp[bridge_arr[i].area2][bridge_arr[i].area1] = bridge_arr[i].len;
+				}
+
+			memset(island_chk, 0, sizeof(int) * 7);
+			TF = 0;
+
+			DFS(1);
+
+			if (TF)
+			{
+				if (_min > sum)
+					_min = sum;
+			}
+		}
+
+		return;
+	}
+
+	bridge_chk[n] = 1;
+	subset(n + 1);
+
+	bridge_chk[n] = 0;
+	subset(n + 1);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+		{
+			cin >> arr[n][m];
+
+			if (arr[n][m])
+				arr[n][m] = -1;
+		}
+
+	for(int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+		{
+			if (arr[n][m] == -1)
+			{
+				island_cnt++;
+
+				get_island_order(n, m, island_cnt);
+			}
+		}
+
+	for (int a = 1; a <= island_cnt; a++)
+		for (int b = 1; b <= island_cnt; b++)
+			bridge[a][b] = 10;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			if (arr[n][m] != 0)
+			{
+				get_bridge_width(n, m, arr[n][m], 0);
+
+				get_bridge_height(n, m, arr[n][m], 0);
+			}
+
+	for(int i = 1; i <= island_cnt; i++)
+		for (int j = i + 1; j <= island_cnt; j++)
+		{
+			if (bridge[i][j] < 10)
+			{
+				bridge_arr[bridge_cnt].area1 = i;
+				bridge_arr[bridge_cnt].area2 = j;
+				bridge_arr[bridge_cnt].len = bridge[i][j];
+
+				bridge_cnt++;
+			}
+		}
+
+	subset(0);
+
+	if (_min == 60)
+		cout << -1;
+	else
+		cout << _min;
+
+	return 0;
+}
