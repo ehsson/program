@@ -1,0 +1,39 @@
+#include <iostream>
+using namespace std;
+
+typedef struct
+{
+	int y;
+	int x;
+} Point;
+
+Point& PointAdder(const Point& p1, const Point& p2)
+{
+	Point* temp = new Point;
+
+	temp->y = p1.y + p2.y;
+	temp->x = p1.x + p2.x;
+
+	return *temp;
+}
+
+int main(void)
+{
+	Point* p1 = new Point;
+	p1->y = 1;
+	p1->x = 1;
+
+	Point* p2 = new Point;
+	p2->y = 2;
+	p2->x = 3;
+
+	Point &pref = PointAdder(*p1, *p2);
+
+	cout << pref.y << " " << pref.x << endl;
+
+	delete p1;
+	delete p2;
+	delete& pref;
+
+	return 0;
+}
