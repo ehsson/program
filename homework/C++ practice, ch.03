@@ -1,0 +1,41 @@
+// 3-1
+
+#include <iostream>
+using namespace std;
+
+typedef struct Point
+{
+	int xpos, ypos;
+
+	void MovePos(int x, int y)
+	{
+		ypos += y;
+		xpos += x;
+	}
+
+	void AddPoint(const Point& pos)
+	{
+		ypos += pos.ypos;
+		xpos += pos.xpos;
+	}
+
+	void ShowPosition(void)
+	{
+		cout << xpos << " " << ypos << endl;
+	}
+
+} Point;
+
+int main(void)
+{
+	Point pos1 = { 12, 4 };
+	Point pos2 = { 20, 30 };
+
+	pos1.MovePos(-7, 10);
+	pos1.ShowPosition();
+
+	pos1.AddPoint(pos2);
+	pos1.ShowPosition();
+
+	return 0;
+}
