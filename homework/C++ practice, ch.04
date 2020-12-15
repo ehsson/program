@@ -76,3 +76,73 @@ int main(void)
 
 	return 0;
 }
+
+// 4-2
+
+#include <iostream>
+using namespace std;
+
+class Point
+{
+	int xpos, ypos;
+public:
+	void Init(int x, int y)
+	{
+		xpos = x;
+		ypos = y;
+	}
+
+	void ShowPointInfo() const
+	{
+		cout << "[" << xpos << ", " << ypos << "]" << endl;
+	}
+};
+
+class Circle
+{
+	Point p;
+	int c_radius;
+public:
+	void Init(int x, int y, int radius)
+	{
+		p.Init(x, y);
+		c_radius = radius;
+	}
+
+	void ShowCircleInfo(void)
+	{
+		cout << "radius: " << c_radius << endl;
+		p.ShowPointInfo();
+	}
+};
+
+class Ring
+{
+	Circle c1, c2;
+public:
+	void Init(int inner_x, int inner_y, int inner_radius, int outer_x, int outer_y, int outer_radius);
+	void ShowRingInfo(void);
+};
+
+void Ring::Init(int inner_x, int inner_y, int inner_radius, int outer_x, int outer_y, int outer_radius)
+{
+	c1.Init(inner_x, inner_y, inner_radius);
+	c2.Init(outer_x, outer_y, outer_radius);
+}
+
+void Ring::ShowRingInfo(void)
+{
+	cout << "Inner Circle Info..." << endl;
+	c1.ShowCircleInfo();
+	cout << "Outer Circle Info..." << endl;
+	c2.ShowCircleInfo();
+}
+
+int main(void)
+{
+	Ring ring;
+	ring.Init(1, 1, 4, 2, 2, 9);
+	ring.ShowRingInfo();
+
+	return 0;
+}
