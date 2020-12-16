@@ -1,0 +1,97 @@
+// 5-1
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+namespace COMP_POS
+{
+	enum
+	{
+		CLERK = 0, SENIOR, ASSIST, MANAGER
+	};
+
+	void PrintPosition(int position)
+	{
+		switch (position)
+		{
+		case 0:
+			cout << "직급: 사원" << endl;
+			break;
+		case 1:
+			cout << "직급: 주임" << endl;
+			break;
+		case 2:
+			cout << "직급: 대리" << endl;
+			break;
+		case 3:
+			cout << "직급: 과장" << endl;
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+class NameCard
+{
+private:
+	char* name;
+	char* company;
+	char* phone;
+	int position;
+
+public:
+	NameCard(char* name, char* company, char* phone, int position);
+	NameCard(const NameCard& copy)
+		: position(copy.position)
+	{
+		name = new char[strlen(copy.name) + 1];
+		strcpy(name, copy.name);
+		company = new char[strlen(copy.company) + 1];
+		strcpy(company, copy.company);
+		phone = new char[strlen(copy.phone) + 1];
+		strcpy(phone, copy.phone);
+	}
+	void ShowNameCardInfo(void)
+	{
+		cout << "이름: " << name << endl;
+		cout << "회사: " << company << endl;
+		cout << "전화번호: " << phone << endl;
+		COMP_POS::PrintPosition(position);
+	}
+	~NameCard(void);
+};
+
+NameCard::NameCard(char* name, char* company, char* phone, int position)
+{
+	this->name = new char[strlen(name) + 1];
+	strcpy(this->name, name);
+	this->company = new char[strlen(company) + 1];
+	strcpy(this->company, company);
+	this->phone = new char[strlen(phone) + 1];
+	strcpy(this->phone, phone);
+	this->position = position;
+}
+
+NameCard::~NameCard(void)
+{
+	delete[]name;
+	delete[]company;
+	delete[]phone;
+}
+
+int main(void)
+{
+	char name1[] = "Lee";
+	char name2[] = "Hong";
+	NameCard manCLERK(name1, "ABCEng", "010-1111-2222", COMP_POS::CLERK);
+	NameCard copy1(manCLERK);
+	NameCard manSENIOR(name2, "OrangeEng", "010-3333-4444", COMP_POS::SENIOR);
+	NameCard copy2(manSENIOR);
+
+	copy1.ShowNameCardInfo();
+	copy2.ShowNameCardInfo();
+
+	return 0;
+}
