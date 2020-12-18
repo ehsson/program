@@ -114,3 +114,42 @@ int main(void)
 
 	return 0;
 }
+
+// 7-2(1)
+
+#include <iostream>
+using namespace std;
+
+class Rectangle
+{
+	int wid;
+	int hei;
+public:
+	Rectangle(int wid, int hei)
+		:wid(wid), hei(hei)
+	{}
+	void ShowAreaInfo(void)
+	{
+		cout << "면적: " << wid * hei << endl;
+	}
+};
+
+class Square : public Rectangle
+{
+	int len;
+public:
+	Square(int len)
+		:Rectangle(len, len), len(len)
+	{}
+};
+
+int main(void)
+{
+	Rectangle rec(4, 3);
+	rec.ShowAreaInfo();
+
+	Square sqr(7);
+	sqr.ShowAreaInfo();
+
+	return 0;
+}
