@@ -153,3 +153,68 @@ int main(void)
 
 	return 0;
 }
+
+// 7-2(2)
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Book
+{
+	char* name;
+	char* ISBN;
+	int price;
+public:
+	Book(char* name, char* ISBN, int price)
+	{
+		this->name = new char[strlen(name) + 1];
+		strcpy(this->name, name);
+		this->ISBN = new char[strlen(ISBN) + 1];
+		strcpy(this->ISBN, ISBN);
+		this->price = price;
+	}
+	~Book(void)
+	{
+		delete[] name;
+		delete[] ISBN;
+	}
+	void ShowBookInfo(void)
+	{
+		cout << "제목: " << name << endl;
+		cout << "ISBN: " << ISBN << endl;
+		cout << "가격: " << price << endl;
+	}
+};
+
+class EBook : public Book
+{
+	char* Akey;
+public:
+	EBook(char* name, char* ISBN, int price, char* Akey)
+		:Book(name, ISBN, price)
+	{
+		this->Akey = new char[strlen(Akey) + 1];
+		strcpy(this->Akey, Akey);
+	}
+	~EBook(void)
+	{
+		delete[] Akey;
+	}
+	void ShowEBookInfo(void)
+	{
+		ShowBookInfo();
+		cout << "인증키: " << Akey << endl;
+	}
+};
+
+int main(void)
+{
+	Book book("좋은 C++", "555-12345-890-0", 20000);
+	book.ShowBookInfo();
+	cout << "\n";
+	EBook ebook("좋은 C++ ebook", "555-12345-890-1", 10000, "fdx9w0i8kiw");
+	ebook.ShowEBookInfo();
+
+	return 0;
+}
