@@ -52,3 +52,65 @@ int main(void)
 
 	return 0;
 }
+
+// 7-1(2)
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class MyFriendInfo
+{
+	char* name;
+	int age;
+public:
+	MyFriendInfo(char * name, int age)
+	{
+		this->name = new char[strlen(name) + 1];
+		this->age = age;
+		strcpy(this->name, name);
+	}
+	~MyFriendInfo()
+	{
+		delete[] name;
+	}
+	void ShowMyFriendInfo(void)
+	{
+		cout << "이름: " << name << endl;
+		cout << "나이: " << age << endl;
+	}
+};
+
+class MyFriendDetailInfo : public MyFriendInfo
+{
+	char* addr;
+	char* phone;
+public:
+	MyFriendDetailInfo(char* name, int age, char* addr, char* phone)
+		:MyFriendInfo(name, age)
+	{
+		this->addr = new char[strlen(addr) + 1];
+		this->phone = new char[strlen(phone) + 1];
+		strcpy(this->addr, addr);
+		strcpy(this->phone, phone);
+	}
+	~MyFriendDetailInfo(void)
+	{
+		delete[] addr;
+		delete[] phone;
+	}
+	void ShowMyFriendDetailInfo(void)
+	{
+		ShowMyFriendInfo();
+		cout << "주소: " << addr << endl;
+		cout << "전화: " << phone << endl;
+	}
+};
+
+int main(void)
+{
+	MyFriendDetailInfo MFDI("Son", 22, "Seoul", "010-1111-2222");
+	MFDI.ShowMyFriendDetailInfo();
+
+	return 0;
+}
