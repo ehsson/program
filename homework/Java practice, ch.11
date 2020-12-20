@@ -8,3 +8,13 @@ class DeleteHphen {
 		System.out.println(str2);
 	}
 }
+
+// 11-2
+
+class DeleteHyphen2 {
+	public static void main(String[] args) {
+		StringBuilder str1 = new StringBuilder("990925-1012999");
+		str1.replace(6,  7,  " ");
+		System.out.println(str1.toString());
+	}
+}
