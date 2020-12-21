@@ -1,0 +1,156 @@
+// practice
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Employee
+{
+	char name[50];
+public:
+	Employee(char* name)
+	{
+		strcpy_s(this->name, name);
+	}
+
+	void ShowYourName(void) const
+	{
+		cout << "name: " << name << endl;
+	}
+};
+
+class PermanentWorker : public Employee
+{
+	int salary;
+public:
+	PermanentWorker(char* name, int money)
+		: Employee(name), salary(money)
+	{}
+
+	int GetPay(void) const
+	{
+		return salary;
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << salary << endl;
+	}
+};
+
+class EmployeeHandler
+{
+	Employee* empList[50];
+	int empNum;
+public:
+	EmployeeHandler()
+		: empNum(0)
+	{}
+
+	void AddEmployee(Employee* emp)
+	{
+		empList[empNum++] = emp;
+	}
+
+	void ShowAllSalaryInfo(void) const
+	{
+		/*
+		for (int i = 0; i < empNum; i++)
+			empList[i]->ShowSalaryInfo();
+		*/
+	}
+
+	void ShowTotalSalary(void) const
+	{
+		int sum = 0;
+		/*
+		for (int i = 0; i < empNum; i++)
+			sum += empList[i]->GetPay();
+		*/
+		cout << "salary sum: " << sum << endl;
+	}
+
+	~EmployeeHandler(void)
+	{
+		for (int i = 0; i < empNum; i++)
+			delete empList[i];
+	}
+};
+
+class SalesWorker : public PermanentWorker
+{
+	int salesResult;
+	double bonusRatio;
+public:
+	SalesWorker(char* name, int money, double ratio)
+		: PermanentWorker(name, money), salesResult(0), bonusRatio(ratio)
+	{}
+
+	void AddSalesResult(int value)
+	{
+		salesResult += value;
+	}
+
+	int GetPay(void) const
+	{
+		return PermanentWorker::GetPay() + (int)(salesResult * bonusRatio);
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << GetPay() << endl << endl;
+	}
+};
+
+class TemporaryWorker : public Employee
+{
+	int workTime;
+	int payPerHour;
+public:
+	TemporaryWorker(char* name, int pay)
+		: Employee(name) , workTime(0), payPerHour(pay)
+	{}
+
+	void AddWorkTime(int time)
+	{
+		workTime += time;
+	}
+
+	int GetPay(void) const
+	{
+		return workTime * payPerHour;
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << GetPay() << endl << endl;
+	}
+};
+
+int main(void)
+{
+	EmployeeHandler handler;
+
+	char per_name1[4] = "Kim";
+	char per_name2[4] = "Lee";
+	handler.AddEmployee(new PermanentWorker(per_name1, 1000));
+	handler.AddEmployee(new PermanentWorker(per_name2, 1500));
+
+	char temp_name[5] = "Jung";
+	TemporaryWorker* alba = new TemporaryWorker(temp_name, 700);
+	alba->AddWorkTime(5);
+	handler.AddEmployee(alba);
+
+	char seller_name[5] = "Hong";
+	SalesWorker* seller = new SalesWorker(seller_name, 1000, 0.1);
+	seller->AddSalesResult(7000);
+	handler.AddEmployee(seller);
+
+	handler.ShowAllSalaryInfo();
+	handler.ShowTotalSalary();
+
+	return 0;
+}
