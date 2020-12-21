@@ -162,3 +162,227 @@ int main(void)
 
 	return 0;
 }
+
+// 8-1
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+namespace RISK_LEVEL
+{
+	enum
+	{
+		RISK_A, RISK_B, RISK_C
+	};
+}
+
+class Employee
+{
+	char name[50];
+public:
+	Employee(char* name)
+	{
+		strcpy_s(this->name, name);
+	}
+
+	void ShowYourName(void) const
+	{
+		cout << "name: " << name << endl;
+	}
+
+	virtual int GetPay(void) const
+	{
+		return 0;
+	}
+
+	virtual void ShowSalaryInfo(void) const
+	{}
+};
+
+class PermanentWorker : public Employee
+{
+	int salary;
+public:
+	PermanentWorker(char* name, int money)
+		: Employee(name), salary(money)
+	{}
+
+	int GetPay(void) const
+	{
+		return salary;
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << salary << endl << endl;
+	}
+};
+
+class EmployeeHandler
+{
+	Employee* empList[50];
+	int empNum;
+public:
+	EmployeeHandler()
+		: empNum(0)
+	{}
+
+	void AddEmployee(Employee* emp)
+	{
+		empList[empNum++] = emp;
+	}
+
+	void ShowAllSalaryInfo(void) const
+	{
+		
+		for (int i = 0; i < empNum; i++)
+			empList[i]->ShowSalaryInfo();
+		
+	}
+
+	void ShowTotalSalary(void) const
+	{
+		int sum = 0;
+		
+		for (int i = 0; i < empNum; i++)
+			sum += empList[i]->GetPay();
+		
+		cout << "salary sum: " << sum << endl;
+	}
+
+	~EmployeeHandler(void)
+	{
+		for (int i = 0; i < empNum; i++)
+			delete empList[i];
+	}
+};
+
+class SalesWorker : public PermanentWorker
+{
+	int salesResult;
+	double bonusRatio;
+public:
+	SalesWorker(char* name, int money, double ratio)
+		: PermanentWorker(name, money), salesResult(0), bonusRatio(ratio)
+	{}
+
+	void AddSalesResult(int value)
+	{
+		salesResult += value;
+	}
+
+	int GetPay(void) const
+	{
+		return PermanentWorker::GetPay() + (int)(salesResult * bonusRatio);
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << GetPay() << endl << endl;
+	}
+};
+
+class ForeignSalesWorker : public SalesWorker
+{
+	int risk_level;
+public:
+	ForeignSalesWorker(char* name, int money, double ratio, int level)
+		: SalesWorker(name, money, ratio), risk_level(level)
+	{}
+
+	int GetPay(void) const
+	{
+		switch (risk_level)
+		{
+		case RISK_LEVEL::RISK_A:
+			return SalesWorker::GetPay() + SalesWorker::GetPay() * 0.3;
+			break;
+		case RISK_LEVEL::RISK_B:
+			return SalesWorker::GetPay() + SalesWorker::GetPay() * 0.2;
+			break;
+		case RISK_LEVEL::RISK_C:
+			return SalesWorker::GetPay() + SalesWorker::GetPay() * 0.1;
+			break;
+		default:
+			break;
+		}
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << SalesWorker::GetPay() << endl;
+
+		switch (risk_level)
+		{
+		case RISK_LEVEL::RISK_A:
+			cout << "risk pay: " << SalesWorker::GetPay() * 0.3 << endl;
+			break;
+		case RISK_LEVEL::RISK_B:
+			cout << "risk pay: " << SalesWorker::GetPay() * 0.2 << endl;
+			break;
+		case RISK_LEVEL::RISK_C:
+			cout << "risk pay: " << SalesWorker::GetPay() * 0.1 << endl;
+			break;
+		default:
+			break;
+		}
+
+		cout << "sum: " << GetPay() << endl << endl;
+	}
+};
+
+class TemporaryWorker : public Employee
+{
+	int workTime;
+	int payPerHour;
+public:
+	TemporaryWorker(char* name, int pay)
+		: Employee(name) , workTime(0), payPerHour(pay)
+	{}
+
+	void AddWorkTime(int time)
+	{
+		workTime += time;
+	}
+
+	int GetPay(void) const
+	{
+		return workTime * payPerHour;
+	}
+
+	void ShowSalaryInfo(void) const
+	{
+		ShowYourName();
+		cout << "salary: " << GetPay() << endl << endl;
+	}
+};
+
+int main(void)
+{
+	EmployeeHandler handler;
+
+	char name1[5] = "Hong";
+	char name2[5] = "Yoon";
+	char name3[4] = "Lee";
+
+	ForeignSalesWorker* fseller1 = new ForeignSalesWorker(name1, 1000, 0.1, RISK_LEVEL::RISK_A);
+	fseller1->AddSalesResult(7000);
+	handler.AddEmployee(fseller1);
+
+	ForeignSalesWorker* fseller2 = new ForeignSalesWorker(name2, 1000, 0.1, RISK_LEVEL::RISK_B);
+	fseller2->AddSalesResult(7000);
+	handler.AddEmployee(fseller2);
+
+	ForeignSalesWorker* fseller3 = new ForeignSalesWorker(name3, 1000, 0.1, RISK_LEVEL::RISK_C);
+	fseller3->AddSalesResult(7000);
+	handler.AddEmployee(fseller3);
+
+	handler.ShowAllSalaryInfo();
+	handler.ShowTotalSalary();
+
+	return 0;
+}
