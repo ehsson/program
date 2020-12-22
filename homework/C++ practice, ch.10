@@ -1,0 +1,38 @@
+// 10-1(1)
+
+#include <iostream>
+using namespace std;
+
+class Point
+{
+	int xPos, yPos;
+public:
+	Point(int x = 0, int y = 0)
+		:xPos(x), yPos(y)
+	{}
+
+	void ShowPosition(void) const
+	{
+		cout << "[" << xPos << "," << yPos << "]" << endl;
+	}
+
+	friend Point operator-(Point& ref1, Point& ref2);
+};
+
+Point operator-(Point& ref1, Point& ref2)
+{
+	Point pos(ref1.xPos - ref2.xPos, ref1.yPos - ref2.yPos);
+
+	return pos;
+}
+
+int main(void)
+{
+	Point pos1(10, 20);
+	Point pos2(2, 5);
+
+	Point pos3 = pos1 - pos2;
+	pos3.ShowPosition();
+
+	return 0;
+}
