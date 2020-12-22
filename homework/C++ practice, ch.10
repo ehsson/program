@@ -36,3 +36,72 @@ int main(void)
 
 	return 0;
 }
+
+// 10-1(2, 3)
+
+#include <iostream>
+using namespace std;
+
+class Point
+{
+	int xPos, yPos;
+public:
+	Point(int x = 0, int y = 0)
+		:xPos(x), yPos(y)
+	{}
+
+	Point& operator+=(Point& ref)
+	{
+		xPos += ref.xPos;
+		yPos += ref.yPos;
+
+		return*this;
+	}
+
+	Point& operator-=(Point& ref)
+	{
+		xPos -= ref.xPos;
+		yPos -= ref.yPos;
+
+		return*this;
+	}
+
+	bool operator==(Point& ref)
+	{
+		if (xPos != ref.xPos || yPos != ref.yPos)
+			return false;
+		else return true;
+	}
+
+	bool operator!=(Point& ref)
+	{
+		if (xPos == ref.xPos || yPos == ref.yPos)
+			return false;
+		else 
+			return true;
+	}
+
+	void ShowPosition(void) const
+	{
+		cout << "[" << xPos << "," << yPos << "]" << endl;
+	}
+};
+
+int main(void)
+{
+	Point pos1(10, 20);
+	Point pos2(10, 20);
+	
+	pos1 += pos2;
+	pos1.ShowPosition();
+
+	pos1 -= pos2;
+	pos1.ShowPosition();
+
+	if (pos1 == pos2)
+		cout << "equal" << endl;
+	else
+		cout << "not equal" << endl;
+
+	return 0;
+}
