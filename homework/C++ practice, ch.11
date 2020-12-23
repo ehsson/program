@@ -1,0 +1,86 @@
+// 11-1(1)
+
+#include <iostream>
+using namespace std;
+
+class Gun
+{
+	int bullet;
+public:
+	Gun(int bnum)
+		: bullet(bnum)
+	{}
+
+	void Shot(void)
+	{
+		cout << "BBANG" << endl;
+		bullet--;
+	}
+};
+
+class Police
+{
+	int handcuffs;
+	Gun* pistol;
+public:
+	Police(int bnum, int bcuff)
+		: handcuffs(bcuff)
+	{
+		if (bnum > 0)
+			pistol = new Gun(bnum);
+		else
+			pistol = NULL;
+	}
+
+	Police(Police& ref)
+	{
+		handcuffs = ref.handcuffs;
+		if (ref.pistol != NULL)
+			pistol = new Gun(*ref.pistol);
+		else
+			pistol = NULL;
+	}
+
+	Police& operator=(Police& ref)
+	{
+		delete pistol;
+		handcuffs = ref.handcuffs;
+		pistol = new Gun(*ref.pistol);
+
+		return*this;
+	}
+
+	void PutHandcuff(void)
+	{
+		cout << "SNAP" << endl;
+		handcuffs--;
+	}
+
+	void Shot(void)
+	{
+		if (pistol == NULL)
+			cout << "Hut BBANG" << endl;
+		else
+			pistol->Shot();
+	}
+
+	~Police(void)
+	{
+		if (pistol != NULL)
+			delete pistol;
+	}
+};
+
+int main(void)
+{
+	Police pman1(5, 3);
+	pman1.Shot();
+	pman1.PutHandcuff();
+
+	Police pman2(0, 3);
+	pman2 = pman1;			// pman2.operator=(pman1);
+	pman2.Shot();
+	pman2.PutHandcuff();
+
+	return 0;
+}
