@@ -105,3 +105,58 @@ int main(void)
 
 	return 0;
 }
+
+// 10-2
+
+#include <iostream>
+using namespace std;
+
+class Point
+{
+	int xPos, yPos;
+public:
+	Point(int x = 0, int y = 0)
+		:xPos(x), yPos(y)
+	{}
+
+	Point& operator+=(Point& ref)
+	{
+		xPos += ref.xPos;
+		yPos += ref.yPos;
+
+		return*this;
+	}
+
+	Point operator-(void)
+	{
+		Point pos(-xPos, -yPos);
+
+		return pos;
+	}
+
+	friend Point operator~(Point& ref);
+
+	void ShowPosition(void) const
+	{
+		cout << "[" << xPos << "," << yPos << "]" << endl;
+	}
+};
+
+Point operator~(Point& ref)
+{
+	Point pos(ref.yPos, ref.xPos);
+
+	return pos;
+}
+
+int main(void)
+{
+	Point pos1(1, 2);
+	Point pos2 = -pos1;
+	pos2.ShowPosition();
+
+	pos2 = ~pos1;
+	pos2.ShowPosition();
+
+	return 0;
+}
