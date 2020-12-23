@@ -84,3 +84,113 @@ int main(void)
 
 	return 0;
 }
+
+// 11-1(2)
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Book
+{
+	char* name;
+	char* ISBN;
+	int price;
+public:
+	Book(char* name, char* ISBN, int price)
+	{
+		this->name = new char[strlen(name) + 1];
+		strcpy(this->name, name);
+		this->ISBN = new char[strlen(ISBN) + 1];
+		strcpy(this->ISBN, ISBN);
+		this->price = price;
+	}
+
+	Book(Book& ref)
+		: price(ref.price)
+	{
+		name = new char[strlen(ref.name) + 1];
+		strcpy(name, ref.name);
+		name = new char[strlen(ref.ISBN) + 1];
+		strcpy(name, ref.ISBN);
+	}
+
+	~Book(void)
+	{
+		delete[] name;
+		delete[] ISBN;
+	}
+
+	Book& operator=(Book& ref)
+	{
+		delete[] name;
+		delete[] ISBN;
+		name = new char[strlen(ref.name) + 1];
+		strcpy(name, ref.name);
+		name = new char[strlen(ref.ISBN) + 1];
+		strcpy(name, ref.ISBN);
+		price = ref.price;
+
+		return*this;
+	}
+
+	void ShowBookInfo(void)
+	{
+		cout << "제목: " << name << endl;
+		cout << "ISBN: " << ISBN << endl;
+		cout << "가격: " << price << endl;
+	}
+};
+
+class EBook : public Book
+{
+	char* Akey;
+public:
+	EBook(char* name, char* ISBN, int price, char* Akey)
+		:Book(name, ISBN, price)
+	{
+		this->Akey = new char[strlen(Akey) + 1];
+		strcpy(this->Akey, Akey);
+	}
+
+	EBook(EBook& ref)
+		: Book(ref)
+	{
+		Akey = new char[strlen(ref.Akey)];
+		strcpy(Akey, ref.Akey);
+	}
+
+	~EBook(void)
+	{
+		delete[] Akey;
+	}
+
+	EBook& operator=(EBook& ref)
+	{
+		Book::operator=(ref);
+		delete[] Akey;
+		Akey = new char[strlen(ref.Akey)];
+		strcpy(Akey, ref.Akey);
+
+		return*this;
+	}
+
+	void ShowEBookInfo(void)
+	{
+		ShowBookInfo();
+		cout << "인증키: " << Akey << endl;
+	}
+};
+
+int main(void)
+{
+	Book book("좋은 C++", "555-12345-890-0", 20000);
+	book.ShowBookInfo();
+	cout << "\n";
+	EBook ebook("좋은 C++ ebook", "555-12345-890-1", 10000, "fdx9w0i8kiw");
+	ebook.ShowEBookInfo();
+	EBook ebook1("dummy", "dummy", 0, "dummy");
+	ebook1 = ebook;
+
+	return 0;
+}
