@@ -1,0 +1,36 @@
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N, A, B;
+
+		cin >> N >> A >> B;
+
+		int _min = 0, _max;
+
+		if (min(A, B) + max(A, B) > N)
+			_min = min(A, B) + max(A, B) - N;
+
+		_max = min(A, B);
+
+		cout << "#" << t << " " << _max << " " << _min << endl;
+	}
+
+	return 0;
+}
+
+// test case
+
+3
+10 3 5
+10 7 5
+100 100 100
