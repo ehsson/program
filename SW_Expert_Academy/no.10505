@@ -35,6 +35,8 @@ int main(void)
 				cnt++;
 
 		cout << "#" << t << " " << cnt << endl;
+
+		delete arr;
 	}
 
 	return 0;
