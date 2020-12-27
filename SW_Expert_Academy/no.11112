@@ -1,18 +1,10 @@
-// time limit code
-
 #include <iostream>
-#include <cmath>
 using namespace std;
-
-typedef struct Point
-{
-	int x, y;
-} Point;
 
 int main(void)
 {
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
+	cin.tie(0), cout.tie(0);
+	ios::sync_with_stdio(false);
 	int T;
 
 	cin >> T;
@@ -25,48 +17,28 @@ int main(void)
 		cin >> p >> q >> r;
 		cin >> a >> b >> c >> d;
 
-		Point point[4];
-
-		point[0].x = a;
-		point[0].y = d;
-		point[1].x = a;
-		point[1].y = b;
-		point[2].x = c;
-		point[2].y = d;
-		point[3].x = c;
-		point[3].y = b;
-
-		bool chk[4] = { false };
 		int cnt = 0;
 
-		for (int i = 0; i < 4; i++)
-		{
-			if ((double)r < sqrt(pow(p - point[i].x, 2) + pow(q - point[i].y, 2)))
-				chk[i] = true;
-		}
+		if ((a - p) * (a - p) + (b - q) * (b - q) <= r * r)
+			cnt++;
 
-		for (int j = 0; j < 4; j++)
-			if (chk[j] == true)
-				cnt++;
+		if ((a - p) * (a - p) + (d - q) * (d - q) <= r * r)
+			cnt++;
+
+		if ((c - p) * (c - p) + (b - q) * (b - q) <= r * r)
+			cnt++;
+
+		if ((c - p) * (c - p) + (d - q) * (d - q) <= r * r)
+			cnt++;
 
 		cout << "#" << t << " ";
-		
-		switch (cnt)
-		{
-		case 0:
-			cout << "YN" << endl;
-			break;
-		case 4:
-			if (abs((a + c) / 2 - p) + (double)r > (c - a) / 2 ||
-				abs((b + d) / 2 - q) + (double)r > (d - b) / 2)
-				cout << "YY" << endl;
-			else
-				cout << "NY" << endl;
-			break;
-		default:
-			cout << "YY" << endl;
-			break;
-		}
+
+		if (cnt == 4)
+			cout << "YN\n";
+		else if (a <= p - r && c >= p + r && b <= q - r && d >= q + r)
+			cout << "NY\n";
+		else
+			cout << "YY\n";
 	}
 
 	return 0;
