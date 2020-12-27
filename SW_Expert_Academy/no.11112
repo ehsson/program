@@ -1,9 +1,8 @@
 #include <stdio.h>
+using namespace std;
 
 int main(void)
 {
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
 	int T;
 
 	scanf_s("%d", &T);
