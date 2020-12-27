@@ -1,21 +1,20 @@
-#include <iostream>
-using namespace std;
+#include <stdio.h>
 
 int main(void)
 {
-	cin.tie(0), cout.tie(0);
-	ios::sync_with_stdio(false);
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 	int T;
 
-	cin >> T;
+	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
 		int p, q, r;
 		int a, b, c, d;
 
-		cin >> p >> q >> r;
-		cin >> a >> b >> c >> d;
+		scanf_s("%d %d %d", &p, &q, &r);
+		scanf_s("%d %d %d %d", &a, &b, &c, &d);
 
 		int cnt = 0;
 
@@ -31,14 +30,14 @@ int main(void)
 		if ((c - p) * (c - p) + (d - q) * (d - q) <= r * r)
 			cnt++;
 
-		cout << "#" << t << " ";
+		printf("#%d ", t);
 
 		if (cnt == 4)
-			cout << "YN\n";
+			printf("YN\n");
 		else if (a <= p - r && c >= p + r && b <= q - r && d >= q + r)
-			cout << "NY\n";
+			printf("NY\n");
 		else
-			cout << "YY\n";
+			printf("YY\n");
 	}
 
 	return 0;
