@@ -1,0 +1,52 @@
+#include <stdio.h>
+
+typedef struct Coin
+{
+	int value;
+	int chk;
+} Coin;
+
+Coin coin[500000];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N, K;
+
+		scanf_s("%d %d", &N, &K);
+
+		for (int n = 0; n < N; n++)
+			scanf_s("%d %d", &coin[n].value, &coin[n].chk);
+
+		int sum = 0, cnt = 0;
+
+		for (int n = 0; n < N; n++)
+		{
+			if (sum + coin[n].value >= K)
+				break;
+
+			if (coin[n].chk == 0)
+			{
+				if (sum + coin[n].value < coin[n + 1].value || n == N - 1)
+				{
+					sum += coin[n].value;
+					cnt++;
+				}
+			}
+		}
+
+		if (sum == 0)
+			sum = 1;
+
+		printf("#%d %d %d\n", t, cnt, K - sum);
+	}
+
+	return 0;
+}
