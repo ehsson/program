@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	scanf_s("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int input;
+		int arr[2];
+		scanf_s("%d", &input);
+
+		arr[1] = input % 100;
+		arr[0] = input / 100;
+
+		if ((arr[0] > 12 && arr[1] > 12) || (arr[0] == 0 && arr[1] == 0) ||
+			(arr[0] > 12 && arr[1] == 0) || (arr[0] == 0 && arr[1] > 12))
+		{
+			printf("#%d NA\n", t);
+			continue;
+		}
+		else if ((arr[0] > 0 && arr[0] <= 12) && (arr[1] > 0 && arr[1] <= 12))
+		{
+			printf("#%d AMBIGUOUS\n", t);
+			continue;
+		}
+		else if (arr[0] > 0 && arr[0] <= 12)
+		{
+			printf("#%d MMYY\n", t);
+			continue;
+		}
+		else if (arr[1] > 0 && arr[1] <= 12)
+		{
+			printf("#%d YYMM\n", t);
+			continue;
+		}
+	}
+
+	return 0;
+}
