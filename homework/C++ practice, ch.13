@@ -37,3 +37,28 @@ int main(void)
 
 	return 0;
 }
+
+// 13-1(2)
+
+#include <iostream>
+using namespace std;
+
+template <typename T>
+T SumArray(T arr[], int len)
+{
+	T sum = 0;
+	for (int i = 0; i < len; i++)
+		sum += arr[i];
+	return sum;
+}
+
+int main(void)
+{
+	int arr1[5] = { 1, 5, 6, 2, 6 };
+	double arr2[3] = { 1.2, 6.3, 5.2 };
+
+	cout << SumArray(arr1, 5) << endl;
+	cout << SumArray(arr2, 3) << endl;
+
+	return 0;
+}
