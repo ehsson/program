@@ -1,0 +1,53 @@
+// time limit code
+
+#include <iostream>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+int cnt[10000001];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin.tie(0), cout.tie(0);
+	ios::sync_with_stdio(false);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		memset(cnt, 0, 10000001);
+		int A;
+
+		cin >> A;
+
+		int temp = A;
+
+		for (int i = 2; i <= A; i++)
+		{
+			while (temp % i == 0)
+			{
+				temp /= i;
+				cnt[i]++;
+			}
+
+			if (temp == 1)
+				break;
+		}
+
+		int answer = 1;
+
+		for (int j = 2; j <= A; j++)
+		{
+			if (cnt[j] & 1)
+				answer *= j;
+		}
+
+		cout << "#" << t << " " << answer << endl;
+	}
+
+	return 0;
+}
