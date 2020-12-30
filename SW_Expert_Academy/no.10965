@@ -1,46 +1,38 @@
-// time limit code
-
-#include <iostream>
-using namespace std;
-
-int arr[10001];
+#include <stdio.h>
 
 int main(void)
 {
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
-	cin.tie(0), cout.tie(0);
-	ios::sync_with_stdio(false);
 	int T;
 
-	cin >> T;
-
-	for (int i = 1; i <= 10000; i++)
-	{
-		arr[i] = i * i;
-	}
+	scanf_s("%d", &T);
 
 	for (int t = 1; t <= T; t++)
 	{
 		int A;
 
-		cin >> A;
+		scanf_s("%d", &A);
 
 		int answer = 1;
+		int num = 2, odd = 1;
 
-		for (int i = 1; i <= 10000; i++)
+		while (num * num <= A)
 		{
-			if (arr[i] >= A)
+			while (A % num == 0)
 			{
-				if ((double)((arr[i] / A) * A) == (double)arr[i])
-				{
-					answer = (int)(arr[i] / A);
-					break;
-				}
+				A /= num;
+				odd *= -1;
 			}
+
+			if (odd < 0)
+				answer *= num;
+
+			odd = 1;
+			num++;
 		}
 
-		cout << "#" << t << " " << answer << endl;
+		printf("#%d %d\n", t, answer * A);
 	}
 
 	return 0;
