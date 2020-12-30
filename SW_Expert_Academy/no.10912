@@ -1,0 +1,45 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+char input[101];
+int chk[26];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin.tie(0), cout.tie(0);
+	ios_base::sync_with_stdio(false);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		memset(chk, 0, sizeof(int) * 26);
+
+		cin >> input;
+
+		for (int i = 0; i < strlen(input); i++)
+			chk[input[i] - 'a']++;
+
+		int cnt = 0;
+
+		cout << "#" << t << " ";
+
+		for (int j = 0; j < 26; j++)
+			if (chk[j] & 1)
+			{
+				cout << (char)(j + 'a');
+				cnt++;
+			}
+
+		if (cnt == 0)
+			cout << "Good";
+
+		cout << endl;
+	}
+
+	return 0;
+}
