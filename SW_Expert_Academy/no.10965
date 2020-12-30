@@ -1,11 +1,9 @@
 // time limit code
 
 #include <iostream>
-#include <cstring>
-#include <cmath>
 using namespace std;
 
-int cnt[10000001];
+int arr[10001];
 
 int main(void)
 {
@@ -17,33 +15,29 @@ int main(void)
 
 	cin >> T;
 
+	for (int i = 1; i <= 10000; i++)
+	{
+		arr[i] = i * i;
+	}
+
 	for (int t = 1; t <= T; t++)
 	{
-		memset(cnt, 0, 10000001);
 		int A;
 
 		cin >> A;
 
-		int temp = A;
-
-		for (int i = 2; i <= A; i++)
-		{
-			while (temp % i == 0)
-			{
-				temp /= i;
-				cnt[i]++;
-			}
-
-			if (temp == 1)
-				break;
-		}
-
 		int answer = 1;
 
-		for (int j = 2; j <= A; j++)
+		for (int i = 1; i <= 10000; i++)
 		{
-			if (cnt[j] & 1)
-				answer *= j;
+			if (arr[i] >= A)
+			{
+				if ((double)((arr[i] / A) * A) == (double)arr[i])
+				{
+					answer = (int)(arr[i] / A);
+					break;
+				}
+			}
 		}
 
 		cout << "#" << t << " " << answer << endl;
