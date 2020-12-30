@@ -1,0 +1,56 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+char input[1001];
+
+void swap(int a, int b)
+{
+	char temp = input[a];
+	input[a] = input[b];
+	input[b] = temp;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		cin >> input;
+
+		for (int i = 0; i < (int)(strlen(input) / 2); i++)
+			swap(i, strlen(input) - 1 - i);
+
+		cout << "#" << t << " ";
+
+		for (int j = 0; j < strlen(input); j++)
+		{
+			switch (input[j])
+			{
+			case 'p':
+				cout << 'q';
+				break;
+			case 'q':
+				cout << 'p';
+				break;
+			case 'b':
+				cout << 'd';
+				break;
+			case 'd':
+				cout << 'b';
+				break;
+			default:
+				break;
+			}
+		}
+
+		cout << endl;
+	}
+
+	return 0;
+}
