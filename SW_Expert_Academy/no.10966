@@ -91,3 +91,99 @@ int main(void)
 
 	return 0;
 }
+
+// pass code
+
+#include <iostream>
+using namespace std;
+
+#define MAX 1000000
+
+int arr[1000][1000];
+
+int N, M;
+
+int getPrev(int y, int x)
+{
+	if (y == 0 && x == 0)
+		return MAX;
+
+	if (y == 0)
+		return arr[y][x - 1];
+
+	if (x == 0)
+		return arr[y - 1][x];
+
+	return arr[y - 1][x] > arr[y][x - 1] ? arr[y][x - 1] : arr[y - 1][x];
+}
+
+int getNext(int y, int x)
+{
+	if (y == N - 1 && x == M - 1)
+		return MAX;
+
+	if (y == N - 1)
+		return arr[y][x + 1];
+
+	if (x == M - 1)
+		return arr[y + 1][x];
+
+	return arr[y + 1][x] > arr[y][x + 1] ? arr[y][x + 1] : arr[y + 1][x];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin.tie(0), cout.tie(0);
+	ios_base::sync_with_stdio(false);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		cin >> N >> M;
+
+		char input;
+
+		for (int n = 0; n < N; n++)
+			for (int m = 0; m < M; m++)
+			{
+				cin >> input;
+
+				if (input == 'W')
+					arr[n][m] = 0;
+				else
+					arr[n][m] = MAX;
+			}
+
+		for (int y = 0; y < N; y++)
+		{
+			for (int x = 0; x < M; x++)
+			{
+				int temp = getPrev(y, x) + 1;
+
+				arr[y][x] = temp > arr[y][x] ? arr[y][x] : temp;
+			}
+		}
+
+		int sum = 0;
+
+		for (int y = N - 1; y >= 0; y--)
+		{
+			for (int x = M - 1; x >= 0; x--)
+			{
+				int temp = getNext(y, x) + 1;
+
+				arr[y][x] = temp > arr[y][x] ? arr[y][x] : temp;
+
+				sum += arr[y][x];
+			}
+		}
+
+		cout << "#" << t << " " << sum << endl;
+	}
+
+	return 0;
+}
