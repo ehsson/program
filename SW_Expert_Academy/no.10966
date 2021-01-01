@@ -1,0 +1,93 @@
+// time limit code
+
+#include <iostream>
+using namespace std;
+
+char arr[1000][1000];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin.tie(0), cout.tie(0);
+	ios_base::sync_with_stdio(false);
+	int T;
+
+	cin >> T;
+
+	for (int t = 1; t <= T; t++)
+	{
+		int N, M;
+
+		cin >> N >> M;
+
+		for (int n = 0; n < N; n++)
+			for (int m = 0; m < M; m++)
+				cin >> arr[n][m];
+
+		int sum = 0;
+
+		for (int y = 0; y < N; y++)
+		{
+			for (int x = 0; x < M; x++)
+			{
+				if (arr[y][x] == 'L')
+				{
+					int yPos = y, xPos = x + 1;
+					int pos = 1, len = 1;
+
+					while (1)
+					{
+						if ((yPos >= 0 && yPos < N) && (xPos >= 0 && xPos < M))
+							if (arr[yPos][xPos] == 'W')
+								break;
+
+						switch (pos)
+						{
+						case 1:
+							yPos++;
+							xPos--;
+
+							if (xPos == x)
+								pos = 2;
+							break;
+						case 2:
+							yPos--;
+							xPos--;
+
+							if (yPos == y)
+								pos = 3;
+							break;
+						case 3:
+							yPos--;
+							xPos++;
+
+							if (xPos == x)
+								pos = 4;
+							break;
+						case 4:
+							yPos++;
+							xPos++;
+
+							if (yPos == y)
+							{
+								pos = 1;
+								len++;
+								xPos++;
+							}
+							break;
+						default:
+							break;
+						}
+					}
+
+					sum += len;
+				}
+			}
+		}
+				
+		cout << "#" << t << " " << sum << endl;
+	}
+
+	return 0;
+}
