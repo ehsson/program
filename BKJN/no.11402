@@ -1,0 +1,45 @@
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	long long N, K;
+	int M;
+
+	cin >> N >> K >> M;
+
+	int* f = new int[M];
+
+	f[0] = 1;
+
+	for (int i = 1; i < M; i++)
+		f[i] = f[i - 1] * i % M;
+
+	int res = 1;
+
+	while (N && K)
+	{
+		int n = N % M;
+		int k = K % M;
+
+		if (n < k)
+		{
+			res = 0;
+			break;
+		}
+
+		res = (res * f[n]) % M;
+
+		for (int i = 0; i < M - 2; i++)
+			res = ((res * f[k]) % M * f[n - k] % M);
+
+		N /= M;
+		K /= M;
+	}
+
+	delete[] f;
+
+	cout << res << endl;
+
+	return 0;
+}
