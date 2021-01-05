@@ -1,0 +1,54 @@
+#include <iostream>
+#define DIV 1000000007LL
+typedef long long LL;
+using namespace std;
+
+LL fac[4000001], inv[4000001];
+
+LL power(LL x, LL y)
+{
+    LL ret = 1;
+    while (y > 0)
+    {
+        if (y % 2)
+        {
+            ret *= x;
+            ret %= DIV;
+        }
+
+        x *= x;
+        x %= DIV;
+        y /= 2;
+    }
+
+    return ret;
+}
+int main(void)
+{
+    fac[1] = 1;
+
+    for (int i = 2; i <= 4000000; i++)
+        fac[i] = (fac[i - 1] * i) % DIV;
+
+    inv[4000000] = power(fac[4000000], DIV - 2); 
+
+    for (int i = 4000000 - 1; i > 0; i--)
+        inv[i] = (inv[i + 1] * (i + 1)) % DIV;
+
+    LL N, K;
+
+    cin >> N >> K;
+
+    if (N == K || K == 0)
+    {
+        cout << "1" << endl;
+        
+        return 0;
+    }
+
+    LL answer = (fac[N] * inv[N - K]) % DIV;
+    answer = (answer * inv[K]) % DIV;
+
+    cout << answer << endl;
+    return 0;
+}
