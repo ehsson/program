@@ -1,3 +1,5 @@
+//C++
+
 #include <iostream>
 using namespace std;
 
@@ -23,3 +25,30 @@ int main(void)
 
 	return 0;
 }
+
+
+//Java
+
+import java.util.Scanner;
+
+public class JavaPractice {		
+	public static void main(String[] args) {		
+			Scanner sc = new  Scanner(System.in);
+			
+			int N = sc.nextInt();
+			
+			if(N == 1)
+				return;
+			
+			int div = 2;
+			
+			while(N != 1) {
+				if(N % div == 0) {
+					N /= div;
+					System.out.println(div);
+				}
+				else
+					div++;
+			}
+		}
+	}
