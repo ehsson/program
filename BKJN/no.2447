@@ -1,0 +1,30 @@
+#include <iostream>
+using namespace std;
+
+void recur(int y, int x, int n)
+{
+	if ((y / n) % 3 == 1 && (x / n) % 3 == 1)
+		cout << " ";
+	else {
+		if (n / 3 == 0)
+			cout << "*";
+		else
+			recur(y, x, n / 3);
+	}
+}
+
+int main(void)
+{
+	int N;
+
+	cin >> N;
+
+	for (int y = 0; y < N; y++) {
+		for (int x = 0; x < N; x++)
+			recur(y, x, N);
+
+		cout << endl;
+	}
+
+	return 0;
+}
