@@ -54,3 +54,64 @@ int main(void)
 
 	return 0;
 }
+
+
+// Java
+
+import java.util.Scanner;
+
+public class Main {
+	public static int input[] = new int[101];
+	public static boolean chk[] = new boolean[101];
+	public static int answer, _min = 300000, cnt = 0;
+	public static int N, M;
+	
+	public static void main(String[] args) {		
+			Scanner sc = new  Scanner(System.in);
+			
+			N = sc.nextInt();
+			M = sc.nextInt();
+			
+			for(int n = 1; n <= N; n++)
+				input[n] = sc.nextInt();
+			
+			subset(N);
+			
+			System.out.println(answer);
+		}
+	
+	public static int min(int a, int b) {
+		return a > b ? b : a;
+	}
+	
+	public static void subset(int n) {
+			if (n == 0) {
+				if (cnt == 3) {
+					int sum = 0;
+
+					for (int i = 1; i <= N; i++)
+						if (chk[i] == true)
+							sum += input[i];
+
+					if (sum <= M) {
+						if (M - sum == min(_min, M - sum)) {
+							answer = sum;
+							_min = M - sum;
+						}
+					}
+				}
+
+				return;
+			}
+
+			if (cnt < 3) {
+				cnt++;
+				chk[n] = true;
+				subset(n - 1);
+				cnt--;
+			}
+
+			chk[n] = false;
+			subset(n - 1);
+		}
+	}
