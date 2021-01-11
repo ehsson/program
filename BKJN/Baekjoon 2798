@@ -1,0 +1,56 @@
+#include <iostream>
+using namespace std;
+
+int chk[101];
+int input[101];
+
+int N, M;
+int cnt = 0, answer, _min = 300000;
+
+void subset(int n)
+{
+	if (n == 0) {
+		if (cnt == 3) {
+			int sum = 0;
+
+			for (int i = 1; i <= N; i++)
+				if (chk[i])
+					sum += input[i];
+
+			if (sum <= M) {
+				if (M - sum == min(_min, M - sum)) {
+					answer = sum;
+					_min = M - sum;
+				}
+			}
+		}
+
+		return;
+	}
+
+	if (cnt < 3) {
+		cnt++;
+		chk[n] = 1;
+		subset(n - 1);
+		cnt--;
+	}
+
+	chk[n] = 0;
+	subset(n - 1);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	subset(N);
+
+	cout << answer << endl;
+
+	return 0;
+}
