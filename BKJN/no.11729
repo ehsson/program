@@ -1,3 +1,5 @@
+// C
+
 #include <stdio.h>
 #include <math.h>
 
@@ -27,3 +29,34 @@ int main(void)
 
 	return 0;
 }
+
+
+// Java
+
+import java.util.Scanner;
+
+public class JavaPractice {
+	public static StringBuilder sb = new StringBuilder();
+	
+	public static void hanoi(int n, int from, int temp, int to) {
+		if(n == 1)
+			sb.append(from + " " + to + "\n");
+		else {
+			hanoi(n - 1, from, to, temp);
+			sb.append(from + " " + to + "\n");
+			hanoi(n - 1, temp, from, to);
+		}
+	}
+	
+	public static void main(String[] args) {		
+			Scanner sc = new  Scanner(System.in);
+			
+			int N = sc.nextInt();
+			
+			System.out.println((int)Math.pow(2, N) - 1);
+			
+			hanoi(N, 1, 2, 3);
+			
+			System.out.println(sb);
+		}
+	}
