@@ -27,3 +27,34 @@ int main(void)
 
 	return 0;
 }
+
+
+//Java
+
+import java.util.Scanner;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		
+		int N = sc.nextInt();
+		
+		int answer = 0;
+		
+		for(int i = 1; i <= 1000000; i++) {
+			int sum = i, temp = i;
+			
+			while(temp != 0) {
+				sum += temp % 10;
+				temp /= 10;
+			}
+			
+			if(sum == N) {
+				answer = i;
+				break;
+			}
+		}
+		
+		System.out.println(answer);
+	}
+}
