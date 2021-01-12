@@ -1,0 +1,30 @@
+#include <iostream>
+using namespace std;
+
+int x[51];
+int y[51];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> x[n] >> y[n];
+
+	for (int i = 1; i <= N; i++) {
+		int rank = 1;
+
+		for (int j = 1; j <= N; j++) {
+			if (x[i] < x[j] && y[i] < y[j])
+				rank++;
+		}
+
+		cout << rank << " ";
+	}
+
+	return 0;
+}
