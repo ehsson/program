@@ -1,0 +1,83 @@
+// C++
+
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	int N;
+	int cnt = 0, num = 666, answer;
+
+	cin >> N;
+
+	while (1) {
+		int temp = num;
+
+		while (temp != 0) {
+			if (temp % 10 == 6) {
+				temp /= 10;
+
+				if (temp % 10 == 6) {
+					temp /= 10;
+
+					if (temp % 10 == 6) {
+						cnt++;
+						break;
+					}
+				}
+			}
+
+			temp /= 10;
+		}
+
+		if (cnt == N)
+			break;
+		
+		num++;
+	}
+
+	cout << num << endl;
+
+	return 0;
+}
+
+// Java
+
+import java.util.Scanner;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		
+		int N = sc.nextInt();
+		int cnt = 0, num = 666, answer;
+		
+		while(true) {
+			int temp = num;
+
+			while (temp != 0) {
+				if (temp % 10 == 6) {
+					temp /= 10;
+
+					if (temp % 10 == 6) {
+						temp /= 10;
+
+						if (temp % 10 == 6) {
+							cnt++;
+							break;
+						}
+					}
+				}
+
+				temp /= 10;
+			}
+
+			if (cnt == N)
+				break;
+			
+			num++;
+		}
+		
+		System.out.println(num);
+	}
+}
