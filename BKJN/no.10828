@@ -1,0 +1,125 @@
+#include <iostream>
+using namespace std;
+
+class Stack
+{
+	struct Node {
+		Node* prev;
+		int num;
+
+		Node(Node* prev, int num) : prev(prev), num(num)
+		{}
+	};
+
+	Node* current;
+	Node start;
+	int length;
+public:
+	Stack() : start(NULL, -1), length(0)
+	{
+		current = &start;
+	}
+
+	~Stack();
+
+	void push(int num);
+
+	int pop();
+
+	int size();
+
+	bool empty();
+
+	int top();
+};
+
+Stack::~Stack()
+{
+	while (current != &start) {
+		Node* temp = current;
+		current = current->prev;
+		delete temp;
+	}
+}
+
+void Stack::push(int num)
+{
+	Node* temp = new Node(current, num);
+	current = temp;
+	length++;
+}
+
+int Stack::pop()
+{
+	if (current == &start)
+		return -1;
+
+	int ret = current->num;
+	Node* temp = current;
+	current = current->prev;
+	length--;
+
+	delete temp;
+	return ret;
+}
+
+int Stack::size()
+{
+	return length;
+}
+
+bool Stack::empty()
+{
+	if (current == &start)
+		return true;
+	else
+		return false;
+}
+
+int Stack::top()
+{
+	return current->num;
+}
+
+int main(void)
+{
+	Stack st;
+
+	int N;
+
+	cin >> N;
+
+	for (int n = 0; n < N; n++) {
+		string input;
+
+		cin >> input;
+
+		int num = 0;
+
+		if (input == "push")
+			cin >> num;
+
+		switch (input[0]) {
+		case 'p':
+			if (input[1] == 'u')
+				st.push(num);
+			else
+				cout << st.pop() << endl;
+
+			break;
+		case 's':
+			cout << st.size() << endl;
+			break;
+		case 'e':
+			cout << st.empty() << endl;
+			break;
+		case 't':
+			cout << st.top() << endl;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return 0;
+}
