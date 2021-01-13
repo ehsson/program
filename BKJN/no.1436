@@ -41,6 +41,35 @@ int main(void)
 	return 0;
 }
 
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main(void)
+{
+	int N;
+	int cnt = 0, num = 666;
+	string str;
+
+	cin >> N;
+
+	while (1) {
+		str = to_string(num);
+
+		if(str.find("666") != -1)
+			cnt++;
+
+		if (cnt == N)
+			break;
+
+		num++;
+	}
+
+	cout << num << endl;
+
+	return 0;
+}
+
 // Java
 
 import java.util.Scanner;
