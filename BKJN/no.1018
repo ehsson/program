@@ -1,0 +1,58 @@
+#include <iostream>
+using namespace std;
+
+char arr[50][50];
+int N, M;
+int _min;
+
+void chess(int y, int x, char c)
+{
+	int cnt = 0;
+	char temp = c;
+
+	for (int n = 0; n < 8; n++) {
+		for (int m = 0; m < 8; m++) {
+			if (temp == arr[y + n][x + m]) {
+				if (arr[y + n][x + m] == 'W')
+					temp = 'B';
+				else
+					temp = 'W';
+
+				cnt++;
+			}
+			else
+				temp = arr[y + n][x + m];
+		}
+
+		if (temp == 'W')
+			temp = 'B';
+		else
+			temp = 'W';
+	}
+
+	_min = min(_min, cnt);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			cin >> arr[n][m];
+
+	_min = 64;
+
+	for (int y = 0; y <= N - 8; y++)
+		for (int x = 0; x <= M - 8; x++) {
+			chess(y, x, 'B');
+			chess(y, x, 'W');
+		}
+
+	cout << _min << endl;
+
+	return 0;
+}
