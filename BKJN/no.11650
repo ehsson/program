@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+typedef struct Point {
+	int x, y;
+} Point;
+
+Point arr[100000];
+
+void Swap(Point* a, Point* b)
+{
+	Point temp = *a;
+	*a = *b;
+	*b = temp;
+	temp = temp;
+}
+
+void Sort(int start, int end)
+{
+	int pivot = start;
+	int i, j = start;
+	Point temp;
+
+	if (start < end) {
+		for (i = start + 1; i <= end; i++) {
+			if (arr[i].x < arr[pivot].x) {
+				j++;
+				Swap(&arr[i], &arr[j]);
+			}
+			else if (arr[i].x == arr[pivot].x) {
+				if (arr[i].y < arr[pivot].y) {
+					j++;
+					Swap(&arr[i], &arr[j]);
+				}
+			}
+		}
+		Swap(&arr[pivot], &arr[j]);
+		pivot = j;
+
+		Sort(start, pivot - 1);
+		Sort(pivot + 1, end);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+
+	scanf_s("%d", &N);
+
+	for (int n = 0; n < N; n++)
+		scanf_s("%d %d", &arr[n].x, &arr[n].y);
+
+	Sort(0, N - 1);
+
+	for (int n = 0; n < N; n++)
+		printf("%d %d\n", arr[n].x, arr[n].y);
+
+	return 0;
+}
