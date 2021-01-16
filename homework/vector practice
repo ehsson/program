@@ -1,0 +1,46 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main(void)
+{
+	vector<int> v;
+
+	v.push_back(21);
+	v.push_back(32);
+	v.push_back(51);
+	v.push_back(64);
+	v.push_back(15);
+
+	cout << "[v.at(i)] size_type : ";
+	for (vector<int>::size_type i = 0; i < v.size(); i++)
+		cout << v.at(i) << " ";
+
+	cout << endl;
+
+	cout << "[v[i]] size_type : ";
+	for (vector<int>::size_type i = 0; i < v.size(); i++)
+		cout << v[i] << " ";
+
+	cout << endl;
+
+	cout << "[v.at(i)] int : ";
+	for (int i = 0; i < v.size(); i++)
+		cout << v.at(i) << " ";
+
+	cout << endl;
+
+	cout << "[v[i]] int : ";
+	for (int i = 0; i < v.size(); i++)
+		cout << v[i] << " ";
+
+	cout << endl;
+
+	cout << "[*itr]] iterator : ";
+	for (vector<int>::iterator itr = v.begin(); itr != v.end(); itr++)
+		cout << *itr << " ";
+	
+	cout << endl;
+
+	return 0;
+}
