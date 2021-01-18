@@ -65,3 +65,52 @@ int main(void)
 
 	return 0;
 }
+
+// use vector
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+bool compare(string a, string b)
+{
+	if (a.size() < b.size())
+		return true;
+	else if (a.size() == b.size()) {
+		if (a.compare(b) < 0)
+			return true;
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+	vector<string> vec(N);
+
+	for (int n = 0; n < N; n++)
+		cin >> vec[n];
+
+	sort(vec.begin(), vec.end(), compare);
+
+	string temp;
+
+	for (int n = 0; n < N; n++) {
+		if (n == 0)
+			cout << vec[n] << "\n";
+		else if (temp != vec[n])
+			cout << vec[n] << "\n";
+
+		temp = vec[n];
+	}
+
+	return 0;
+}
