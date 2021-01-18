@@ -1,0 +1,67 @@
+#include <cstdio>
+#include <iostream>
+using namespace std;
+
+string arr[20000];
+
+void Swap(string* a, string* b)
+{
+	string temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void Sort(int start, int end)
+{
+	int pivot = start;
+	int j = start;
+	string temp;
+
+	if (start < end) {
+		for (int i = start; i <= end; i++) {
+			if (arr[pivot].size() > arr[i].size()) {
+				j++;
+				Swap(&arr[i], &arr[j]);
+			}
+			else if (arr[pivot].size() == arr[i].size()) {
+				if (arr[pivot].compare(arr[i]) > 0) {
+					j++;
+					Swap(&arr[i], &arr[j]);
+				}
+			}
+		}
+
+		Swap(&arr[pivot], &arr[j]);
+		pivot = j;
+
+		Sort(start, pivot - 1);
+		Sort(pivot + 1, end);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+
+	scanf_s("%d", &N);
+
+	for (int n = 0; n < N; n++)
+		cin >> arr[n];
+
+	Sort(0, N - 1);
+
+	string temp;
+
+	for (int n = 0; n < N; n++) {
+		if (n == 0)
+			cout << arr[n] << endl;
+		else if (temp != arr[n])
+			cout << arr[n] << endl;
+
+		temp = arr[n];
+	}
+
+	return 0;
+}
