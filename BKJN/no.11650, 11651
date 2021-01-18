@@ -59,3 +59,43 @@ int main(void)
 
 	return 0;
 }
+
+// use vector
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+bool compare(pair<int, int>& a, pair<int, int>& b)
+{
+	if (b.first > a.first)
+		return true;
+	else if (b.first == a.first) {
+		if (b.second > a.second)
+			return true;
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+	vector<pair<int, int>>v(N);
+
+	for (int n = 0; n < N; n++)
+		cin >> v[n].first >> v[n].second;
+	
+	sort(v.begin(), v.end(), compare);
+
+	for (int n = 0; n < N; n++)
+		cout << v[n].first << ' ' << v[n].second << "\n";
+
+	return 0;
+}
