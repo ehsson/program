@@ -1,0 +1,38 @@
+#include <iostream>
+using namespace std;
+
+int N, M;
+bool chk[9];
+int arr[9];
+
+void recur(int cnt)
+{
+	if (cnt == M) {
+		for (int i = 0; i < M; i++)
+			cout << arr[i] << " ";
+
+		cout << "\n";
+		return;
+	}
+
+	for (int i = 1; i <= N; i++) {
+		if (chk[i])
+			continue;
+
+		chk[i] = true;
+		arr[cnt] = i;
+		recur(cnt + 1);
+		chk[i] = false;
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	recur(0);
+
+	return 0;
+}
