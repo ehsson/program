@@ -1,0 +1,31 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+bool compare(pair<int, string> a, pair<int, string> b)
+{
+	if (b.first > a.first)
+		return true;
+	else
+		return false;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+	vector<pair<int, string>> vec(N);
+	for (int n = 0; n < N; n++)
+		cin >> vec[n].first >> vec[n].second;
+
+	stable_sort(vec.begin(), vec.end(), compare);
+
+	for (int n = 0; n < N; n++)
+		cout << vec[n].first << " " << vec[n].second << "\n";
+
+	return 0;
+}
