@@ -1,0 +1,69 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int arr[9][9];
+bool row[9][10];
+bool col[9][10];
+bool sq[9][10];
+
+int getSquare(int y, int x)
+{
+	return (y / 3) * 3 + (x / 3);
+}
+
+void DFS(int cnt)
+{
+	if (cnt == 81) {
+		for (int n = 0; n < 9; n++) {
+			for (int m = 0; m < 9; m++)
+				cout << arr[n][m] << " ";
+
+			cout << "\n";
+		}
+
+		exit(0);
+	}
+
+	int y = cnt / 9;
+	int x = cnt % 9;
+
+	if (arr[y][x])
+		DFS(cnt + 1);
+	else {
+		for (int i = 1; i <= 9; i++) {
+			if (!col[x][i] && !row[y][i] && !sq[getSquare(y, x)][i]) {
+				arr[y][x] = i;
+				col[x][i] = true;
+				row[y][i] = true;
+				sq[getSquare(y, x)][i] = true;
+				DFS(cnt + 1);
+				arr[y][x] = 0;
+				col[x][i] = false;
+				row[y][i] = false;
+				sq[getSquare(y, x)][i] = false;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	for (int y = 0; y < 9; y++)
+		for (int x = 0; x < 9; x++) {
+			cin >> arr[y][x];
+
+			if (arr[y][x]) {
+				col[x][arr[y][x]] = true;
+				row[y][arr[y][x]] = true;
+				sq[getSquare(y, x)][arr[y][x]] = true;
+			}
+		}
+
+	DFS(0);
+
+	return 0;
+}
