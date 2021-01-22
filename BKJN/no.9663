@@ -1,54 +1,35 @@
-// time limit code
-
 #include <iostream>
 using namespace std;
 
-int arr[15][15];
+int col[16];
 int N, answer = 0;
 
-void DFS(int cnt, int pos)
+bool check(int i)
 {
-	if (pos == N * N) {
-		if (cnt == N)
+	int k = 1;
+
+	while (k < i) {
+		if (col[i] == col[k] || abs(col[i] - col[k]) == i - k)
+			return false;
+
+		k++;
+	}
+
+	return true;
+}
+
+void nqueen(int x)
+{
+	if (check(x)) {
+		if (x == N)
 			answer++;
-
-		return;
-	}
-
-	int y = pos / N;
-	int x = pos % N;
-
-	if (!arr[y][x]) {
-		for (int i = 0; i < N; i++) {
-			arr[y][i]++;
-			arr[i][x]++;
-			if (y >= i && x >= i)
-				arr[y - i][x - i]++;
-			if (y >= i && x + i < N)
-				arr[y - i][x + i]++;
-			if (x >= i && y + i < N)
-				arr[y + i][x - i]++;
-			if (y + i < N && x + i < N)
-				arr[y + i][x + i]++;
-		}
-
-		DFS(cnt + 1, pos + 1);
-
-		for (int i = 0; i < N; i++) {
-			arr[y][i]--;
-			arr[i][x]--;
-			if (y >= i && x >= i)
-				arr[y - i][x - i]--;
-			if (y >= i && x + i < N)
-				arr[y - i][x + i]--;
-			if (x >= i && y + i < N)
-				arr[y + i][x - i]--;
-			if(y + i < N && x + i < N)
-				arr[y + i][x + i]--;
+		else {
+			for (int j = 1; j <= N; j++) {
+				col[x + 1] = j;
+				nqueen(x + 1);
+			}
 		}
 	}
-
-	DFS(cnt, pos + 1);
 }
 
 int main(void)
@@ -57,7 +38,7 @@ int main(void)
 	freopen_s(&pf, "input.txt", "r", stdin);
 	cin >> N;
 
-	DFS(0, 0);
+	nqueen(0);
 
 	cout << answer << "\n";
 
