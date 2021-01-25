@@ -1,0 +1,46 @@
+#include <iostream>
+using namespace std;
+
+int num[11];
+int oper[4];
+int N;
+int _min, _max;
+
+void DFS(int val, int pos, int plus, int minus, int multiply, int divide)
+{
+	if (pos == N - 1) {
+		_max = max(_max, val);
+		_min = min(_min, val);
+
+		return;
+	}
+
+	if (plus > 0)
+		DFS(val + num[pos + 1], pos + 1, plus - 1, minus, multiply, divide);
+	if (minus > 0)
+		DFS(val - num[pos + 1], pos + 1, plus, minus - 1, multiply, divide);
+	if (multiply > 0)
+		DFS(val * num[pos + 1], pos + 1, plus, minus, multiply - 1, divide);
+	if (divide > 0)
+		DFS(val / num[pos + 1], pos + 1, plus, minus, multiply, divide - 1);
+}
+
+int main(void)
+{
+	cin >> N;
+
+	for (int n = 0; n < N; n++)
+		cin >> num[n];
+
+	for (int i = 0; i < 4; i++)
+		cin >> oper[i];
+
+	_min = 1000000000;
+	_max = -1000000000;
+
+	DFS(num[0], 0, oper[0], oper[1], oper[2], oper[3]);
+
+	cout << _max << " " << _min << "\n";
+
+	return 0;
+}
