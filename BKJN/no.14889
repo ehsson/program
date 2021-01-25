@@ -1,60 +1,57 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 int arr[21][21];
-int chk[21];
+bool chk[21];
 int N, _min = 0b1111111111111111111111111111111;
 
-void subset(int n)
+void DFS(int pos, int cnt)
 {
-	if (n == N + 1) {
-		int cnt = 0;
+	if (cnt == N / 2) {
+		vector<int> team1, team2;
 
-		for (int i = 1; i <= N; i++)
+		for (int i = 1; i <= N; i++) {
 			if (chk[i])
-				cnt++;
-
-		if (cnt == N / 2) {
-			int sum1 = 0, sum2 = 0;
-
-			for (int i = 1; i <= N; i++) {
-				for (int j = 1; j <= N; j++) {
-					if (i == j)
-						continue;
-
-					if (chk[i] == chk[j]) {
-						if (chk[i])
-							sum1 += arr[i][j];
-						else
-							sum2 += arr[i][j];
-					}
-				}
-			}
-
-			_min = min(_min, abs(sum1 - sum2));
+				team1.push_back(i);
+			else
+				team2.push_back(i);
 		}
+
+		int sum1 = 0, sum2 = 0;
+
+		for (int i = 0; i < team1.size(); i++) {
+			for (int j = 0; j < team1.size(); j++) {
+				sum1 += arr[team1[i]][team1[j]];
+				sum2 += arr[team2[i]][team2[j]];
+			}
+		}
+
+		_min = min(_min, abs(sum1 - sum2));
 
 		return;
 	}
 
-	chk[n] = 1;
-	subset(n + 1);
-
-	chk[n] = 0;
-	subset(n + 1);
+	for (int n = pos; n <= N; n++) {
+		if (!chk[n]) {
+			chk[n] = true;
+			DFS(n + 1, cnt + 1);
+			chk[n] = false;
+		}
+	}
 }
 
 int main(void)
 {
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
+	ios::sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
 	cin >> N;
 
 	for (int y = 1; y <= N; y++)
 		for (int x = 1; x <= N; x++)
 			cin >> arr[y][x];
 
-	subset(1);
+	DFS(1, 0);
 
 	cout << _min << "\n";
 
