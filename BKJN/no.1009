@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int TC;
+	cin >> TC;
+	for (int t = 1; t <= TC; t++) {
+		int a, b;
+		cin >> a >> b;
+
+		int temp = 1;
+
+		for (int i = 1; i <= b; i++)
+			temp = (temp * a) % 10;
+
+		if (temp == 0)
+			cout << "10\n";
+		else
+			cout << temp << "\n";
+	}
+
+	return 0;
+}
