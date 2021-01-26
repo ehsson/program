@@ -1,0 +1,46 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+typedef struct Point {
+	int x, y;
+	int rad;
+} Point;
+
+Point planet[50];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		Point start, end;
+		cin >> start.x >> start.y >> end.x >> end.y;
+
+		int planet_cnt;
+		cin >> planet_cnt;
+
+		int cnt = 0;
+
+		for (int p = 0; p < planet_cnt; p++) {
+			cin >> planet[p].x >> planet[p].y >> planet[p].rad;
+
+			if (pow(start.x - planet[p].x, 2) + pow(start.y - planet[p].y, 2) < planet[p].rad * planet[p].rad &&
+				pow(end.x - planet[p].x, 2) + pow(end.y - planet[p].y, 2) < planet[p].rad * planet[p].rad)
+				continue;
+
+			if (pow(start.x - planet[p].x, 2) + pow(start.y - planet[p].y, 2) < planet[p].rad * planet[p].rad)
+				cnt++;
+
+			if (pow(end.x - planet[p].x, 2) + pow(end.y - planet[p].y, 2) < planet[p].rad * planet[p].rad)
+				cnt++;
+		}
+
+		cout << cnt << "\n";
+	}
+
+	return 0;
+}
