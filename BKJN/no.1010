@@ -1,0 +1,34 @@
+#include <iostream>
+using namespace std;
+
+typedef unsigned long long ULL;
+
+ULL com[30][30];
+
+void nCk(void)
+{
+	for (int i = 0; i < 30; i++) {
+		for (int j = 0; j <= i; j++) {
+			if (i == j || j == 0)
+				com[i][j] = 1;
+			else
+				com[i][j] = com[i - 1][j - 1] + com[i - 1][j];
+		}
+	}
+}
+
+int main(void)
+{
+	int T;
+	cin >> T;
+	nCk();
+
+	for (int t = 1; t <= T; t++) {
+		int N, M;
+		cin >> N >> M;
+
+		cout << com[M][N] << "\n";
+	}
+
+	return 0;
+}
