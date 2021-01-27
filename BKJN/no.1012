@@ -1,0 +1,54 @@
+#include <iostream>
+using namespace std;
+
+int arr[50][50];
+int M, N, K;
+
+void DFS(int y, int x, int num)
+{
+	if (y < 0 || y >= N || x < 0 || x >= M)
+		return;
+
+	if (arr[y][x] != -1)
+		return;
+
+	arr[y][x] = num;
+
+	DFS(y + 1, x, num);
+	DFS(y, x + 1, num);
+	DFS(y - 1, x, num);
+	DFS(y, x - 1, num);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		cin >> M >> N >> K;
+
+		for (int k = 0; k < K; k++) {
+			int x, y;
+			cin >> x >> y;
+
+			arr[y][x] = -1;
+		}
+
+		int cnt = 0;
+
+		for (int y = 0; y < N; y++)
+			for (int x = 0; x < M; x++) {
+				if (arr[y][x] == -1) {
+					cnt++;
+					DFS(y, x, cnt);
+				}
+			}
+
+		cout << cnt << "\n";
+	}
+
+	return 0;
+}
