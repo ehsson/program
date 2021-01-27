@@ -1,0 +1,31 @@
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, L;
+	int start = -1, div;
+	cin >> N >> L;
+
+	for (div = L; div <= 100; div++) {
+		int temp = (div * (div - 1)) / 2;
+
+		if ((N - temp) % div == 0 && (N - temp) / div >= 0) {
+			start = (N - temp) / div;
+			break;
+		}
+	}
+
+	if (start == -1)
+		cout << "-1\n";
+	else {
+		for (int i = 0; i < div; i++)
+			cout << start + i << " ";
+
+		cout << "\n";
+	}
+
+	return 0;
+}
