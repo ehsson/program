@@ -1,0 +1,27 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		int x, y;
+		cin >> x >> y;
+
+		int temp = (int)sqrt(y - x);
+
+		if ((y - x) == temp * temp)
+			cout << temp * 2 - 1 << "\n";
+		else if ((y - x) > temp * temp && (y - x) <= temp * temp + temp)
+			cout << temp * 2 << "\n";
+		else if ((y - x) > temp * temp && (y - x) > temp * temp + temp)
+			cout << temp * 2 + 1 << "\n";
+	}
+
+	return 0;
+}
