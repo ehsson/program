@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+string A[50];
+string B[50];
+bool chk[50][50];
+int cnt;
+
+void check(int y, int x)
+{
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			chk[y + i][x + j] = !chk[y + i][x + j];
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, M;
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		cin >> A[n];
+
+	for (int n = 0; n < N; n++)
+		cin >> B[n];
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			if (A[n][m] == B[n][m])
+				chk[n][m] = false;
+			else
+				chk[n][m] = true;
+
+	if (N >= 3 && M >= 3) {
+		for (int y = 0; y <= N - 3; y++) {
+			for (int x = 0; x <= M - 3; x++) {
+				if (chk[y][x] == true) {
+					check(y, x);
+					cnt++;
+				}
+			}
+		}
+	}
+	else {
+		for (int n = 0; n < N; n++) {
+			for (int m = 0; m < M; m++)
+				if (chk[n][m] == true) {
+					cnt = -1;
+					break;
+				}
+
+			if (cnt == -1)
+				break;
+		}
+	}
+
+	for (int n = 0; n < N; n++) {
+		if (cnt == -1)
+			break;
+
+		for (int m = 0; m < M; m++) {
+			if (chk[n][m] == true) {
+				cnt = -1;
+				break;
+			}
+		}
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
