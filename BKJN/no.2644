@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> v[101];
+bool visit[101];
+int answer, man1, man2;
+
+void DFS(int pos, int cnt)
+{
+	if (pos == man2) {
+		answer = cnt;
+		return;
+	}
+
+	visit[pos] = true;
+
+	vector<int>::iterator itr;
+	for (itr = v[pos].begin(); itr != v[pos].end(); itr++)
+		if (answer == -1 && visit[*itr] == false)
+			DFS(*itr, cnt + 1);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+	
+	cin >> man1 >> man2;
+
+	int M;
+	cin >> M;
+
+	for (int m = 0; m < M; m++) {
+		int input1, input2;
+		cin >> input1 >> input2;
+
+		v[input1].push_back(input2);
+		v[input2].push_back(input1);
+	}
+
+	answer = -1;
+
+	DFS(man1, 0);
+
+	cout << answer << "\n";
+
+	return 0;
+}
