@@ -1,0 +1,35 @@
+#include <iostream>
+using namespace std;
+
+typedef unsigned long long ULL;
+
+ULL arr[1025][1025];
+ULL dp[1025][1025];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int N, M;
+	cin >> N >> M;
+
+	for (int y = 1; y <= N; y++)
+		for (int x = 1; x <= N; x++)
+			cin >> arr[x][y];
+
+	for (int y = 1; y <= N; y++)
+		for (int x = 1; x <= N; x++)
+			dp[y][x] = arr[y][x] + dp[y - 1][x] + dp[y][x - 1] - dp[y - 1][x - 1];
+
+	for (int m = 1; m <= M; m++) {
+		int x1, y1, x2, y2;
+		cin >> x1 >> y1 >> x2 >> y2;
+
+		cout << dp[y2][x2] - (dp[y2][x1 - 1] + dp[y1 - 1][x2]) + dp[y1 - 1][x1 - 1] << "\n";
+	}
+
+	return 0;
+}
