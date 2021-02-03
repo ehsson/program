@@ -1,0 +1,65 @@
+#include <iostream>
+#include <queue>
+#include <string>
+using namespace std;
+
+int arr[101][101];
+int chk[101][101];
+bool visit[101][101];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+int N, M;
+
+bool IsInside(int y, int x)
+{
+	if (y > 0 && y <= N && x > 0 && x <= M)
+		return true;
+	else
+		return false;
+}
+
+void BFS(int a, int b)
+{
+	queue<pair<int, int>> q;
+	q.push({a, b});
+	visit[a][b] = true;
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (arr[ny][nx] == 1 && IsInside(ny, nx) == true && visit[ny][nx] == false) {
+				chk[ny][nx] = chk[y][x] + 1;
+				q.push({ ny, nx });
+				visit[ny][nx] = true;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+	string s;
+	for (int n = 0; n < N; n++) {
+		cin >> s;
+
+		for (int m = 1; m <= M; m++)
+			arr[n + 1][m] = s[m - 1] - '0';
+	}
+
+	chk[1][1] = 1;
+
+	BFS(1, 1);
+
+	cout << chk[N][M] << "\n";
+
+	return 0;
+}
