@@ -1,0 +1,64 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int arr[25][25];
+vector<int> v;
+int N;
+
+void DFS(int y, int x, int num)
+{
+	if (y < 0 || y >= N || x < 0 || x >= N || arr[y][x] != -1)
+		return;
+
+	arr[y][x] = num;
+	v[v.size() - 1]++;
+
+	DFS(y + 1, x, num);
+	DFS(y, x + 1, num);
+	DFS(y - 1, x, num);
+	DFS(y, x - 1, num);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+	string s;
+
+	for (int y = 0; y < N; y++) {
+		cin >> s;
+
+		for (int x = 0; x < N; x++) {
+			arr[y][x] = s[x] - '0';
+
+			if (arr[y][x])
+				arr[y][x] = -1;
+		}
+	}
+
+	int num = 0;
+
+	for (int y = 0; y < N; y++) {
+		for (int x = 0; x < N; x++) {
+			if (arr[y][x] == -1) {
+				num++;
+				v.push_back(0);
+				DFS(y, x, num);
+			}
+		}
+	}
+
+	sort(v.begin(), v.end());
+
+	cout << num << "\n";
+
+	vector<int>::iterator itr;
+	for (itr = v.begin(); itr != v.end(); itr++)
+		cout << *itr << "\n";
+
+	return 0;
+}
