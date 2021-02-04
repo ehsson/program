@@ -1,3 +1,5 @@
+// DFS
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -48,6 +50,97 @@ int main(void)
 				num++;
 				v.push_back(0);
 				DFS(y, x, num);
+			}
+		}
+	}
+
+	sort(v.begin(), v.end());
+
+	cout << num << "\n";
+
+	vector<int>::iterator itr;
+	for (itr = v.begin(); itr != v.end(); itr++)
+		cout << *itr << "\n";
+
+	return 0;
+}
+
+// BFS
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+int arr[25][25];
+bool visit[25][25];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+vector<int> v;
+queue<pair<int, int>> q;
+
+int N;
+
+bool IsInside(int y, int x)
+{
+	if (y >= 0 && y < N && x >= 0 && x < N)
+		return true;
+	else
+		return false;
+}
+
+void BFS(int num)
+{
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (arr[ny][nx] == -1 && IsInside(ny, nx) == true && visit[ny][nx] == false) {
+				q.push({ ny, nx });
+				v[v.size() - 1]++;
+				arr[ny][nx] = num;
+				visit[ny][nx] = true;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int y = 0; y < N; y++) {
+		string s;
+		cin >> s;
+
+		for (int x = 0; x < N; x++) {
+			arr[y][x] = s[x] - '0';
+
+			if (arr[y][x])
+				arr[y][x] = -1;
+		}
+	}
+
+	int num = 0;
+
+	for (int y = 0; y < N; y++) {
+		for (int x = 0; x < N; x++) {
+			if (arr[y][x] == -1) {
+				num++;
+				v.push_back(1);
+				q.push({ y, x });
+				visit[y][x] = true;
+				BFS(num);
 			}
 		}
 	}
