@@ -1,54 +1,33 @@
-// memory limit
-
 #include <iostream>
 #include <vector>
-#include <queue>
 using namespace std;
 
 vector<int> v[501];
 vector<int> dp[501];
-queue<pair<int, int>> q;
-int N;
-
-void BFS()
-{
-	q.push({ 1, 0 });
-	dp[1][0] = v[1][0];
-
-	while (!q.empty()) {
-		int y = q.front().first;
-		int x = q.front().second;
-		q.pop();
-
-		for (int i = 0; i < 2; i++) {
-			int ny = y + 1;
-			int nx = x + i;
-
-			if (ny <= N) {
-				q.push({ny, nx});
-				dp[ny][nx] = max(dp[ny][nx], dp[y][x] + v[ny][nx]);
-			}
-		}
-	}
-}
 
 int main(void)
 {
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
 	cin >> N;
 
-	for (int n = 1; n <= N; n++) {
-		for (int k = 0; k < n; k++) {
+	for (int i = 1; i <= N; i++) {
+		for(int j = 0; j < i; j++) {
 			int input;
 			cin >> input;
 
-			v[n].push_back(input);
-			dp[n].push_back(0);
+			v[i].push_back(input);
+			dp[i].push_back(0);
 		}
 	}
 
-	BFS();
+	dp[1][0] = v[1][0];
+
+	for (int i = 1; i < N; i++)
+		for (int j = 0; j < i; j++)
+			for (int k = 0; k < 2; k++)
+				dp[i + 1][j + k] = max(dp[i][j] + v[i + 1][j + k], dp[i + 1][j + k]);
 
 	int _max = dp[N][0];
 
