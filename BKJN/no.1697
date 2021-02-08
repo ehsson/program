@@ -1,0 +1,70 @@
+// memory limit
+
+#include <iostream>
+#include <queue>
+using namespace std;
+
+int chk[100001];
+int N, K;
+
+void BFS(int start)
+{
+	queue<int> q;
+	q.push(start);
+
+	while (!q.empty()) {
+		int i = q.front();
+		q.pop();
+
+		for (int j = 0; j < 3; j++) {
+			int ni;
+
+			switch (j) {
+			case 0:
+				ni = i - 1;
+				break;
+			case 1:
+				ni = i + 1;
+				break;
+			case 2:
+				ni = i * 2;
+				break;
+			default:
+				break;
+			}
+
+			if (ni <= 100000) {
+				chk[ni] = min(chk[i] + 1, chk[ni]);
+
+				if (ni == K)
+					return;
+
+				q.push(ni);
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+
+	for (int i = 0; i <= 100000; i++)
+		chk[i] = 100000;
+
+	cin >> N >> K;
+
+	if (N >= K) {
+		cout << N - K << "\n";
+		return 0;
+	}
+
+	chk[N] = 0;
+
+	BFS(N);
+
+	cout << chk[K] << "\n";
+
+	return 0;
+}
