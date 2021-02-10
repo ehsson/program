@@ -1,0 +1,29 @@
+#include <iostream>
+using namespace std;
+
+int input[1001];
+int dp[1001];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	for (int n = 1; n <= N; n++) {
+		cin >> input[n];
+		dp[n] = input[n];
+	}
+
+	for (int i = 2; i <= N; i++) {
+		for (int j = 1; j <= i - 1; j++) {
+			dp[i] = max(dp[i], dp[j] + dp[i - j]);
+			N = N;
+		}
+	}
+
+	cout << dp[N] << "\n";
+
+	return 0;
+}
