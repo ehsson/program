@@ -1,0 +1,141 @@
+#include <iostream>
+using namespace std;
+
+enum {
+	North = 0, East, South, West
+};
+
+int map[51][51];
+int N, M;
+
+void Init()
+{
+	for (int i = 1; i <= N; i++)
+		map[i][0] = map[i][M + 1] = 1;
+
+	for (int i = 1; i <= M; i++)
+		map[0][i] = map[N + 1][i] = 1;
+}
+
+int simulation(int r, int c, int d)
+{
+	int cnt = 0, chk = 0;
+	int y = r, x = c, direction = d;
+
+	map[y][x] = -1;
+	cnt++;
+
+	while (1) {
+		switch (direction) {
+		case North:
+			if (map[y][x - 1] == 0) {
+				direction = (direction + 3) % 4;
+				x--;
+				map[y][x] = -1;
+				chk = 0;
+				cnt++;
+			}
+			else if (chk == 4) {
+				if (map[y + 1][x] != 1) {
+					chk = 0;
+					y++;
+				}
+				else
+					return cnt;
+			}
+			else {
+				direction = (direction + 3) % 4;
+				chk++;
+			}
+
+			break;
+		case East:
+			if (map[y - 1][x] == 0) {
+				direction = (direction + 3) % 4;
+				y--;
+				map[y][x] = -1;
+				chk = 0;
+				cnt++;
+			}
+			else if (chk == 4) {
+				if (map[y][x - 1] != 1) {
+					chk = 0;
+					x--;
+				}
+				else
+					return cnt;
+			}
+			else {
+				direction = (direction + 3) % 4;
+				chk++;
+			}
+
+			break;
+		case South:
+			if (map[y][x + 1] == 0) {
+				direction = (direction + 3) % 4;
+				x++;
+				map[y][x] = -1;
+				chk = 0;
+				cnt++;
+			}
+			else if (chk == 4) {
+				if (map[y - 1][x] != 1) {
+					chk = 0;
+					y--;
+				}
+				else
+					return cnt;
+			}
+			else {
+				direction = (direction + 3) % 4;
+				chk++;
+			}
+
+			break;
+		case West:
+			if (map[y + 1][x] == 0) {
+				direction = (direction + 3) % 4;
+				y++;
+				map[y][x] = -1;
+				chk = 0;
+				cnt++;
+			}
+			else if (chk == 4) {
+				if (map[y][x + 1] != 1) {
+					chk = 0;
+					x++;
+				}
+				else
+					return cnt;
+			}
+			else {
+				direction = (direction + 3) % 4;
+				chk++;
+			}
+
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int r, c, direction;
+	cin >> N >> M;
+	cin >> r >> c >> direction;
+
+	Init();
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= M; m++)
+			cin >> map[n][m];
+
+	cout << simulation(r + 1, c + 1, direction) << "\n";
+
+	return 0;
+}
