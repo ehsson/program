@@ -1,0 +1,32 @@
+#include <iostream>
+using namespace std;
+
+int N, r, c, cnt;
+
+void recursive(int y, int x, int n)
+{
+	if (y == r && x == c) {
+		cout << cnt << "\n";
+		exit(0);
+	}
+
+	if (r >= y && r < y + n && c >= x && c < x + n) {
+		recursive(y, x, n / 2);
+		recursive(y, x + n / 2, n / 2);
+		recursive(y + n / 2, x, n / 2);
+		recursive(y + n / 2, x + n / 2, n / 2);
+	}
+	else
+		cnt += n * n;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> r >> c;
+
+	recursive(0, 0, 1 << N);
+
+	return 0;
+}
