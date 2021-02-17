@@ -1,0 +1,58 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+char input[15];
+bool chk[15];
+char s[15];
+int L, C;
+
+void DFS(int pos, int vo, int con, int cnt)
+{
+	if (cnt > L || pos > C)
+		return;
+
+	if (cnt == L) {
+		if (vo >= 1 && con >= 2) {
+			for (int i = 0; i < C; i++)
+				if (chk[i])
+					cout << input[i];
+
+			cout << "\n";
+		}
+
+		return;
+	}
+
+	if (input[pos] == 'a' || input[pos] == 'e' || input[pos] == 'i' ||
+		input[pos] == 'o' || input[pos] == 'u') {
+		chk[pos] = true;
+		DFS(pos + 1, vo + 1, con, cnt + 1);
+
+		chk[pos] = false;
+		DFS(pos + 1, vo, con, cnt);
+	}
+	else {
+		chk[pos] = true;
+		DFS(pos + 1, vo, con + 1, cnt + 1);
+
+		chk[pos] = false;
+		DFS(pos + 1, vo, con, cnt);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> L >> C;
+
+	for (int c = 0; c < C; c++)
+		cin >> input[c];
+
+	sort(input, input + C);
+
+	DFS(0, 0, 0, 0);
+
+	return 0;
+}
