@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+string dp[101][101];
+
+string add(string a, string b)
+{
+	string result;
+	int sum = 0;
+
+	while (!a.empty() || !b.empty() || sum) {
+		if (!a.empty()) {
+			sum += a.back() - '0';
+			a.pop_back();
+		}
+
+		if (!b.empty()) {
+			sum += b.back() - '0';
+			b.pop_back();
+		}
+
+		result.push_back((sum % 10) + '0');
+		sum /= 10;
+	}
+
+	reverse(result.begin(), result.end());
+	return result;
+}
+
+string combination(int n, int m)
+{
+	if (n == m || m == 0)
+		return "1";
+
+	if (!dp[n][m].empty())
+		return dp[n][m];
+	
+	dp[n][m] = add(combination(n - 1, m - 1), combination(n - 1, m));
+
+	return dp[n][m];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, M;
+	cin >> N >> M;
+
+	cout << combination(N, M) << "\n";
+
+	return 0;
+}
