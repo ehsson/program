@@ -1,3 +1,5 @@
+// repeatitive statement
+
 #include <iostream>
 using namespace std;
 
@@ -19,6 +21,38 @@ ULL big_num_power(ULL a, ULL b, ULL c)
 	}
 
 	return res;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ULL a, b, c;
+	cin >> a >> b >> c;
+
+	cout << big_num_power(a, b, c) % c << "\n";
+
+	return 0;
+}
+
+// recursive function
+
+#include <iostream>
+using namespace std;
+
+typedef unsigned long long ULL;
+
+ULL big_num_power(ULL a, ULL b, ULL c)
+{
+	if (b == 0)
+		return 1;
+
+	ULL result = big_num_power(a, b / 2, c);
+
+	if (b & 1)
+		return ((a * result) % c * result) % c;
+	else
+		return (result * result) % c;
 }
 
 int main(void)
