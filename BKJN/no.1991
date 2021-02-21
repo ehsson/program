@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+
+typedef struct tree {
+	char left, right;
+} Tree;
+
+Tree tree[27];
+
+void preorder(char node)
+{
+	if (node == '.')
+		return;
+	else {
+		cout << node;
+		preorder(tree[node - 'A' + 1].left);
+		preorder(tree[node - 'A' + 1].right);
+	}
+}
+
+void inorder(char node)
+{
+	if (node == '.')
+		return;
+	else {
+		inorder(tree[node - 'A' + 1].left);
+		cout << node;
+		inorder(tree[node - 'A' + 1].right);
+	}
+}
+
+void postorder(char node)
+{
+	if (node == '.')
+		return;
+	else {
+		postorder(tree[node - 'A' + 1].left);
+		postorder(tree[node - 'A' + 1].right);
+		cout << node;
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	for (int i = 1; i <= N; i++) {
+		char input1, input2, input3;
+		cin >> input1 >> input2 >> input3;
+
+		tree[input1 - 'A' + 1].left = input2;
+		tree[input1 - 'A' + 1].right = input3;
+	}
+
+	preorder('A');
+	cout << "\n";
+	inorder('A');
+	cout << "\n";
+	postorder('A');
+	cout << "\n";
+
+	return 0;
+}
