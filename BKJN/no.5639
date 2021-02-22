@@ -1,0 +1,52 @@
+#include <iostream>
+using namespace std;
+
+typedef struct tree {
+	int left, right;
+} Tree;
+
+Tree tree[1000001];
+
+void input(int num, int root)
+{
+	if (num < root && tree[root].left == 0) {
+		tree[root].left = num;
+		return;
+	}
+	else if (num > root && tree[root].right == 0) {
+		tree[root].right = num;
+		return;
+	}
+
+	if(num < root)
+		input(num, tree[root].left);
+	else
+		input(num, tree[root].right);
+}
+
+void postorder(int num)
+{
+	if (num == 0)
+		return;
+
+	postorder(tree[num].left);
+	postorder(tree[num].right);
+	cout << num << "\n";
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int in, root;
+	cin >> in;
+	root = in;
+
+	while (cin >> in) {
+		input(in, root);
+	}
+
+	postorder(root);
+
+	return 0;
+}
