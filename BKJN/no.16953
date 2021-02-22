@@ -1,0 +1,37 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 0b1111111111111111111111111111111
+typedef long long LL;
+LL _min = MAX;
+
+void convert(LL a, LL b, LL cnt)
+{
+	if (a > b)
+		return;
+	else if (a == b) {
+		_min = min(_min, cnt);
+		return;
+	}
+	else {
+		convert(a * 10 + 1, b, cnt + 1);
+		convert(a * 2, b, cnt + 1);
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	LL a, b;
+	cin >> a >> b;
+
+	convert(a, b, 0);
+
+	if (_min == MAX)
+		cout << "-1\n";
+	else
+		cout << _min + 1 << "\n";
+
+	return 0;
+}
