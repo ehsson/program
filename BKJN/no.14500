@@ -1,0 +1,71 @@
+#include <iostream>
+using namespace std;
+
+int arr[500][500];
+bool visit[500][500];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+int N, M;
+int _max;
+
+void DFS(int y, int x, int cnt, int sum)
+{
+	if (cnt == 4) {
+		_max = max(_max, sum);
+		return;
+	}
+
+	if (y < 0 || y >= N || x < 0 || x >= M)
+		return;
+
+	sum += arr[y][x];
+
+	for (int i = 0; i < 4; i++) {
+		int next_y = y + dy[i];
+		int next_x = x + dx[i];
+
+		if (!visit[next_y][next_x]) {
+			visit[next_y][next_x] = true;
+			DFS(next_y, next_x, cnt + 1, sum);
+			visit[next_y][next_x] = false;
+		}
+	}
+}
+
+void get_T_shape(int y, int x)
+{
+	if (y + 2 < N && x + 1 < M)
+		_max = max(_max, arr[y][x] + arr[y + 1][x] + arr[y + 2][x] + arr[y + 1][x + 1]);
+
+	if (y + 1 < N && x - 2 >= 0)
+		_max = max(_max, arr[y][x] + arr[y][x - 1] + arr[y][x - 2] + arr[y + 1][x - 1]);
+
+	if (y - 2 >= 0 && x - 1 >= 0)
+		_max = max(_max, arr[y][x] + arr[y - 1][x] + arr[y - 2][x] + arr[y - 1][x - 1]);
+
+	if (y - 1 >= 0 && x + 2 < M)
+		_max = max(_max, arr[y][x] + arr[y][x + 1] + arr[y][x + 2] + arr[y - 1][x + 1]);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			cin >> arr[n][m];
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++) {
+			visit[n][m] = true;
+			DFS(n, m, 0, 0);
+			get_T_shape(n, m);
+			visit[n][m] = false;
+		}
+
+	cout << _max << "\n";
+
+	return 0;
+}
