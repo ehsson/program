@@ -1,0 +1,101 @@
+// time limit code
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+int map[50][50];
+int visit[50][50];
+int N, M;
+int sum, _min = 0b1111111111111111111111111111111;
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+vector<pair<int, int>> v;
+vector<int> chk;
+
+void BFS(int i, int j, int length)
+{
+	queue<pair<int, int>> q;
+	q.push(make_pair(i, j));
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (!visit[ny][nx] && ny >= 0 && ny < N && nx >= 0 && nx < N) {
+				visit[ny][nx] = visit[y][x] + 1;
+				if (map[ny][nx] == 2) {
+					sum += visit[ny][nx];
+					return;
+				}
+				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+}
+
+void func(int n, int cnt)
+{
+	if (cnt > M)
+		return;
+
+	if (n == v.size()) {
+		if (cnt == 0)
+			return;
+
+		for (int i = 0; i < v.size(); i++) {
+			if (chk[i])
+				map[v[i].first][v[i].second] = 2;
+			else
+				map[v[i].first][v[i].second] = -2;
+		}
+
+		sum = 0;
+
+		for (int y = 0; y < N; y++)
+			for (int x = 0; x < N; x++)
+				if (map[y][x] == 1) {
+					memset(visit, 0, sizeof(visit));
+					BFS(y, x, 0);
+				}
+
+		_min = min(_min, sum);
+
+		return;
+	}
+
+	chk[n] = 1;
+	func(n + 1, cnt + 1);
+	chk[n] = 0;
+	func(n + 1, cnt);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++) {
+			cin >> map[y][x];
+
+			if (map[y][x] == 2) {
+				v.push_back(make_pair(y, x));
+				chk.push_back(0);
+			}
+		}
+
+	func(0, 0);
+
+	cout << _min << "\n";
+
+	return 0;
+}
