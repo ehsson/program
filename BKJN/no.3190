@@ -1,0 +1,116 @@
+#include <iostream>
+#include <queue>
+using namespace std;
+
+typedef struct turn {
+	int time;
+	char direction;
+} Turn;
+
+enum {
+	Right = 0, Down, Left, Up
+};
+
+int map[101][101];
+bool chk[101][101];
+int N, K, L;
+int time;
+Turn turn[101];
+
+bool IsInside(int y, int x)
+{
+	if (y > 0 && y <= N && x > 0 && x <= N)
+		return true;
+	else
+		return false;
+}
+
+void simulation()
+{
+	queue<pair<int, int>> snake;
+	snake.push(make_pair(1, 1));
+	chk[1][1] = true;
+	int direction = Right;
+	int l = 0;
+
+	while (1) {
+		int y = snake.back().first;
+		int x = snake.back().second;
+
+		time++;
+
+		switch (direction) {
+		case Right:
+			if (IsInside(y, x + 1))
+				snake.push(make_pair(y, x + 1));
+			else
+				return;
+			break;
+		case Down:
+			if (IsInside(y + 1, x))
+				snake.push(make_pair(y + 1, x));
+			else
+				return;
+			break;
+		case Left:
+			if (IsInside(y, x - 1))
+				snake.push(make_pair(y, x - 1));
+			else
+				return;
+			break;
+		case Up:
+			if (IsInside(y - 1, x))
+				snake.push(make_pair(y - 1, x));
+			else
+				return;
+			break;
+		}
+
+		if (chk[snake.back().first][snake.back().second])
+			return;
+		else
+			chk[snake.back().first][snake.back().second] = true;
+
+		if (!map[snake.back().first][snake.back().second]) {
+			chk[snake.front().first][snake.front().second] = false;
+			snake.pop();
+		}
+		else
+			map[snake.back().first][snake.back().second] = 0;
+
+		if (time == turn[l].time) {
+			if (turn[l].direction == 'D')
+				direction = (direction + 1) % 4;
+			else
+				direction = (direction + 3) % 4;
+
+			l++;
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+	cin >> K;
+
+	for (int k = 0; k < K; k++) {
+		int y, x;
+		cin >> y >> x;
+
+		map[y][x] = 1;
+	}
+
+	cin >> L;
+
+	for (int l = 0; l < L; l++)
+		cin >> turn[l].time >> turn[l].direction;
+
+	simulation();
+
+	cout << time << "\n";
+
+	return 0;
+}
