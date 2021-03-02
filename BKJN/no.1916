@@ -1,0 +1,60 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+vector<pair<int, int>> graph[1001];
+
+vector<int> dijkstra(int start, int vertex)
+{
+	vector<int> bill(vertex, 100000 * 1000);
+	bill[start] = 0;
+
+	priority_queue<pair<int, int>> pq;
+	pq.push(make_pair(0, start));
+
+	while (!pq.empty()) {
+		int cost = -pq.top().first;
+		int curVertex = pq.top().second;
+		pq.pop();
+
+		if (bill[curVertex] < cost)
+			continue;
+
+		for (int i = 0; i < graph[curVertex].size(); i++) {
+			int neighbor = graph[curVertex][i].first;
+			int neighborBill = cost + graph[curVertex][i].second;
+
+			if (bill[neighbor] > neighborBill) {
+				bill[neighbor] = neighborBill;
+				pq.push(make_pair(-neighborBill, neighbor));
+			}
+		}
+	}
+
+	return bill;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, M;
+	cin >> N >> M;
+
+	for (int m = 0; m < M; m++) {
+		int city1, city2, bill;
+		cin >> city1 >> city2 >> bill;
+
+		graph[city1].push_back(make_pair(city2, bill));
+	}
+
+	int start, end;
+	cin >> start >> end;
+
+	vector<int> result = dijkstra(start, N + 1);
+
+	cout << result[end] << "\n";
+
+	return 0;
+}
