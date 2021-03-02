@@ -1,0 +1,51 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 1000000
+
+bool broken[10];
+
+int possible(int i)
+{
+	int temp = i;
+	int len = 0;
+
+	if (i == 0)
+		return broken[0] ? 0 : 1;
+
+	while (temp != 0) {
+		if (broken[temp % 10])
+			return 0;
+
+		temp /= 10;
+		len++;
+	}
+
+	return len;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, M;
+	cin >> N >> M;
+
+	for (int m = 0; m < M; m++) {
+		int input;
+		cin >> input;
+
+		broken[input] = true;
+	}
+
+	int result = abs(N - 100);
+
+	for (int i = 0; i <= MAX; i++) {
+		if (possible(i))
+			result = possible(i) + abs(N - i) > result ? result : possible(i) + abs(N - i);
+	}
+
+	cout << result << "\n";
+
+	return 0;
+}
