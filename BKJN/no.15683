@@ -1,0 +1,158 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int map[8][8];
+vector<pair<int, int>> camera;
+int N, M;
+int _min;
+
+int get_cnt()
+{
+	int cnt = 0;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < M; x++)
+			if (map[y][x] == 0)
+				cnt++;
+
+	return cnt;
+}
+
+bool IsInside(int y, int x)
+{
+	if (y >= 0 && y < N && x >= 0 && x < M)
+		return true;
+	else
+		return false;
+}
+
+void spread(int y, int x, int direction)
+{
+	switch (direction) {
+	case 0:
+		for (int i = 1; IsInside(y, x + i) && map[y][x + i] != 6; i++) {
+			if (map[y][x + i] >= 1 && map[y][x + i] <= 5)
+				continue;
+			else
+				map[y][x + i] = -1;
+		}
+		break;
+	case 1:
+		for (int i = 1; IsInside(y + i, x) && map[y + i][x] != 6; i++) {
+			if (map[y + i][x] >= 1 && map[y + i][x] <= 5)
+				continue;
+			else
+				map[y + i][x] = -1;
+		}
+		break;
+	case 2:
+		for (int i = 1; IsInside(y, x - i) && map[y][x - i] != 6; i++) {
+			if (map[y][x - i] >= 1 && map[y][x - i] <= 5)
+				continue;
+			else
+				map[y][x - i] = -1;
+		}
+		break;
+	case 3:
+		for (int i = 1; IsInside(y - i, x) && map[y - i][x] != 6; i++) {
+			if (map[y - i][x] >= 1 && map[y - i][x] <= 5)
+				continue;
+			else
+				map[y - i][x] = -1;
+		}
+		break;
+	}
+}
+
+void DFS(int num)
+{
+	if (num == camera.size()) {
+		_min = min(_min, get_cnt());
+		return;
+	}
+
+	int y = camera[num].first;
+	int x = camera[num].second;
+	int copy_map[8][8];
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			copy_map[n][m] = map[n][m];
+
+	switch (map[y][x]) {
+	case 1:
+		for (int i = 0; i < 4; i++) {
+			spread(y, x, i);
+			DFS(num + 1);
+			for (int n = 0; n < N; n++)
+				for (int m = 0; m < M; m++)
+					map[n][m] = copy_map[n][m];
+		}
+		break;
+	case 2:
+		for (int i = 0; i < 2; i++) {
+			spread(y, x, i);
+			spread(y, x, i + 2);
+			DFS(num + 1);
+			for (int n = 0; n < N; n++)
+				for (int m = 0; m < M; m++)
+					map[n][m] = copy_map[n][m];
+		}
+		break;
+	case 3:
+		for (int i = 0; i < 4; i++) {
+			spread(y, x, i);
+			spread(y, x, (i + 1) % 4);
+			DFS(num + 1);
+			for (int n = 0; n < N; n++)
+				for (int m = 0; m < M; m++)
+					map[n][m] = copy_map[n][m];
+		}
+		break;
+	case 4:
+		for (int i = 0; i < 4; i++) {
+			spread(y, x, i);
+			spread(y, x, (i + 1) % 4);
+			spread(y, x, (i + 2) % 4);
+			DFS(num + 1);
+			for (int n = 0; n < N; n++)
+				for (int m = 0; m < M; m++)
+					map[n][m] = copy_map[n][m];
+		}
+		break;
+	case 5:
+		spread(y, x, 0);
+		spread(y, x, 1);
+		spread(y, x, 2);
+		spread(y, x, 3);
+		DFS(num + 1);
+		for (int n = 0; n < N; n++)
+			for (int m = 0; m < M; m++)
+				map[n][m] = copy_map[n][m];
+		break;
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++) {
+			cin >> map[n][m];
+
+			if (map[n][m] >= 1 && map[n][m] <= 5)
+				camera.push_back(make_pair(n, m));
+		}
+
+	_min = 64;
+
+	DFS(0);
+
+	cout << _min << "\n";
+
+	return 0;
+}
