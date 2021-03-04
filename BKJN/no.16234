@@ -1,0 +1,90 @@
+#include <iostream>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+int map[50][50];
+int chk[50][50];
+int population[50 * 50 + 1][2];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+int N, L, R;
+
+bool IsInside(int y, int x)
+{
+	if (y >= 0 && y < N && x >= 0 && x < N)
+		return true;
+	else
+		return false;
+}
+
+void BFS(int i, int j, int num)
+{
+	int cnt = 1, sum = 0;
+	queue<pair<int, int>> q;
+	q.push(make_pair(i, j));
+	chk[i][j] = num;
+	sum += map[i][j];
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int k = 0; k < 4; k++) {
+			int ny = y + dy[k];
+			int nx = x + dx[k];
+
+			if (IsInside(ny, nx) && abs(map[ny][nx] - map[y][x]) >= L && abs(map[ny][nx] - map[y][x]) <= R
+				&& !chk[ny][nx]) {
+				chk[ny][nx] = num;
+				cnt++;
+				sum += map[ny][nx];
+				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+
+	population[num][0] = sum;
+	population[num][1] = cnt;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> L >> R;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			cin >> map[y][x];
+
+	int result = 0, num;
+
+	while (1) {
+		num = 0;
+		memset(chk, 0, sizeof(chk));
+		memset(population, 0, sizeof(population));
+
+		for(int y = 0; y < N; y++)
+			for (int x = 0; x < N; x++) {
+				if (!chk[y][x]) {
+					num++;
+					BFS(y, x, num);
+				}
+			}
+
+		if (num == N * N)
+			break;
+
+		for (int y = 0; y < N; y++)
+			for (int x = 0; x < N; x++)
+				map[y][x] = population[chk[y][x]][0] / population[chk[y][x]][1];
+
+		result++;
+	}
+
+	cout << result << "\n";
+
+	return 0;
+}
