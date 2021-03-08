@@ -1,0 +1,50 @@
+#include <iostream>
+#include <queue>
+using namespace std;
+
+int chk[1000001];
+int F, S, G, U, D;
+
+void BFS(int start)
+{
+	queue<int> q;
+	q.push(start);
+	chk[S] = 1;
+
+	while (!q.empty()) {
+		if (chk[G])
+			return;
+
+		int i = q.front();
+		q.pop();
+
+		int j = i + U;
+		int k = i - D;
+
+		if (j <= F && !chk[j]) {
+			chk[j] = chk[i] + 1;
+			q.push(j);
+		}
+
+		if (k >= 1 && !chk[k]) {
+			chk[k] = chk[i] + 1;
+			q.push(k);
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> F >> S >> G >> U >> D;
+
+	BFS(S);
+
+	if (chk[G] == 0)
+		cout << "use the stairs\n";
+	else
+		cout << chk[G] - 1 << "\n";
+
+	return 0;
+}
