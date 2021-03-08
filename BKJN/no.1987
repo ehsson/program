@@ -1,0 +1,46 @@
+#include <iostream>
+#include <queue>
+using namespace std;
+
+char map[20][20];
+bool chk[26];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+int N, M;
+int answer;
+
+void DFS(int y, int x, int cnt)
+{
+	answer = max(answer, cnt);
+
+	for (int i = 0; i < 4; i++) {
+		int ny = y + dy[i];
+		int nx = x + dx[i];
+
+		if (ny >= 0 && ny < N && nx >= 0 && nx < M && !chk[map[ny][nx] - 'A']) {
+			chk[map[ny][nx] - 'A'] = true;
+			DFS(ny, nx, cnt + 1);
+			chk[map[ny][nx] - 'A'] = false;
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			cin >> map[n][m];
+
+	answer = 0;
+
+	chk[map[0][0] - 'A'] = true;
+	DFS(0, 0, 1);
+
+	cout << answer << "\n";
+
+	return 0;
+}
