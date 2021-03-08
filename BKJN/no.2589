@@ -1,0 +1,62 @@
+#include <iostream>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+char map[50][50];
+int visit[50][50];
+int N, M;
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+int BFS(int n, int m)
+{
+	int _max = 0;
+	queue<pair<int, int>> q;
+	q.push(make_pair(n, m));
+	visit[n][m] = 1;
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+		_max = max(_max, visit[y][x]);
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (ny >= 0 && ny < N && nx >= 0 && nx < M && map[ny][nx] == 'L' && !visit[ny][nx]) {
+				visit[ny][nx] = visit[y][x] + 1;
+				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+
+	return _max;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++)
+			cin >> map[n][m];
+
+	int _max = 0;
+
+	for (int n = 0; n < N; n++)
+		for (int m = 0; m < M; m++) {
+			if (map[n][m] == 'L') {
+				memset(visit, 0, sizeof(visit));
+				_max = max(_max, BFS(n, m));
+			}
+		}
+
+	cout << _max - 1 << "\n";
+
+	return 0;
+}
