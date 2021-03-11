@@ -1,0 +1,50 @@
+// Kruskal Algorithm
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<pair<int, pair<int, int>>> v;
+int parent[10001];
+
+int find(int num)
+{
+	if (parent[num] == num)
+		return num;
+	else
+		return parent[num] = find(parent[num]);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int V, E;
+	cin >> V >> E;
+
+	for (int e = 0; e < E; e++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+
+		v.push_back(make_pair(c, make_pair(a, b)));
+	}
+
+	sort(v.begin(), v.end());
+
+	for (int j = 1; j <= V; j++)
+		parent[j] = j;
+
+	int sum = 0;
+
+	for (int i = 0; i < E; i++) {
+		if (find(v[i].second.first) != find(v[i].second.second)) {
+			parent[find(v[i].second.second)] = parent[v[i].second.first];
+			sum += v[i].first;
+		}
+	}
+
+	cout << sum << "\n";
+
+	return 0;
+}
