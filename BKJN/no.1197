@@ -48,3 +48,62 @@ int main(void)
 
 	return 0;
 }
+
+// Prim algorithm
+
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+vector<pair<int, int>> v[10001];
+bool visit[10001];
+
+int V, E;
+
+int prim()
+{
+	int answer = 0;
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+	pq.push(make_pair(0, 1));
+
+	while (!pq.empty()) {
+		pair<int, int> current = pq.top();
+		pq.pop();
+
+		if (visit[current.second])
+			continue;
+
+		visit[current.second] = true;
+
+		answer += current.first;
+
+		for (int i = 0; i < v[current.second].size(); i++) {
+			if (!visit[v[current.second][i].second])
+				pq.push(make_pair(v[current.second][i].first, v[current.second][i].second));
+		}
+	}
+
+	return answer;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> V >> E;
+
+	for (int e = 0; e < E; e++) {
+		int from, to, cost;
+		cin >> from >> to >> cost;
+
+		v[from].push_back(make_pair(cost, to));
+		v[to].push_back(make_pair(cost, from));
+	}
+
+	int answer = prim();
+
+	cout << answer << "\n";
+
+	return 0;
+}
