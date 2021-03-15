@@ -1,0 +1,54 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<pair<int, pair<int, int>>> v;
+int parent[1001];
+
+int find(int n)
+{
+	if (parent[n] == n)
+		return n;
+	else
+		return parent[n] = find(parent[n]);
+}
+
+void Union(int a, int b)
+{
+	if (find(a) != find(b))
+		parent[find(a)] = parent[find(b)];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N, M;
+	cin >> N >> M;
+
+	for (int m = 0; m < M; m++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+
+		v.push_back(make_pair(c, make_pair(a, b)));
+	}
+
+	sort(v.begin(), v.end());
+
+	for (int n = 1; n <= N; n++)
+		parent[n] = n;
+
+	int sum = 0;
+
+	for (int m = 0; m < M; m++) {
+		if (find(v[m].second.first) != find(v[m].second.second)) {
+			Union(v[m].second.first, v[m].second.second);
+			sum += v[m].first;
+		}
+	}
+
+	cout << sum << "\n";
+
+	return 0;
+}
