@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<int> A;
+vector<int> B;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		int N, K;
+		cin >> N >> K;
+
+		for (int n = 0; n < N; n++) {
+			int input;
+			cin >> input;
+
+			A.push_back(input);
+		}
+
+		for (int n = 0; n < N; n++) {
+			int input;
+			cin >> input;
+
+			B.push_back(input);
+		}
+
+		sort(A.begin(), A.end());
+		sort(B.begin(), B.end());
+
+		int _max = 0;
+
+		for (int k = 0; k < K; k++)
+			_max = max(_max, A[k] + B[K - 1 - k]);
+
+		cout << "Case #" << t << "\n" << _max << "\n";
+
+		A.clear();
+		B.clear();
+	}
+	return 0;
+}
