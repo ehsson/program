@@ -1,0 +1,92 @@
+#include <iostream>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+int map[300][300];
+bool visit[300][300];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+char copy1[300][300];
+
+int N, M;
+
+void BFS(int n, int m)
+{
+	queue<pair<int, int>> q;
+	q.push(make_pair(n, m));
+	visit[n][m] = true;
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (map[ny][nx] && !visit[ny][nx]) {
+				q.push(make_pair(ny, nx));
+				visit[ny][nx] = true;
+			}
+		}
+	}
+}
+
+void melt()
+{
+	memset(copy1, 0, sizeof(copy1));
+	
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < M; x++)
+			copy1[y][x] = map[y][x];
+
+	for (int y = 1; y < N - 1; y++)
+		for (int x = 1; x < M - 1; x++)
+			if (copy1[y][x]) {
+				for (int i = 0; i < 4; i++) {
+					if (map[y][x] > 0 && !copy1[y + dy[i]][x + dx[i]])
+						map[y][x]--;
+				}
+			}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < M; x++)
+			cin >> map[y][x];
+
+	int year = 0;
+
+	while (1) {
+		year++;
+		melt();
+
+		int cnt = 0;
+		memset(visit, false, sizeof(visit));
+		
+		for (int y = 1; y < N - 1; y++)
+			for (int x = 1; x < M - 1; x++)
+				if (map[y][x] && !visit[y][x]) {
+					BFS(y, x);
+					cnt++;
+				}
+
+		if (cnt > 1)
+			break;
+		else if (cnt == 0) {
+			year = 0;
+			break;
+		}
+	}
+
+	cout << year << "\n";
+
+	return 0;
+}
