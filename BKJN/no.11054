@@ -1,0 +1,39 @@
+#include <iostream>
+using namespace std;
+
+int input[1000];
+int dpi[1000];
+int dpd[1000];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	for (int n = 0; n < N; n++)
+		cin >> input[n];
+
+	for (int i = 0; i < N; i++) {
+		dpi[i] = 1;
+		dpd[N - 1 - i] = 1;
+		for (int j = 0; j < i; j++) {
+			if (input[i] > input[j] && dpi[i] < dpi[j] + 1)
+				dpi[i] = dpi[j] + 1;
+
+			if (input[N - 1 - i] > input[N - 1 - j] && dpd[N - 1 - i] < dpd[N - 1 - j] + 1)
+				dpd[N - 1 - i] = dpd[N - 1 - j] + 1;
+		}
+	}
+
+	int answer = 0;
+
+	for (int i = 0; i < N; i++) {
+		answer = max(answer, dpi[i] + dpd[i]);
+	}
+
+	cout << answer - 1 << "\n";
+
+	return 0;
+}
