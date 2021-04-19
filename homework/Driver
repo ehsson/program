@@ -1,0 +1,100 @@
+class Driver {
+private:
+	char* name;
+	int age;
+	int career;
+public:
+	Driver(char* name, int age, int career);
+	~Driver();
+	void increase_age(int num);
+	void increase_career(int num);
+	char* get_name() const;
+	int get_age() const;
+	int get_career() const;
+};
+
+
+#define _CRT_SECURE_NO_WARNINGS  //strcpy함수의 오류를 막기위한 선언
+#include <iostream>
+#include <cstring>
+#include "Driver.h"
+using namespace std;
+
+/*
+	함수 이름: Driver 생성자
+	기능: Driver객체의 멤버변수 name/age/career 초기화
+	매개변수: char* name -> 이름, int age -> 나이, int career -> 경력
+*/
+
+Driver::Driver(char* name, int age, int career)
+	: age(age), career(career)
+{
+	int len = strlen(name) + 1;
+	this->name = new char[len];
+	strcpy(this->name, name);
+}
+
+/*
+	함수 이름: Driver 소멸자
+	기능: Driver객체의 멤버변수 name의 소멸
+*/
+
+Driver::~Driver()
+{
+	delete[]name;
+}
+
+/*
+	함수 이름: increase_age
+	기능: 인자로 전달된 수만큼 age를 증가시킨다.
+	매개변수: int num -> 변화량
+*/
+
+void Driver::increase_age(int num)
+{
+	age += num;
+}
+
+/*
+	함수 이름: increase_career
+	기능: 인자로 전달된 수만큼 career를 증가시킨다.
+	매개변수: int num -> 변화량
+*/
+
+void Driver::increase_career(int num)
+{
+	career += num;
+}
+
+/*
+	함수 이름: get_name
+	기능: name을 반환한다.
+	반환값: 객체의 이름
+*/
+
+char* Driver::get_name() const
+{
+	return name;
+}
+
+/*
+	함수 이름: get_age
+	기능: age을 반환한다.
+	반환값: 객체의 나이
+*/
+
+int Driver::get_age() const
+{
+	return age;
+}
+
+/*
+	함수 이름: get_career
+	기능: career을 반환한다.
+	반환값: 객체의 경력
+*/
+
+int Driver::get_career() const
+{
+	return career;
+}
