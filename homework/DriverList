@@ -1,0 +1,72 @@
+#include "Driver.h"
+
+/*
+	클래스 이름: DriverList
+	기능: Driver포인터 배열을 이용하여 Driver객체를 관리한다.
+*/
+
+class DriverList {
+private:
+	Driver* driver[10];
+	int curidx;
+public:
+	DriverList();
+	~DriverList();
+	void addDriver(const Driver& d);
+	void showDriverList() const;
+};
+
+
+
+#include <iostream>
+#include "DriverList.h"
+using namespace std;
+
+/*
+	함수 이름: DriverList 생성자
+	기능: 추가 가능한 운전사 인덱스 번호를 0으로 초기화한다.
+*/
+
+DriverList::DriverList()
+	: curidx(0)
+{}
+
+/*
+	함수 이름: DriverList 소멸자
+	기능: 동적할당된 Driver포인터 배열의 해제
+*/
+
+DriverList::~DriverList()
+{
+	for (int i = 0; i < curidx; i++)
+		delete driver[i];
+}
+
+/*
+	함수 이름: addDriver
+	기능: Driver포인터 배열의 동적할당과 동시에 초기화,
+		  현재 추가 가능한 운전자 인덱스 증가
+	매개변수: const Driver& d -> Driver객체
+*/
+
+void DriverList::addDriver(const Driver& d)
+{
+	driver[curidx] = new Driver(d.get_name(), d.get_age(), d.get_career());
+	curidx++;
+}
+
+/*
+	함수 이름: showDriverList
+	기능: Driver포인터 배열에 등록되어 있는 객체들의 정보를 출력한다.
+*/
+
+void DriverList::showDriverList() const
+{
+	cout << "\n";  // 가독성을 위한 개행
+	cout << "추가된 운전사 정보: " << "\n";
+	for (int i = 0; i < curidx; i++) {
+		cout << "이름: " << driver[i]->get_name() << ", ";
+		cout << "나이: " << driver[i]->get_age() << "세, ";
+		cout << "경력: " << driver[i]->get_career() << "개월\n";
+	}
+}
