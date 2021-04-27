@@ -1,0 +1,70 @@
+#pragma once
+#define _CRT_SECURE_NO_WARNINGS  //strcpy함수의 오류를 막기위한 선언
+#include "DriverList.h"
+
+/*
+	클래스 이름: Company
+	기능: company내의 DriverList를 이용하여 운전사들을 추가하고 보여준다.
+*/
+
+class Company {
+private:
+	char* companyName;
+	DriverList DL;
+public:
+	Company(char* name);
+	~Company();
+	void addDriver(const Driver& d);
+	void showDriverList() const;
+};
+
+
+#define _CRT_SECURE_NO_WARNINGS  //strcpy함수의 오류를 막기위한 선언
+#include <iostream>
+#include <cstring>
+#include "Company.h"
+using namespace std;
+
+/*
+	함수 이름: Company (생성자)
+	기능: Company객체의 이름을 저장한다.
+	매개변수: char* name -> 회사의 이름
+*/
+
+Company::Company(char* name)
+{
+	int len = strlen(name) + 1;
+	companyName = new char[len];
+	strcpy(companyName, name);
+}
+
+/*
+	함수 이름: ~Company (소멸자)
+	기능: 동적할당한 Company객체의 이름을 해제한다.
+*/
+
+Company::~Company()
+{
+	delete[]companyName;
+}
+
+/*
+	함수 이름: addDriver
+	기능: DriverList의 addDriver를 이용하여 운전사를 등록한다.
+	매개변수: const Driver& d -> Driver객체(운전사)
+*/
+
+void Company::addDriver(const Driver& d)
+{
+	DL.addDriver(d);
+}
+
+/*
+	함수 이름: Company (생성자)
+	기능: DriverList의 showDriverList를 이용하여 운전사들의 정보를 출력한다.
+*/
+
+void Company::showDriverList() const
+{
+	DL.showDriverList();
+}
