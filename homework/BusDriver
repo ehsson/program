@@ -1,0 +1,55 @@
+/*
+	클래스 이름: BusDriver
+	기능: Driver 클래스를 상속받아 BusDriver의 수당을 관리한다.
+*/
+
+#include "Driver.h"
+
+class BusDriver : public Driver {
+private:
+	int workingHours;
+	int payPerHour;
+public:
+	BusDriver(char* name, int age, int career, int workingHours, int payPerHour);
+	int getSalary() const;
+	void showDriverInfo() const;
+};
+
+
+#include "BusDriver.h"
+#include <iostream>
+using namespace std;
+
+/*
+	함수 이름: BusDriver (생성자)
+	기능: BusDriver의 이름, 나이, 경력은 부모 클래스로 초기화, 일한 시간과 시간당 수당을 초기화한다.
+	매개변수: char* name -> 이름, int age -> 나이, int career -> 경력, workingHours -> 일한 시간, payPerHour -> 시간당 수당
+*/
+
+BusDriver::BusDriver(char* name, int age, int career, int workingHours, int payPerHour)
+	: Driver(name, age, career), workingHours(workingHours), payPerHour(payPerHour)
+{}
+
+/*
+	함수 이름: getSalary
+	기능: 일한 시간과 시간당 수당을 곱한값, 즉 총 수당을 반환한다.
+	반환값: 일한 시간 * 시간당 수당
+*/
+
+int BusDriver::getSalary() const
+{
+	return workingHours * payPerHour;
+}
+
+/*
+	함수 이름: showDriverInfo
+	기능: BusDriver의 정보를 출력한다.
+*/
+
+void BusDriver::showDriverInfo() const
+{
+	cout << "이름: " << get_name() << ", ";
+	cout << "나이: " << get_age() << "세, ";
+	cout << "경력: " << get_career() << "개월, ";
+	cout << "월급: " << getSalary() << "만원\n";
+}
