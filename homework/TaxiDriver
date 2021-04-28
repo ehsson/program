@@ -1,0 +1,79 @@
+/*
+	클래스 이름: TaxiDriver
+	기능: Driver 클래스를 상속받아 TaxiDriver의 수당을 관리한다.
+*/
+
+#include "Driver.h"
+
+class TaxiDriver : public Driver {
+private:
+	int baseSalary;
+	int bonusMoney;
+public:
+	TaxiDriver(char* name, int age, int career, int baseSalary, int bonusMoney);
+	int get_baseSalary() const;
+	int get_bonusMoney() const;
+	int getSalary() const;
+	void showDriverInfo() const;
+};
+
+
+#include <iostream>
+#include "TaxiDriver.h"
+using namespace std;
+
+/*
+	함수 이름: TaxiDriver (생성자)
+	기능: TaxiDriver의 이름, 나이, 경력은 부모 클래스로 초기화, 봉급과 보너스를 초기화한다.
+	매개변수: char* name -> 이름, int age -> 나이, int career -> 경력, baseSalary -> 기본 수당, bonusMoney -> 보너스 수당
+*/
+
+TaxiDriver::TaxiDriver(char* name, int age, int career, int baseSalary, int bonusMoney)
+	:Driver(name, age, career), baseSalary(baseSalary), bonusMoney(bonusMoney)
+{}
+
+/*
+	함수 이름: get_baseSalary
+	기능: baseSalary의 값을 반환한다.
+	반환값: 기본 수당
+*/
+
+int TaxiDriver::get_baseSalary() const
+{
+	return baseSalary;
+}
+
+/*
+	함수 이름: get_bonusMoney
+	기능: bonusMoney의 값을 반환한다.
+	반환값: 보너스 수당
+*/
+
+int TaxiDriver::get_bonusMoney() const
+{
+	return bonusMoney;
+}
+
+/*
+	함수 이름: getSalary
+	기능: 기본 수당과 보너스 수당을 합한 값을 출력한다.
+	반환값: 기본수당 + 보너스 수당
+*/
+
+int TaxiDriver::getSalary() const
+{
+	return baseSalary + bonusMoney;
+}
+
+/*
+	함수 이름: showDriverInfo
+	기능: TaxiDriver의 정보를 출력한다.
+*/
+
+void TaxiDriver::showDriverInfo() const
+{
+	cout << "이름: " << get_name() << ", ";
+	cout << "나이: " << get_age() << "세, ";
+	cout << "경력: " << get_career() << "개월, ";
+	cout << "월급: " << getSalary() << "만원\n";
+}
