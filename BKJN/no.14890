@@ -1,0 +1,84 @@
+#include <iostream>
+using namespace std;
+
+int map[100][100];
+int N, L;
+
+bool analyze_row(int y)
+{
+	bool chk[100] = { false };
+
+	for (int n = 1; n < N; n++) {
+		if (map[y][n] > map[y][n - 1]) {
+			for (int i = 1; i <= L; i++) {
+				if (n - i < 0 || map[y][n] - 1 != map[y][n - i])
+					return false;
+				else
+					chk[n - i] = true;
+			}
+		}
+	}
+
+	for (int n = N - 2; n >= 0; n--) {
+		if (map[y][n] > map[y][n + 1]) {
+			for (int i = 1; i <= L; i++) {
+				if (n + i > N - 1 || map[y][n] - 1 != map[y][n + i] || chk[n + i])
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool analyze_column(int x)
+{
+	bool chk[100] = { false };
+
+	for (int n = 1; n < N; n++) {
+		if (map[n][x] > map[n - 1][x]) {
+			for (int i = 1; i <= L; i++) {
+				if (n - i < 0 || map[n][x] - 1 != map[n - i][x])
+					return false;
+				else
+					chk[n - i] = true;
+			}
+		}
+	}
+
+	for (int n = N - 2; n >= 0; n--) {
+		if (map[n][x] > map[n + 1][x]) {
+			for (int i = 1; i <= L; i++) {
+				if (n + i > N - 1 || map[n][x] - 1 != map[n + i][x] || chk[n + i])
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> L;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			cin >> map[y][x];
+
+	int answer = 0;
+
+	for (int n = 0; n < N; n++) {
+		if (analyze_row(n))
+			answer++;
+		
+		if (analyze_column(n))
+			answer++;
+	}
+
+	cout << answer;
+
+	return 0;
+}
