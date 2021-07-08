@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+int T, N, K, D;
+vector<int> v[1001];
+int delay[1001];
+int dp[1001];
+
+int get_delay_time(int destination)
+{
+	if (dp[destination] != -1)
+		return dp[destination];
+
+	int time = 0;
+
+	for (int i = 0; i < v[destination].size(); i++)
+		time = max(time, get_delay_time(v[destination][i]));
+
+	return dp[destination] = time + delay[destination];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		memset(dp, -1, sizeof(dp));
+		cin >> N >> K;
+
+		for (int n = 1; n <= N; n++)
+			cin >> delay[n];
+
+		for (int k = 0; k < K; k++) {
+			int n1, n2;
+			cin >> n1 >> n2;
+
+			v[n2].push_back(n1);
+		}
+
+		cin >> D;
+
+		cout << get_delay_time(D) << "\n";
+		memset(delay, 0, sizeof(delay));
+		for (int n = 1; n <= N; n++)
+			v[n].clear();
+	}
+
+	return 0;
+}
