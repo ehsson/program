@@ -1,0 +1,88 @@
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+#define MAX 10000000
+
+int N, M, X;
+vector<pair<int, int>> v[1001];
+
+int dijkstra(int start, int vertex)
+{
+	vector<int> distance1(vertex, MAX);
+	distance1[start] = 0;
+
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq1;
+	pq1.push({ 0, start });
+
+	while (!pq1.empty()) {
+		int cost = pq1.top().first;
+		int cur = pq1.top().second;
+		pq1.pop();
+
+		if (distance1[cur] < cost)
+			continue;
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int next_cost = cost + v[cur][i].second;
+
+			if (distance1[next] > next_cost) {
+				pq1.push({ next_cost, next });
+				distance1[next] = next_cost;
+			}
+		}
+	}
+
+	vector<int> distance2(vertex, MAX);
+	distance2[X] = 0;
+
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq2;
+	pq2.push({ 0, X });
+
+	while (!pq2.empty()) {
+		int cost = pq2.top().first;
+		int cur = pq2.top().second;
+		pq2.pop();
+
+		if (distance2[cur] < cost)
+			continue;
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int next_cost = cost + v[cur][i].second;
+
+			if (distance2[next] > next_cost) {
+				pq2.push({ next_cost, next });
+				distance2[next] = next_cost;
+			}
+		}
+	}
+
+	return distance1[X] + distance2[start];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M >> X;
+
+	for (int m = 0; m < M; m++) {
+		int start, end, val;
+		cin >> start >> end >> val;
+		v[start].push_back({ end, val });
+	}
+
+	int answer = 0;
+
+	for (int i = 1; i <= N; i++) {
+		answer = max(answer, dijkstra(i, N + 1));
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
