@@ -1,0 +1,62 @@
+#include <iostream>
+using namespace std;
+
+int N;
+int map[500][500];
+int dp[500][500];
+bool visit[500][500];
+int dy[4] = { 1, 0, -1, 0 };
+int dx[4] = { 0, 1, 0, -1 };
+
+int DFS(int y, int x)
+{
+	if (dp[y][x] != 0)
+		return dp[y][x];
+
+	visit[y][x] = true;
+	bool chk = false;
+
+	for (int i = 0; i < 4; i++) {
+		int ny = y + dy[i];
+		int nx = x + dx[i];
+		if (ny >= 0 && ny < N && nx >= 0 && nx < N) {
+			if (map[y][x] < map[ny][nx] && !visit[ny][nx]) {
+				dp[y][x] = max(dp[y][x], DFS(ny, nx) + 1);
+				chk = true;
+			}
+		}
+	}
+
+	visit[y][x] = false;
+
+	if (!chk)
+		dp[y][x] = 1;
+
+	return dp[y][x];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			cin >> map[y][x];
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			if (dp[y][x] == 0)
+				DFS(y, x);
+
+	int answer = 0;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			answer = max(answer, dp[y][x]);
+
+	cout << answer << "\n";
+
+	return 0;
+}
