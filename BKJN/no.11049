@@ -1,0 +1,38 @@
+#include <iostream>
+using namespace std;
+
+typedef struct DP {
+	int r, c, sum;
+} DP;
+
+DP dp[501][501];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	for (int i = 1; i <= N; i++)
+		cin >> dp[i][i].r >> dp[i][i].c;
+
+	int answer = 0;
+
+	for (int d = 1; d < N; d++) {
+		for (int y = 1; y + d <= N; y++) {
+			int x = y + d;
+			dp[y][x].sum = 2147483647;
+			dp[y][x].r = dp[y][y].r;
+			dp[y][x].c = dp[x][x].c;
+
+			for (int mid = y; mid < x; mid++) {
+				dp[y][x].sum = min(dp[y][x].sum, dp[y][mid].r * dp[y][mid].c * dp[mid + 1][x].c + dp[y][mid].sum + dp[mid + 1][x].sum);
+			}
+		}
+	}
+
+	cout << dp[1][N].sum << "\n";
+
+	return 0;
+}
