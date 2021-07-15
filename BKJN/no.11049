@@ -17,8 +17,6 @@ int main(void)
 	for (int i = 1; i <= N; i++)
 		cin >> dp[i][i].r >> dp[i][i].c;
 
-	int answer = 0;
-
 	for (int d = 1; d < N; d++) {
 		for (int y = 1; y + d <= N; y++) {
 			int x = y + d;
@@ -26,9 +24,8 @@ int main(void)
 			dp[y][x].r = dp[y][y].r;
 			dp[y][x].c = dp[x][x].c;
 
-			for (int mid = y; mid < x; mid++) {
+			for (int mid = y; mid < x; mid++)
 				dp[y][x].sum = min(dp[y][x].sum, dp[y][mid].r * dp[y][mid].c * dp[mid + 1][x].c + dp[y][mid].sum + dp[mid + 1][x].sum);
-			}
 		}
 	}
 
