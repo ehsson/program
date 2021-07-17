@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int T, N;
+int answer, temp;
+int arr[100001];
+int friends[100001];
+
+void DFS(int num)
+{
+	friends[num] = answer;
+
+	if (num + arr[num] <= N)
+		if (friends[num + arr[num]]) {
+			friends[num] = friends[num + arr[num]];
+			temp = friends[num + arr[num]];
+		}
+		else
+			DFS(num + arr[num]);
+
+	if (temp)
+		friends[num] = temp;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		cin >> N;
+
+		memset(arr, 0, sizeof(arr));
+		memset(friends, 0, sizeof(friends));
+		for (int n = 1; n <= N; n++)
+			cin >> arr[n];
+
+		answer = 1;
+		
+		for (int n = 1; n <= N; n++) {
+			if (friends[n] == 0) {
+				temp = 0;
+				DFS(n);
+				if(!temp)
+					answer++;
+			}
+		}
+
+		answer--;
+
+		cout << "Case #" << t << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
