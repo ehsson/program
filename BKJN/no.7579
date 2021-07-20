@@ -1,0 +1,46 @@
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+#define MAX 10000000
+int N, M;
+int memory[101];
+int restart[101];
+int dp[101][10001];
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	int sum = 0;
+
+	for (int n = 1; n <= N; n++)
+		cin >> memory[n];
+
+	for (int n = 1; n <= N; n++) {
+		cin >> restart[n];
+		sum += restart[n];
+	}
+
+	dp[1][0] = 0;
+	dp[1][restart[1]] = memory[1];
+
+	for (int i = 2; i <= N; i++) {
+		for (int j = 0; j <= sum; j++) {
+			dp[i][j] = max(dp[i][j], dp[i - 1][j]);
+
+			if (j - restart[i] >= 0)
+				dp[i][j] = max(dp[i][j], dp[i - 1][j - restart[i]] + memory[i]);
+		}
+	}
+
+	for(int i = 0; i <= sum; i++)
+		if (M <= dp[N][i]) {
+			cout << i << "\n";
+			break;
+		}
+
+	return 0;
+}
