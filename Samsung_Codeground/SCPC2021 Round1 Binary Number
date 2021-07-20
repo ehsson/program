@@ -10,10 +10,6 @@ char rst[50002];
 
 int main(void)
 {
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
-//	freopen_s(&pf, "output.txt", "w", stdout);
-
 	cin >> T;
 
 	for (int tc = 1; tc <= T; tc++) {
