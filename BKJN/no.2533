@@ -1,0 +1,75 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int N;
+vector<int> v[1000001];
+vector<int> tree[1000001];
+bool visit[1000001];
+int dp[1000001][2];
+
+void makeTree(int cur)
+{
+	visit[cur] = true;
+
+	for (int i = 0; i < v[cur].size(); i++) {
+		int next = v[cur][i];
+
+		if (!visit[next]) {
+			tree[cur].push_back(next);
+			makeTree(next);
+		}
+	}
+}
+
+int DFS(int cur, int st)
+{
+	if (dp[cur][st] != -1)
+		return dp[cur][st];
+
+	if (st == 1) {
+		dp[cur][st] = 1;
+
+		for (int i = 0; i < tree[cur].size(); i++) {
+			int next = tree[cur][i];
+			dp[cur][st] += min(DFS(next, 0), DFS(next, 1));
+		}
+	}
+	else {
+		dp[cur][st] = 0;
+
+		for (int i = 0; i < tree[cur].size(); i++) {
+			int next = tree[cur][i];
+			dp[cur][st] += DFS(next, 1);
+		}
+	}
+
+	return dp[cur][st];
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N;
+
+	for (int i = 0; i < N - 1; i++) {
+		int input1, input2;
+		cin >> input1 >> input2;
+
+		v[input1].push_back(input2);
+		v[input2].push_back(input1);
+	}
+
+	for (int i = 1; i <= N; i++)
+		dp[i][0] = dp[i][1] = -1;
+
+	makeTree(1);
+
+	int result1 = DFS(1, 0);
+	int result2 = DFS(1, 1);
+
+	cout << min(result1, result2) << "\n";
+
+	return 0;
+}
