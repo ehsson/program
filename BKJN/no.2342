@@ -1,0 +1,53 @@
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+int cnt;
+int input[100002];
+int dp[5][5][100001];
+
+int getValue(int from, int to)
+{
+	if (from == 0)
+		return 2;
+
+	switch (abs(from - to)) {
+	case 0:
+		return 1;
+	case 1:
+	case 3:
+		return 3;
+	case 2:
+		return 4;
+	}
+}
+
+int func(int left, int right, int next)
+{
+	if (next == cnt + 1)
+		return 0;
+	
+	if (dp[left][right][next] != 0)
+		return dp[left][right][next];
+
+	return dp[left][right][next] = min(getValue(left, input[next]) + func(input[next], right, next + 1),
+		getValue(right, input[next]) + func(left, input[next], next + 1));;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	while (true) {
+		cnt++;
+		cin >> input[cnt];
+		if (input[cnt] == 0) {
+			cnt--;
+			break;
+		}
+	}
+
+	cout << func(0, 0, 1) << "\n";
+
+	return 0;
+}
