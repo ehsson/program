@@ -1,0 +1,36 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int T;
+unsigned long long R;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> T;
+	
+	for (int t = 1; t <= T; t++) {
+		cin >> R;
+
+		unsigned long long answer = 0;
+		unsigned long long x = R - 1;
+
+		for (unsigned long long y = 0; y < R; y++) {
+			while (x > 0) {
+				if ((x * x) + (y * y) < R * R) {
+					answer += x;
+					break;
+				}
+
+				x--;
+			}
+		}
+
+		cout << "Case #" << t << "\n";
+		cout << answer * 4 + 1 << "\n";
+	}
+
+	return 0;
+}
