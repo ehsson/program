@@ -1,0 +1,131 @@
+#include <iostream>
+#include <cstdlib>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+int N, M;
+char map[11][11];
+bool visit[10][10][10][10];
+
+typedef struct info {
+	int ry, rx, by, bx, cnt;
+} Info;
+
+Info start;
+
+int BFS()
+{
+	int dy[4] = { 0, 1, 0, -1 };
+	int dx[4] = { 1, 0, -1, 0 };
+	int ret = -1;
+	queue<Info> q;
+	q.push(start);
+	visit[start.ry][start.rx][start.by][start.bx] = true;
+
+	while (!q.empty()) {
+		Info cur = q.front();
+		q.pop();
+
+		if (cur.cnt > 10)
+			break;
+
+		if (map[cur.ry][cur.rx] == 'O' && map[cur.by][cur.bx] != 'O') {
+			ret = cur.cnt;
+			break;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int nry = cur.ry;
+			int nrx = cur.rx;
+			int nby = cur.by;
+			int nbx = cur.bx;
+
+			while (true) {
+				if (map[nry][nrx] != '#' && map[nry][nrx] != 'O') {
+					nry += dy[i];
+					nrx += dx[i];
+				}
+				else {
+					if (map[nry][nrx] == '#') {
+						nry -= dy[i];
+						nrx -= dx[i];
+					}
+
+					break;
+				}
+			}
+
+			while (true) {
+				if (map[nby][nbx] != '#' && map[nby][nbx] != 'O') {
+					nby += dy[i];
+					nbx += dx[i];
+				}
+				else {
+					if (map[nby][nbx] == '#') {
+						nby -= dy[i];
+						nbx -= dx[i];
+					}
+
+					break;
+				}
+			}
+
+			if (nry == nby && nrx == nbx) {
+				if (map[nry][nrx] != 'O') {
+					int r_cnt = abs(cur.ry - nry) + abs(cur.rx - nrx);
+					int b_cnt = abs(cur.by - nby) + abs(cur.bx - nbx);
+
+					if (r_cnt > b_cnt) {
+						nry -= dy[i];
+						nrx -= dx[i];
+					}
+					else {
+						nby -= dy[i];
+						nbx -= dx[i];
+					}
+				}
+			}
+
+			if (!visit[nry][nrx][nby][nbx]) {
+				visit[nry][nrx][nby][nbx] = true;
+				Info next;
+				next.ry = nry;
+				next.rx = nrx;
+				next.by = nby;
+				next.bx = nbx;
+				next.cnt = cur.cnt + 1;
+				q.push(next);
+			}
+		}
+	}
+
+	return ret;
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	cin >> N >> M;
+
+	for (int y = 0; y < N; y++)
+		cin >> map[y];
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < M; x++)
+			if (map[y][x] == 'R') {
+				start.ry = y;
+				start.rx = x;
+			}
+			else if (map[y][x] == 'B') {
+				start.by = y;
+				start.bx = x;
+			}
+
+	start.cnt = 0;
+
+	cout << BFS() << "\n";
+
+	return 0;
+}
