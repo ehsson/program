@@ -1,0 +1,32 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> v;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	v.push_back(1000000);
+
+	for (int n = 0; n < N; n++) {
+		int input;
+		cin >> input;
+
+		if (input > v.back()) {
+			v.push_back(input);
+		}
+		else {
+			vector<int>::iterator low = lower_bound(v.begin(), v.end(), input);
+			*low = input;
+		}
+	}
+
+	cout << v.size() << "\n";
+
+	return 0;
+}
