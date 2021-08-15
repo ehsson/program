@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+void MergeTwoArea(int arr[], int start, int mid, int end)
+{
+	int fIdx = start;
+	int rIdx = mid + 1;
+
+	int* sortArr = new int[sizeof(int) * (end + 1)];
+	int sIdx = start;
+
+	while (fIdx <= mid && rIdx <= end) {
+		if (arr[fIdx] <= arr[rIdx])
+			sortArr[sIdx] = arr[fIdx++];
+		else
+			sortArr[sIdx] = arr[rIdx++];
+
+		sIdx++;
+	}
+
+	if (fIdx <= mid) {
+		for (int i = fIdx; i <= mid; i++, sIdx++)
+			sortArr[sIdx] = arr[i];
+	}
+	else {
+		for (int i = rIdx; i <= end; i++, sIdx++)
+			sortArr[sIdx] = arr[i];
+	}
+
+	for (int i = start; i <= end; i++)
+		arr[i] = sortArr[i];
+
+	delete[]sortArr;
+}
+
+void MergeSort(int arr[], int start, int end)
+{
+	int mid;
+
+	if (start < end) {
+		mid = (start + end) / 2;
+
+		MergeSort(arr, start, mid);
+		MergeSort(arr, mid + 1, end);
+
+		MergeTwoArea(arr, start, mid, end);
+	}
+}
+
+int main(void)
+{
+	int arr[] = { 2, 5, 1, 6, 8, 3, 5, 6 };
+
+	MergeSort(arr, 0, sizeof(arr) / sizeof(int) - 1);
+
+	for (int i = 0; i < sizeof(arr) / sizeof(int); i++)
+		cout << arr[i] << " ";
+
+	return 0;
+}
