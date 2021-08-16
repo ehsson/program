@@ -1,51 +1,45 @@
-// time limit code
-
-#include <iostream>
+#include <stdio.h>
 #include <queue>
 using namespace std;
 
-priority_queue<int> spq;
-priority_queue<int> lpq;
+priority_queue<int> spq, lpq;
 
 int main(void)
 {
 	FILE* pf;
 	freopen_s(&pf, "input.txt", "r", stdin);
 	int N;
-	cin >> N;
-
-	int input, mid;
-	cin >> input;
-
-	mid = input;
-	cout << mid << "\n";
+	scanf_s("%d", &N);
+	
+	int input;
+	scanf_s("%d", &input);
+	spq.push(input);
+	printf("%d\n", spq.top());
 
 	for (int n = 1; n < N; n++) {
-		cin >> input;
+		scanf_s("%d", &input);
 
-		if (input >= mid) {
-			if (spq.size() == lpq.size())
+		if (spq.size() == lpq.size()) {
+			if (input > spq.top()) {
 				lpq.push(-input);
-			else if (spq.size() < lpq.size()) {
-				spq.push(mid);
-				lpq.push(-input);
-				mid = -lpq.top();
+				spq.push(-lpq.top());
 				lpq.pop();
 			}
-		}
-		else {
-			if (spq.size() == lpq.size()) {
-				lpq.push(-mid);
+			else
 				spq.push(input);
-				mid = spq.top();
+		}
+		else if (spq.size() > lpq.size()) {
+			if (input > spq.top())
+				lpq.push(-input);
+			else {
+				spq.push(input);
+				lpq.push(-spq.top());
 				spq.pop();
 			}
-			else if (spq.size() < lpq.size())
-				spq.push(input);
 		}
 
-		cout << mid << "\n";
+		printf("%d\n", spq.top());
 	}
-
+	
 	return 0;
 }
