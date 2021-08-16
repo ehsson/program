@@ -1,0 +1,51 @@
+// time limit code
+
+#include <iostream>
+#include <queue>
+using namespace std;
+
+priority_queue<int> spq;
+priority_queue<int> lpq;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	int N;
+	cin >> N;
+
+	int input, mid;
+	cin >> input;
+
+	mid = input;
+	cout << mid << "\n";
+
+	for (int n = 1; n < N; n++) {
+		cin >> input;
+
+		if (input >= mid) {
+			if (spq.size() == lpq.size())
+				lpq.push(-input);
+			else if (spq.size() < lpq.size()) {
+				spq.push(mid);
+				lpq.push(-input);
+				mid = -lpq.top();
+				lpq.pop();
+			}
+		}
+		else {
+			if (spq.size() == lpq.size()) {
+				lpq.push(-mid);
+				spq.push(input);
+				mid = spq.top();
+				spq.pop();
+			}
+			else if (spq.size() < lpq.size())
+				spq.push(input);
+		}
+
+		cout << mid << "\n";
+	}
+
+	return 0;
+}
