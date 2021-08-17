@@ -1,0 +1,181 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+typedef struct {
+	int r, c, s, d, z;
+} Shark;
+
+int R, C, M;
+vector<Shark> v;
+bool map[101][101];
+
+void move()
+{
+	for (int i = 0; i < v.size(); i++) {
+		switch (v[i].d) {
+		case 1: // 위
+			if (v[i].s < R * 2 - 2) {
+				if (v[i].s < v[i].r - 1)
+					v[i].r -= v[i].s;
+				else if (v[i].s < v[i].r - 1 + (R - 1)) {
+					v[i].d = 2;
+					v[i].r = 1 + (v[i].s - (v[i].r - 1));
+				}
+				else
+					v[i].r = R - (v[i].s - (v[i].r - 1 + (R - 1)));
+			}
+			else if (v[i].s > R * 2 - 2) {
+				int temp = v[i].s % (R * 2 - 2);
+
+				if (temp < v[i].r - 1)
+					v[i].r -= temp;
+				else if (temp < v[i].r - 1 + (R - 1)) {
+					v[i].d = 2;
+					v[i].r = 1 + (temp - (v[i].r - 1));
+				}
+				else
+					v[i].r = R - (temp - (v[i].r - 1 + (R - 1)));
+			}
+
+			break;
+		case 2: // 아래
+			if (v[i].s < R * 2 - 2) {
+				if (v[i].s < R - v[i].r)
+					v[i].r += v[i].s;
+				else if (v[i].s < R - v[i].r + (R - 1)) {
+					v[i].d = 1;
+					v[i].r = R - (v[i].s - (R - v[i].r));
+				}
+				else
+					v[i].r = 1 + (v[i].s - (R - v[i].r + (R - 1)));
+			}
+			else if (v[i].s > R * 2 - 2) {
+				int temp = v[i].s % (R * 2 - 2);
+
+				if (temp < R - v[i].r)
+					v[i].r += temp;
+				else if (temp < R - v[i].r + (R - 1)) {
+					v[i].d = 1;
+					v[i].r = R - (temp - (R - v[i].r));
+				}
+				else
+					v[i].r = 1 + (temp - (R - v[i].r + (R - 1)));
+			}
+
+			break;
+		case 3: // 오른쪽
+			if (v[i].s < C * 2 - 2) {
+				if (v[i].s < C - v[i].c)
+					v[i].c += v[i].s;
+				else if (v[i].s < C - v[i].c + (C - 1)) {
+					v[i].d = 4;
+					v[i].c = C - (v[i].s - (C - v[i].c));
+				}
+				else
+					v[i].c = 1 + (v[i].s - (C - v[i].c + (C - 1)));
+			}
+			else if (v[i].s > C * 2 - 2) {
+				int temp = v[i].s % (C * 2 - 2);
+
+				if (temp < C - v[i].c)
+					v[i].c += temp;
+				else if (temp < C - v[i].c + (C - 1)) {
+					v[i].d = 4;
+					v[i].c = C - (temp - (C - v[i].c));
+				}
+				else
+					v[i].c = 1 + (temp - (C - v[i].c + (C - 1)));
+			}
+
+			break;
+		case 4: // 왼쪽
+			if (v[i].s < C * 2 - 2) {
+				if (v[i].s < v[i].c - 1)
+					v[i].c -= v[i].s;
+				else if (v[i].s < v[i].c - 1 + (C - 1)) {
+					v[i].d = 3;
+					v[i].c = 1 + (v[i].s - (v[i].c - 1));
+				}
+				else
+					v[i].c = C - (v[i].s - (v[i].c - 1 + (C - 1)));
+			}
+			else if (v[i].s > C * 2 - 2) {
+				int temp = v[i].s % (C * 2 - 2);
+
+				if (temp < v[i].c - 1)
+					v[i].c -= temp;
+				else if (temp < v[i].c - 1 + (C - 1)) {
+					v[i].d = 3;
+					v[i].c = 1 + (temp - (v[i].c - 1));
+				}
+				else
+					v[i].c = C - (temp - (v[i].c - 1 + (C - 1)));
+			}
+
+			break;
+		}
+
+		if (map[v[i].r][v[i].c]) {
+			for (int j = 0; j < i; j++) {
+				if (v[j].r == v[i].r && v[j].c == v[i].c) {
+					if (v[j].z > v[i].z)
+						v.erase(v.begin() + i);
+					else
+						v.erase(v.begin() + j);
+
+					i--;	
+
+					break;
+				}
+			}
+		}
+		else
+			map[v[i].r][v[i].c] = true;
+	}
+}
+
+int main(void)
+{
+	cin >> R >> C >> M;
+
+	for (int m = 0; m < M; m++) {
+		Shark sh;
+		cin >> sh.r >> sh.c >> sh.s >> sh.d >> sh.z;
+
+		v.push_back(sh);
+		map[sh.r][sh.c] = true;
+	}
+
+	int man = 0, answer = 0;
+
+	while (man <= C) {
+		man++;
+		bool chk = false;
+
+		for (int i = 1; i <= R; i++) {
+			if (map[i][man]) {
+				for (int j = 0; j < v.size(); j++) {
+					if (v[j].r == i && v[j].c == man) {
+						answer += v[j].z;
+						map[v[j].r][v[j].c] = false;
+						v.erase(v.begin() + j);
+						chk = true;
+						break;
+					}
+				}
+			}
+
+			if (chk)
+				break;
+		}
+
+		memset(map, false, sizeof(map));
+		move();
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
