@@ -1,14 +1,12 @@
-// time limit code
+// using STL map
 
 #include <iostream>
 #include <string>
-#include <vector>
-#include <cstring>
+#include <map>
 using namespace std;
 
-vector<string> name;
-int parent[200000];
-int Size[200000];
+int parent[200001];
+int Size[200001];
 
 int get_parent(int num)
 {
@@ -20,64 +18,62 @@ int get_parent(int num)
 
 void merge(int idx1, int idx2)
 {
-	if (get_parent(idx1) >= get_parent(idx2)) {
-		Size[parent[idx2]] += Size[parent[idx1]];
-		Size[parent[idx1]] = 0;
-		parent[idx1] = parent[idx2];
-	}
-	else {
-		Size[parent[idx1]] += Size[parent[idx2]];
-		Size[parent[idx2]] = 0;
-		parent[idx2] = parent[idx1];
+	int parent1 = get_parent(idx1);
+	int parent2 = get_parent(idx2);
+
+	if (parent1 != parent2) {
+		if (Size[parent1] < Size[parent2])
+			swap(parent1, parent2);
+
+		parent[parent2] = parent1;
+		Size[parent1] += Size[parent2];
+		Size[parent2] = 0;
 	}
 }
 
 int main(void)
 {
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
 	int T;
 	cin >> T;
 
 	for (int t = 1; t <= T; t++) {
+		map<string, int> name;
 		int F;
 		cin >> F;
+
+		int idx = 0;
 
 		for (int f = 0; f < F; f++) {
 			string name1, name2;
 			cin >> name1 >> name2;
 
-			int idx1 = -1, idx2 = -1;
-
-			for (int i = 0; i < name.size(); i++) {
-				if (name1 == name[i])
-					idx1 = i;
-				
-				if (name2 == name[i])
-					idx2 = i;
-
-				if (idx1 > 0 && idx2 > 0)
-					break;
+			if (name.count(name1) == 0) {
+				name[name1] = idx++;
+				parent[name[name1]] = name[name1];
+				Size[name[name1]] = 1;
 			}
 
-			if (idx1 == -1) {
-				name.push_back(name1);
-				idx1 = name.size() - 1;
-				parent[idx1] = idx1;
-				Size[idx1] = 1;
+			if (name.count(name2) == 0) {
+				name[name2] = idx++;
+				parent[name[name2]] = name[name2];
+				Size[name[name2]] = 1;
 			}
 
-			if (idx2 == -1) {
-				name.push_back(name2);
-				idx2 = name.size() - 1;
-				parent[idx2] = idx2;
-				Size[idx2] = 1;
+			int parent1 = get_parent(name[name1]);
+			int parent2 = get_parent(name[name2]);
+
+			if (parent1 == parent2)
+				cout << max(Size[parent1], Size[parent2]) << "\n";
+			else {
+				merge(parent1, parent2);
+				cout << max(Size[parent1], Size[parent2]) << "\n";
 			}
-
-			merge(idx1, idx2);
-
-			cout << Size[get_parent(idx1)] << "\n";
 		}
-
-		name.clear();
 	}
 
 	return 0;
