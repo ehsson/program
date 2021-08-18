@@ -1,0 +1,84 @@
+// time limit code
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+vector<string> name;
+int parent[200000];
+int Size[200000];
+
+int get_parent(int num)
+{
+	if (parent[num] == num)
+		return num;
+
+	return parent[num] = get_parent(parent[num]);
+}
+
+void merge(int idx1, int idx2)
+{
+	if (get_parent(idx1) >= get_parent(idx2)) {
+		Size[parent[idx2]] += Size[parent[idx1]];
+		Size[parent[idx1]] = 0;
+		parent[idx1] = parent[idx2];
+	}
+	else {
+		Size[parent[idx1]] += Size[parent[idx2]];
+		Size[parent[idx2]] = 0;
+		parent[idx2] = parent[idx1];
+	}
+}
+
+int main(void)
+{
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		int F;
+		cin >> F;
+
+		for (int f = 0; f < F; f++) {
+			string name1, name2;
+			cin >> name1 >> name2;
+
+			int idx1 = -1, idx2 = -1;
+
+			for (int i = 0; i < name.size(); i++) {
+				if (name1 == name[i])
+					idx1 = i;
+				
+				if (name2 == name[i])
+					idx2 = i;
+
+				if (idx1 > 0 && idx2 > 0)
+					break;
+			}
+
+			if (idx1 == -1) {
+				name.push_back(name1);
+				idx1 = name.size() - 1;
+				parent[idx1] = idx1;
+				Size[idx1] = 1;
+			}
+
+			if (idx2 == -1) {
+				name.push_back(name2);
+				idx2 = name.size() - 1;
+				parent[idx2] = idx2;
+				Size[idx2] = 1;
+			}
+
+			merge(idx1, idx2);
+
+			cout << Size[get_parent(idx1)] << "\n";
+		}
+
+		name.clear();
+	}
+
+	return 0;
+}
