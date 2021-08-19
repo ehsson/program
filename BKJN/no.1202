@@ -1,0 +1,48 @@
+#include <iostream>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+pair<int, int> jewerly[300000];
+int bag[300000];
+priority_queue<int> pq;
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int N; // 보석 갯수
+	int K; // 가방 갯수
+	int M, V; // 보석무게, 가격
+	int C; // 가방 가능 무게
+	cin >> N >> K;
+
+	for (int n = 0; n < N; n++)
+		cin >> jewerly[n].first >> jewerly[n].second;
+
+	for (int k = 0; k < K; k++)
+		cin >> bag[k];
+
+	sort(jewerly, jewerly + N);
+	sort(bag, bag + K);
+
+	long long answer = 0;
+	int idx = 0;
+
+	for (int k = 0; k < K; k++) {
+		while (idx < N && jewerly[idx].first <= bag[k])
+			pq.push(jewerly[idx++].second);
+
+		if (!pq.empty()) {
+			answer += pq.top();
+			pq.pop();
+		}
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
