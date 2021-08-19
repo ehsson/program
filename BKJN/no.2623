@@ -1,3 +1,5 @@
+// my code
+
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -86,6 +88,68 @@ int main(void)
 			if (arr[next] == 0)
 				q.push(next);
 		}
+	}
+
+	return 0;
+}
+
+// others code
+
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int arr[1001];
+queue<int> q;
+vector<int> v[1001];
+vector<int> res;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int N, M;
+	cin >> N >> M;
+
+	for (int m = 0; m < M; m++) {
+		int cnt;
+		cin >> cnt;
+		int temp1, temp2;
+		cin >> temp1;
+
+		for (int i = 1; i < cnt; i++) {
+			cin >> temp2;
+			arr[temp2]++;
+			v[temp1].push_back(temp2);
+			temp1 = temp2;
+		}
+	}
+
+	for (int i = 1; i <= N; i++)
+		if (arr[i] == 0)
+			q.push(i);
+
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		res.push_back(cur);
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i];
+			arr[next]--;
+
+			if (arr[next] == 0)
+				q.push(next);
+		}
+	}
+
+	if (res.size() != N)
+		cout << "0\n";
+	else {
+		for (int i = 0; i < N; i++)
+			cout << res[i] << "\n";
 	}
 
 	return 0;
