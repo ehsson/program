@@ -1,0 +1,36 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int arr[1000000];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N;
+	cin >> N;
+
+	for (int n = 0; n < N; n++)
+		cin >> arr[n];
+
+	int len = 0;
+	vector<long long> v;
+	v.push_back(-1000000001);
+
+	for (int n = 0; n < N; n++) {
+		if (v[len] < arr[n]) {
+			v.push_back(arr[n]);
+			len++;
+		}
+		else {
+			vector<long long>::iterator low = lower_bound(v.begin(), v.end(), arr[n]);
+			*low = arr[n];
+		}
+	}
+
+	cout << len << "\n";
+
+	return 0;
+}
