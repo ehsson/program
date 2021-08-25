@@ -1,0 +1,54 @@
+#include <iostream>
+using namespace std;
+
+int R, C;
+bool chk;
+char map[10000][500];
+bool visit[10000][500];
+int dy[3] = { -1, 0, 1 };
+int dx[3] = { 1, 1, 1 };
+
+void DFS(int y, int x)
+{
+	visit[y][x] = true;
+
+	if (x == C - 1) {
+		chk = true;
+		return;
+	}
+
+	for (int i = 0; i < 3; i++) {
+		int ny = y + dy[i];
+		int nx = x + dx[i];
+
+		if(ny >=  0 && ny < R && !visit[ny][nx] && map[ny][nx] == '.')
+			DFS(ny, nx);
+
+		if (chk)
+			return;
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> R >> C;
+
+	for (int r = 0; r < R; r++)
+		cin >> map[r];
+
+	int cnt = 0;
+
+	for (int r = 0; r < R; r++) {
+		chk = false;
+		DFS(r, 0);
+		if (chk)
+			cnt++;
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
