@@ -1,0 +1,54 @@
+#include <iostream>
+using namespace std;
+
+int arr[100001];
+int gate[100001];
+int parent[100001];
+
+int GetParent(int num)
+{
+	if (parent[num] == num)
+		return num;
+
+	return parent[num] = GetParent(parent[num]);
+}
+
+void merge(int a, int b)
+{
+	int aParent = GetParent(a);
+	int bParent = GetParent(b);
+
+	parent[a] = bParent;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int G, P;
+	cin >> G >> P;
+
+	for (int i = 1; i <= G; i++)
+		parent[i] = i;
+
+	for (int i = 1; i <= P; i++)
+		cin >> arr[i];
+
+	int cnt = 0;
+
+	for (int i = 1; i <= P; i++) {
+		int temp = GetParent(arr[i]);
+
+		if (temp == 0)
+			break;
+		else {
+			merge(temp, temp - 1);
+			cnt++;
+		}
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
