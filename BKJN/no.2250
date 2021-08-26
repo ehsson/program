@@ -1,0 +1,86 @@
+#include <iostream>
+using namespace std;
+
+typedef struct _node {
+	_node* parent = NULL;
+	_node* left = NULL;
+	_node* right = NULL;
+} Node;
+
+int N;
+int idx, maxLevel;
+Node arr[10001];
+int cnt[10001];
+int low[10001];
+int high[10001];
+
+void DFS(Node* cur, int level)
+{
+	if (cur->left != NULL)
+		DFS(cur->left, level + 1);
+
+	low[level] = min(low[level], idx);
+	high[level] = max(high[level], idx);
+	idx++;
+	maxLevel = max(maxLevel, level);
+
+	if (cur->right != NULL)
+		DFS(cur->right, level + 1);
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int i = 1; i <= N; i++)
+		low[i] = 10000;
+
+	for (int n = 0; n < N; n++) {
+		int p, c1, c2;
+		cin >> p >> c1 >> c2;
+
+		if (c1 != -1) {
+			arr[p].left = &arr[c1];
+			arr[c1].parent = &arr[p];
+		}
+
+		if (c2 != -1) {
+			arr[p].right = &arr[c2];
+			arr[c2].parent = &arr[p];
+		}
+
+		cnt[p]++;
+		cnt[c1]++;
+		cnt[c2]++;
+	}
+
+	int root;
+
+	for(int i = 1; i <= N; i++)
+		if (cnt[i] == 1) {
+			root = i;
+			break;
+		}
+
+	idx = 1;
+	maxLevel = 1;
+	DFS(&arr[root], 1);
+
+	int resultLen = 1, resultPos = 1;
+
+	for (int i = 2; i <= maxLevel; i++) {
+		int temp = high[i] - low[i] + 1;
+		
+		if (temp > resultLen) {
+			resultLen = temp;
+			resultPos = i;
+		}
+	}
+
+	cout << resultPos << " " << resultLen << "\n";
+
+	return 0;
+}
