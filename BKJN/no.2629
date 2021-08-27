@@ -1,0 +1,63 @@
+#include <iostream>
+using namespace std;
+
+int weight[30];
+int bead[7];
+bool dp[30][15001];
+bool answer[15001];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N;
+	cin >> N;
+
+	for (int n = 0; n < N; n++)
+		cin >> weight[n];
+
+	int M;
+	cin >> M;
+
+	for (int m = 0; m < M; m++)
+		cin >> bead[m];
+
+	dp[0][0] = true;
+	dp[0][weight[0]] = true;
+
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j <= 15000; j++) {
+			if (dp[i][j]) {
+				dp[i + 1][j] = true;
+				dp[i + 1][j + weight[i + 1]] = true;
+			}
+		}
+	}
+
+	for (int i = 15000; i >= 0; i--) {
+		if (dp[N - 1][i]) {
+			answer[i] = true;
+
+			for (int j = 0; j <= i; j++) {
+				if (dp[N - 1][j]) {
+					int temp = i - j;
+
+					if (temp >= 0)
+						answer[temp] = true;
+					else
+						break;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < M; i++) {
+		if (answer[bead[i]])
+			cout << "Y ";
+		else
+			cout << "N ";
+	}
+
+	return 0;
+}
