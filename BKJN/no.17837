@@ -1,0 +1,122 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+enum {
+	R = 0, U, L, D
+};
+
+typedef struct _piece {
+	int y, x, dir;
+} Piece;
+
+int N, K;
+Piece arr[11];
+int map[13][13];
+vector<int> chess[13][13];
+int dy[4] = { 0, -1, 0, 1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> K;
+
+	for (int y = 1; y <= N; y++)
+		for (int x = 1; x <= N; x++)
+			cin >> map[y][x];
+
+	for (int k = 1; k <= K; k++) {
+		int y, x, dir;
+		cin >> y >> x >> dir;
+
+		switch (dir) {
+		case 1:
+			dir = R;
+			break;
+		case 2:
+			dir = L;
+			break;
+		case 3:
+			dir = U;
+			break;
+		case 4:  
+			dir = D;
+			break;
+		}
+
+		arr[k].y = y;
+		arr[k].x = x;
+		arr[k].dir = dir;
+		chess[y][x].push_back(k);
+	}
+
+	int cnt = 0;
+
+	while (cnt <= 1000) {
+		cnt++;
+
+		for (int k = 1; k <= K; k++) {
+			int y = arr[k].y;
+			int x = arr[k].x;
+			int ny = y + dy[arr[k].dir];
+			int nx = x + dx[arr[k].dir];
+
+			if (ny <= 0 || ny > N || nx <= 0 || nx > N || map[ny][nx] == 2) { // 파란색 or 밖으로 나가는 경우
+				arr[k].dir = (arr[k].dir + 2) % 4;
+				ny = y + dy[arr[k].dir];
+				nx = x + dx[arr[k].dir];
+
+				if (ny <= 0 || ny > N || nx <= 0 || nx > N || map[ny][nx] == 2)
+					continue;
+			}
+
+			vector<int>::iterator itr;
+			for (itr = chess[y][x].begin(); itr != chess[y][x].end(); itr++)
+				if (*itr == k)
+					break;
+
+			vector<int>::iterator cpy = itr;
+
+			if (chess[ny][nx].size() + (chess[y][x].end() - itr) >= 4) {
+				cout << cnt << "\n";
+				return 0;
+			}
+
+			switch (map[ny][nx]) {
+			case 0: // 흰색
+				for (itr; itr < chess[y][x].end(); itr++) {
+					chess[ny][nx].push_back(*itr);
+					arr[*itr].y = ny;
+					arr[*itr].x = nx;
+				}
+
+				chess[y][x].erase(cpy, chess[y][x].end());
+
+				break;
+			case 1: // 빨간색
+				reverse(itr, chess[y][x].end());
+
+				for (itr; itr < chess[y][x].end(); itr++) {
+					chess[ny][nx].push_back(*itr);
+					arr[*itr].y = ny;
+					arr[*itr].x = nx;
+				}
+
+				chess[y][x].erase(cpy, chess[y][x].end());
+
+				break;
+			}
+		}
+	}
+
+	if (cnt > 1000)
+		cout << "-1\n";
+	else
+		cout << cnt << "\n";
+
+	return 0;
+}
