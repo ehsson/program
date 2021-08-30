@@ -1,0 +1,75 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int input[40];
+vector<long long> v[40];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, S;
+	cin >> N >> S;
+
+	for (int n = 0; n < N; n++)
+		cin >> input[n];
+
+	if (N == 1) {
+		if (input[0] == S)
+			cout << "1\n";
+		else
+			cout << "0\n";
+
+		return 0;
+	}
+
+	v[0].push_back(input[0]);
+
+	for (int n = 1; n < (N / 2); n++) {
+		v[n].push_back(input[n]);
+
+		for (int i = 0; i < v[n - 1].size(); i++) {
+			v[n].push_back(v[n - 1][i]);
+			v[n].push_back(v[n - 1][i] + input[n]);
+		}
+	}
+	
+	v[(N / 2) - 1].push_back(0);
+
+	v[N - 1].push_back(input[N - 1]);
+
+	for (int n = N - 2; n >= (N / 2); n--) {
+		v[n].push_back(input[n]);
+
+		for (int i = 0; i < v[n + 1].size(); i++) {
+			v[n].push_back(v[n + 1][i]);
+			v[n].push_back(v[n + 1][i] + input[n]);
+		}
+	}
+
+	v[N / 2].push_back(0);
+
+	for (int n = 0; n < N; n++)
+		sort(v[n].begin(), v[n].end());
+
+	long long cnt = 0;
+
+	for (int i = 0; i < v[(N / 2) - 1].size(); i++) {
+		long long temp = S - v[(N / 2) - 1][i];
+
+		long long low = lower_bound(v[(N / 2)].begin(), v[(N / 2)].end(), temp) - v[(N / 2)].begin();
+		long long high = upper_bound(v[(N / 2)].begin(), v[(N / 2)].end(), temp) - v[(N / 2)].begin();
+
+		cnt += (high - low);
+	}
+
+	if (S == 0)
+		cout << cnt - 1 << "\n";
+	else
+		cout << cnt << "\n";
+
+	return 0;
+}
