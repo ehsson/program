@@ -1,3 +1,79 @@
+// use segment tree
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+long long input[1000001];
+long long tree[1000000 * 4];
+
+long long Init(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node] = input[start];
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = Init(start, mid, node * 2) + Init(mid + 1, end, node * 2 + 1);
+}
+
+long long sum(int start, int end, int node, int left, int right)
+{
+	if (left > end || right < start)
+		return 0;
+
+	if (left <= start && right >= end)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return sum(start, mid, node * 2, left, right) + sum(mid + 1, end, node * 2 + 1, left, right);
+}
+
+void update(int start, int end, int node, int idx, long long diff)
+{
+	if (idx < start || idx > end)
+		return;
+
+	tree[node] = tree[node] + diff;
+
+	if (start != end) {
+		int mid = (start + end) / 2;
+
+		update(start, mid, node * 2, idx, diff);
+		update(mid + 1, end, node * 2 + 1, idx, diff);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M, K;
+	cin >> N >> M >> K;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	Init(1, N, 1);
+
+	for (int i = 0; i < (M + K); i++) {
+		long long a, b, c;
+		cin >> a >> b >> c;
+
+		if (a == 1) {
+			long long diff = (c - input[b]);
+			input[b] = c;
+			update(1, N, 1, b, diff);
+		}
+		else if (a == 2)
+			cout << sum(1, N, 1, b, c) << "\n";
+	}
+
+	return 0;
+}
+
 //time limit code
 
 #include <iostream>
