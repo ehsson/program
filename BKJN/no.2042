@@ -1,0 +1,44 @@
+//time limit code
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+long long input[1000001];
+long long sum[1000001];
+long long ch[1000001];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M, K;
+	cin >> N >> M >> K;
+
+	for (int n = 1; n <= N; n++) {
+		cin >> input[n];
+
+		sum[n] = sum[n - 1] + input[n];
+	}
+
+	long long answer;
+
+	for (int i = 0; i < (M + K); i++) {
+		long long a, b, c;
+		cin >> a >> b >> c;
+
+		if (a == 1) // 교체
+			ch[b] += (c - input[b]);
+		else if (a == 2) { // 구간 합
+			answer = sum[c] - sum[b] + input[b];
+
+			for (int i = b; i <= c; i++)
+				answer += ch[i];
+
+			cout << answer << "\n";
+		}
+	}
+
+	return 0;
+}
