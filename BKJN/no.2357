@@ -1,0 +1,88 @@
+#include <iostream>
+using namespace std;
+
+typedef struct _node {
+	int big, small;
+} Node;
+
+int big, small;
+int input[100001];
+Node tree[100000 * 4];
+
+int BigInit(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node].big = input[start];
+
+	int mid = (start + end) / 2;
+
+	int front = BigInit(start, mid, node * 2);
+	int rear = BigInit(mid + 1, end, node * 2 + 1);
+
+	if (front > rear)
+		return tree[node].big = front;
+	else
+		return tree[node].big = rear;
+}
+
+int SmallInit(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node].small = input[start];
+
+	int mid = (start + end) / 2;
+
+	int front = SmallInit(start, mid, node * 2);
+	int rear = SmallInit(mid + 1, end, node * 2 + 1);
+
+	if (front < rear)
+		return tree[node].small = front;
+	else
+		return tree[node].small = rear;
+}
+
+void find(int start, int end, int node, int left, int right)
+{
+	if (left > end || right < start)
+		return;
+
+	if (left <= start && right >= end) {
+		small = min(small, tree[node].small);
+		big = max(big, tree[node].big);
+		return;
+	}
+
+	int mid = (start + end) / 2;
+
+	find(start, mid, node * 2, left, right);
+	find(mid + 1, end, node * 2 + 1, left, right);
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M;
+	cin >> N >> M;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	BigInit(1, N, 1);
+	SmallInit(1, N, 1);
+
+	for (int m = 1; m <= M; m++) {
+		int a, b;
+		cin >> a >> b;
+
+		big = 0;
+		small = 1000000000;
+
+		find(1, N, 1, a, b);
+
+		cout << small << " " << big << "\n";
+	}
+
+	return 0;
+}
