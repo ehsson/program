@@ -1,0 +1,51 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 16*1000000
+
+int N;
+int all;
+int cost[17][17];
+int dp[17][0b11111111111111111];
+
+int travel(int cur, int visit)
+{
+	if (all == visit) {
+		if (cost[cur][1] == 0)
+			return MAX;
+		else
+			return cost[cur][1];
+	}
+
+	if (dp[cur][visit])
+		return dp[cur][visit];
+
+	int ret = MAX;
+
+	for (int next = 1; next <= N; next++) {
+		int temp = 1 << next;
+
+		if ((visit & temp) == 0 && cost[cur][next] != 0)
+			ret = min(ret , travel(next, visit | temp) + cost[cur][next]);
+	}
+
+	return dp[cur][visit] = ret;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		for (int i = 1; i <= N; i++)
+			cin >> cost[n][i];
+
+	all = (1 << (N + 1)) - 2;
+
+	cout << travel(1, 2) << "\n";
+
+	return 0;
+}
