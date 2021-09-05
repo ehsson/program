@@ -1,0 +1,71 @@
+#include <iostream>
+using namespace std;
+
+#define DIV 1000000007
+
+int input[1000001];
+long long tree[1000000 * 4];
+
+long long Init(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node] = input[start] % DIV;
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = (Init(start, mid, node * 2) * Init(mid + 1, end, node * 2 + 1)) % DIV;
+}
+
+long long multiply(int start, int end, int node, int left, int right)
+{
+	if (left > end || right < start)
+		return 1;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return (multiply(start, mid, node * 2, left, right) * multiply(mid + 1, end, node * 2 + 1, left, right)) % DIV;
+}
+
+long long update(int start, int end, int node, int idx, long long num)
+{
+	if (idx < start || idx > end)
+		return tree[node];
+
+	if (start == end)
+		return tree[node] = num;
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = (update(start, mid, node * 2, idx, num) * update(mid + 1, end, node * 2 + 1, idx, num)) % DIV;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M, K;
+	cin >> N >> M >> K;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	Init(1, N, 1);
+
+	for (int i = 0; i < (M + K); i++) {
+		long long a, b, c;
+		cin >> a >> b >> c;
+
+		if (a == 1) { // 업데이트
+			update(1, N, 1, b, c);
+			input[b] = c;
+		}
+		else if (a == 2) // 곱
+			cout << multiply(1, N, 1, b, c) << "\n";
+	}
+
+	return 0;
+}
