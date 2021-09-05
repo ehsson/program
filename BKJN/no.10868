@@ -1,0 +1,53 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 1000000000
+
+int input[100001];
+int tree[100000 * 4];
+
+long long Init(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node] = input[start];
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = min(Init(start, mid, node * 2), Init(mid + 1, end, node * 2 + 1));
+}
+
+long long least(int start, int end, int node, int left, int right)
+{
+	if (left > end || right < start)
+		return MAX;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return min(least(start, mid, node * 2, left, right), least(mid + 1, end, node * 2 + 1, left, right));
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M;
+	cin >> N >> M;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	Init(1, N, 1);
+
+	for (int m = 0; m < M; m++) {
+		int a, b;
+		cin >> a >> b;
+
+		cout << least(1, N, 1, a, b) << "\n";
+	}
+
+	return 0;
+}
