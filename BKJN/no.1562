@@ -1,0 +1,69 @@
+#include <iostream>
+using namespace std;
+
+#define DIV 1000000000
+
+int N;
+const int comp = 1023;
+int dp[10][100][1024];
+
+int DFS(int num, int chk, int len)
+{
+	if (len == N - 1) {
+		if (chk == comp)
+			return 1;
+		else
+			return 0;
+	}
+
+	if (dp[num][len][chk])
+		return dp[num][len][chk];
+
+	int temp, nchk;
+
+	if (num > 0 && num < 9) {
+		temp = 1 << (num + 1);
+		nchk = chk | temp;
+		dp[num][len][chk] = (dp[num][len][chk] + DFS(num + 1, nchk, len + 1)) % DIV;
+
+		temp = 1 << (num - 1);
+		nchk = chk | temp;
+		dp[num][len][chk] = (dp[num][len][chk] + DFS(num - 1, nchk, len + 1)) % DIV;
+	}
+	else if (num == 0) {
+		temp = 1 << 1;
+		nchk = chk | temp;
+		dp[num][len][chk] = (dp[num][len][chk] + DFS(1, nchk, len + 1)) % DIV;
+	}
+	else if (num == 9) {
+		temp = 1 << 8;
+		nchk = chk | temp;
+		dp[num][len][chk] = (dp[num][len][chk] + DFS(8, nchk, len + 1)) % DIV;
+	}
+
+	return dp[num][len][chk];
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	if (N < 10) {
+		cout << "0\n";
+		return 0;
+	}
+
+	int answer = 0;
+
+	for (int i = 1; i <= 9; i++) {
+		int temp = 1 << i;
+		answer = (answer + DFS(i, temp, 0)) % DIV;
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
