@@ -1,0 +1,42 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+bool arr[1000000];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	long long mn, mx;
+	cin >> mn >> mx;
+
+	int cnt = mx - mn + 1;
+
+	long long i = 2;
+
+	while (i * i <= mx) {
+		long long temp = mn / (i * i);
+
+		if (mn % (i * i) != 0)
+			temp++;
+
+		while (temp * (i * i) <= mx) {
+			arr[temp * (i * i) - mn] = true;
+			temp++;
+		}
+
+		i++;
+	}
+
+	int answer = 0;
+
+	for (int i = 0; i < cnt; i++)
+		if (!arr[i])
+			answer++;
+
+	cout << answer << "\n";
+
+	return 0;
+}
