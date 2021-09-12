@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <algorithm>
+using namespace std;
+
+int N;
+vector<pair<int, int>> X, Y, Z;
+vector<pair<int, pair<int, int>>> v;
+int parent[100001];
+
+int GetParent(int num)
+{
+	if (parent[num] == num)
+		return num;
+
+	return parent[num] = GetParent(parent[num]);
+}
+
+void Union(int a, int b)
+{
+	int aParent = GetParent(a);
+	int bParent = GetParent(b);
+
+	if (aParent < bParent)
+		parent[bParent] = aParent;
+	else
+		parent[aParent] = bParent;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++) {
+		parent[n] = n;
+		int x, y, z;
+		cin >> x >> y >> z;
+		X.push_back({x, n});
+		Y.push_back({y, n});
+		Z.push_back({z, n});
+	}
+
+	sort(X.begin(), X.end());
+	sort(Y.begin(), Y.end());
+	sort(Z.begin(), Z.end());
+
+	for (int i = 1; i < N; i++) {
+		v.push_back({ abs(X[i].first - X[i - 1].first), { X[i - 1].second, X[i].second} });
+		v.push_back({ abs(Y[i].first - Y[i - 1].first), { Y[i - 1].second, Y[i].second} });
+		v.push_back({ abs(Z[i].first - Z[i - 1].first), { Z[i - 1].second, Z[i].second} });
+	}
+
+	sort(v.begin(), v.end());
+
+	int cnt = 0, answer = 0;
+
+	for (int i = 0; i < v.size(); i++) {
+		int len = v[i].first;
+		int a = v[i].second.first, b = v[i].second.second;
+
+		if (GetParent(a) != GetParent(b)) {
+			Union(a, b);
+			answer += len;
+			cnt++;
+		}
+
+		if (cnt == N - 1)
+			break;
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
