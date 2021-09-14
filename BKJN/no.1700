@@ -1,0 +1,70 @@
+#include <iostream>
+using namespace std;
+
+int input[100];
+int chk[100];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, K;
+	cin >> N >> K;
+
+	for (int k = 0; k < K; k++)
+		cin >> input[k];
+
+	int cnt = 0;
+	bool flag;
+
+	for (int k = 0; k < K; k++) {
+		flag = false;
+
+		for (int n = 0; n < N; n++) {
+			if (chk[n] == input[k]) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag)
+			continue;
+
+		for (int n = 0; n < N; n++) {
+			if (!chk[n]) {
+				chk[n] = input[k];
+				flag = true;
+				break;
+			}
+		}
+
+		if (flag)
+			continue;
+
+		int lastIdx = -1, idx = 0;
+
+		for (int n = 0; n < N; n++) {
+			int temp = 0;
+
+			for (int i = k + 1; i < K; i++) {
+				if (chk[n] == input[i])
+					break;
+
+				temp++;
+			}
+
+			if (lastIdx < temp) {
+				lastIdx = temp;
+				idx = n;
+			}
+		}
+
+		chk[idx] = input[k];
+		cnt++;
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
