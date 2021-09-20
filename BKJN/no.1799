@@ -1,0 +1,54 @@
+#include <iostream>
+using namespace std;
+
+int N;
+int map[10][10];
+bool d[20];
+bool u[20];
+int answer[2];
+
+void DFS(int y, int x, int cnt, int ans)
+{
+	if (x >= N) {
+		y++;
+
+		if (x & 1) // 홀수
+			x = 0;
+		else // 짝수
+			x = 1;
+	}
+
+	if (y >= N) {
+		answer[ans] = max(answer[ans], cnt);
+		return;
+	}
+
+	if (map[y][x] && !d[y - x + N] && !u[y + x]) {
+		d[y - x + N] = true;
+		u[y + x] = true;
+		DFS(y, x + 2, cnt + 1, ans);
+		d[y - x + N] = false;
+		u[y + x] = false;
+	}
+
+	DFS(y, x + 2, cnt, ans);
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int y = 0; y < N; y++)
+		for (int x = 0; x < N; x++)
+			cin >> map[y][x];
+
+	DFS(0, 0, 0, 0);
+	DFS(0, 1, 0, 1);
+
+	cout << answer[0] + answer[1] << "\n";
+
+	return 0;
+}
