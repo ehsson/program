@@ -1,0 +1,57 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int N;
+int chk[10];
+
+void calculate(int num, int pos)
+{
+	while (num) {
+		chk[num % 10] += pos;
+
+		num /= 10;
+	}
+}
+
+void func(int start, int end, int pos)
+{
+	while (start % 10 && start <= end) {
+		calculate(start, pos);
+
+		start++;
+	}
+
+	if (start > end)
+		return;
+
+	while (end % 10 != 9 && start <= end) {
+		calculate(end, pos);
+
+		end--;
+	}
+
+	int num = end / 10 - start / 10 + 1;
+
+	for (int i = 0; i < 10; i++)
+		chk[i] += num * pos;
+
+	func(start / 10, end / 10, pos * 10);
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	func(1, N, 1);
+
+	for (int i = 0; i < 10; i++)
+		cout << chk[i] << " ";
+
+	return 0;
+}
