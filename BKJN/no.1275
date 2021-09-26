@@ -1,0 +1,73 @@
+#include <iostream>
+using namespace std;
+
+long long input[100001];
+long long tree[100000 * 4];
+
+long long Init(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node] = input[start];
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = Init(start, mid, node * 2) + Init(mid + 1, end, node * 2 + 1);
+}
+
+long long sum(int start, int end, int node, int left, int right)
+{
+	if (start > right || end < left)
+		return 0;
+
+	if (left <= start && right >= end)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return sum(start, mid, node * 2, left, right) + sum(mid + 1, end, node * 2 + 1, left, right);
+}
+
+void update(int start, int end, int node, int idx, long long diff)
+{
+	if (start > idx || end < idx)
+		return;
+
+	tree[node] += diff;
+
+	if (start != end) {
+		int mid = (start + end) / 2;	
+
+		update(start, mid, node * 2, idx, diff);
+		update(mid + 1, end, node * 2 + 1, idx, diff);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, Q;
+	cin >> N >> Q;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	Init(1, N, 1);
+
+	for (int i = 0; i < Q; i++) {
+		long long x, y, a, b;
+		cin >> x >> y >> a >> b;
+
+		if (x > y)
+			swap(x, y);
+
+		cout << sum(1, N, 1, x, y) << "\n";
+
+		long long diff = (b - input[a]);
+		input[a] = b;
+		update(1, N, 1, a, diff);
+	}
+
+	return 0;
+}
