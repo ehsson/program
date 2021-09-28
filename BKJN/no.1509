@@ -1,0 +1,54 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+int cnt;
+char input[2501];
+bool dp[2501][2501];
+int minResult[2501];
+
+bool palindrome(int start, int end)
+{
+	if (start >= end)
+		return dp[start][end] = true;
+
+	if (dp[start][end])
+		return true;
+
+	if (input[start] != input[end])
+		return false;
+
+	return palindrome(start + 1, end - 1);
+}
+
+void solve(void)
+{
+	for (int i = 1; i <= cnt; i++) {
+		minResult[i] = i;
+
+		for (int j = 1; j <= i; j++) {
+			if (palindrome(j, i))
+				minResult[i] = min(minResult[i], minResult[j - 1] + 1);
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	string s;
+	cin >> s;
+
+	cnt = s.size();
+
+	for (int i = 0; i < s.size(); i++)
+		input[i + 1] = s[i];
+
+	solve();
+
+	cout << minResult[cnt] << "\n";
+
+	return 0;
+}
