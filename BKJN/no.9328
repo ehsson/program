@@ -1,0 +1,102 @@
+#include <iostream>
+#include <queue>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int H, W;
+int answer;
+int map[102][102];
+bool visit[102][102];
+
+int dy[4] = { 1, 0, -1, 0 };
+int dx[4] = { 0, -1, 0, 1 };
+
+void BFS(int sy, int sx, int key)
+{
+	queue<pair<pair<int, int>, int>> q; // y, x, bit, cnt
+	q.push({{sy, sx}, key});
+	visit[sy][sx] = true;
+
+	while (!q.empty()) {
+		int y = q.front().first.first;
+		int x = q.front().first.second;
+		int bit = q.front().second;
+		q.pop();
+
+		if (map[y][x] >= 'a' && map[y][x] <= 'z') {
+			int temp = 1 << (map[y][x] - 'a');
+
+			if ((bit & temp) == 0) {
+				bit = bit | temp;
+				memset(visit, false, sizeof(visit));
+				while (!q.empty())
+					q.pop();
+			}
+
+			map[y][x] = '.';
+		}
+		else if (map[y][x] >= 'A' && map[y][x] <= 'Z') {
+			int temp = 1 << (map[y][x] - 'A');
+
+			if ((bit & temp) == 0)
+				continue;
+		}
+		else if (map[y][x] == '$') {
+			answer++;
+			map[y][x] = '.';
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (ny >= 0 && ny <= H + 1 && nx >= 0 && nx <= W + 1 &&
+				!visit[ny][nx] && map[ny][nx] != '*') {
+				visit[ny][nx] = true;
+				q.push({{ny, nx}, bit});
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		memset(map, 0, sizeof(map));
+		memset(visit, 0, sizeof(visit));
+		answer = 0;
+
+		cin >> H >> W;
+
+		for (int h = 1; h <= H; h++) {
+			string s;
+			cin >> s;
+
+			for (int w = 1; w <= W; w++)
+				map[h][w] = s[w - 1];
+		}
+
+		string s;
+		cin >> s;
+
+		int bit = 0;
+
+		if (s[0] != 0) {
+			for (int i = 0; i < s.size(); i++)
+				bit = bit | (1 << (s[i] - 'a'));
+		}
+
+		BFS(0, 0, bit);
+
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
