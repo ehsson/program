@@ -1,0 +1,46 @@
+#include <iostream>
+#include <queue>
+#include <map>
+using namespace std;
+
+int K, N;
+int input[100];
+map<long long, bool> visit;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> K >> N;
+
+	for (int k = 0; k < K; k++)
+		cin >> input[k];
+
+	priority_queue<long long, vector<long long>, greater<long long>> pq;
+	pq.push(1);
+
+	long long maxVal = 0;
+
+	for (int n = 0; n < N; n++) {
+		long long cur = pq.top();
+		pq.pop();
+
+		for (int k = 0; k < K; k++) {
+			long long next = input[k] * cur;
+
+			if (pq.size() > N && next > maxVal)
+				continue;
+
+			if (!visit.count(next)) {
+				pq.push(next);
+				visit[next] = true;
+				maxVal = max(maxVal, next);
+			}
+		}
+	}
+
+	cout << pq.top() << "\n";
+
+	return 0;
+}
