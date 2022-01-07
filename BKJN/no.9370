@@ -1,0 +1,90 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+#define INF 2147483647
+
+vector<pair<int, int>> v[2001];
+int distS[2001];
+int distG[2001];
+int distH[2001];
+int des[100];
+
+int N, M, T;
+int S, G, H;
+
+void Dijkstra(int start, int* dist)
+{
+	priority_queue<int> pq;
+	pq.push(start);
+
+	while (!pq.empty()) {
+		int cNode = pq.top();
+		pq.pop();
+
+		for (int i = 0; i < v[cNode].size(); i++) {
+			int nNode = v[cNode][i].first;
+			int nDist = v[cNode][i].second;
+
+			if (dist[nNode] > dist[cNode] + nDist) {
+				dist[nNode] = dist[cNode] + nDist;
+				pq.push(nNode);
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int TC;
+	cin >> TC;
+
+	for (int tc = 0; tc < TC; tc++) {
+		cin >> N >> M >> T;
+		cin >> S >> G >> H;
+
+		for (int m = 0; m < M; m++) {
+			int a, b, d;
+			cin >> a >> b >> d;
+
+			v[a].push_back({ b, d });
+			v[b].push_back({ a, d });
+		}
+
+		for (int t = 0; t < T; t++)
+			cin >> des[t];
+
+		sort(des, des + T);
+
+		for (int n = 1; n <= N; n++)
+			distS[n] = distG[n] = distH[n] = INF;
+
+		distS[S] = 0;
+		Dijkstra(S, distS);
+
+		distG[G] = 0;
+		Dijkstra(G, distG);
+
+		distH[H] = 0;
+		Dijkstra(H, distH);
+
+		for (int t = 0; t < T; t++) {
+			if ((distS[des[t]] == (distG[S] + distH[des[t]] + distG[H])) ||
+				(distS[des[t]] == (distH[S] + distG[des[t]] + distH[G])))
+				cout << des[t] << " ";
+		}
+
+		cout << "\n";
+
+		for (int n = 1; n <= N; n++)
+			v[n].clear();
+	}
+
+	return 0;
+}
