@@ -1,0 +1,118 @@
+#include <iostream>
+using namespace std;
+
+int arr[33] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 
+				13, 16, 19, 22, 24, 28, 27, 26, 25, 30, 35, 40, 0};
+// 0~20   21~23   24~25   26~28   29~32
+int input[10];
+int stone[4];
+
+int maxScore = 0;
+
+void recursive(int idx, int sum)
+{
+	if (idx == 10) {
+		maxScore = max(maxScore, sum);
+		return;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		if (stone[i] == 32) // 도착점
+			continue;
+
+		int pos = stone[i];
+
+		switch (pos) {
+		case 5:
+			if (input[idx] > 3)
+				stone[i] = 28 + (input[idx] - 4);
+			else
+				stone[i] = 19 + input[idx];
+
+			break;
+		case 10:
+			if (input[idx] > 2)
+				stone[i] = 28 + (input[idx] - 3);
+			else
+				stone[i] = 22 + input[idx];
+
+			break;
+		case 15:
+			if (input[idx] > 3)
+				stone[i] = 28 + (input[idx] - 4);
+			else
+				stone[i] = 24 + input[idx];
+
+			break;
+		default:
+			if (pos > 19) {
+				if (pos >= 20 && pos <= 22) {
+					if (pos + input[idx] <= 22)
+						stone[i] = pos + input[idx];
+					else
+						stone[i] = 28 + (pos + input[idx] - 23);
+				}
+				else if (pos >= 23 && pos <= 24) {
+					if (pos + input[idx] <= 24)
+						stone[i] = pos + input[idx];
+					else
+						stone[i] = 28 + (pos + input[idx] - 25);
+				}
+				else {
+					stone[i] = pos + input[idx];
+
+					if (stone[i] > 31)
+						stone[i] = 32;
+				}
+			}
+			else {
+				stone[i] = pos + input[idx];
+
+				if (stone[i] > 19) {
+					if (stone[i] == 20)
+						stone[i] = 31;
+					else
+						stone[i] = 32;
+				}
+			}
+
+			break;
+		}
+
+		bool chk = false;
+
+		for (int j = 0; j < 4; j++) {
+			if (i == j)
+				continue;
+
+			if (stone[i] == stone[j] && (stone[i] != 0 && stone[i] != 32)) {
+				chk = true;
+				break;
+			}
+		}
+
+		if (chk) {
+			stone[i] = pos;
+			continue;
+		}
+
+		int score = arr[stone[i]];
+		recursive(idx + 1, sum + score);
+		stone[i] = pos;
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	for (int i = 0; i < 10; i++)
+		cin >> input[i];
+
+	recursive(0, 0);
+
+	cout << maxScore << "\n";
+
+	return 0;
+}
