@@ -1,0 +1,92 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <queue>
+using namespace std;
+
+#define MAX 1000000
+
+int N, M, K;
+
+vector<pair<pair<int, int>, int>> v[101];
+int dp[101][10001];
+
+void dijkstra(void)
+{
+	priority_queue<pair<pair<int, int>, int>> pq; // time, position, cost
+	pq.push({ {0, 1}, 0 });
+	dp[1][0] = 0;
+
+	while (!pq.empty()) {
+		int cur = pq.top().first.second;
+		int cost = pq.top().second;
+		int time = -pq.top().first.first;
+		pq.pop();
+
+		if (dp[cur][cost] < time)
+			continue;
+
+		if (cost > M)
+			continue;
+
+		if (cur == N) {
+			dp[cur][cost] = time;
+			return;
+		}
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first.second;
+			int next_cost = v[cur][i].second + cost;
+			int next_time = v[cur][i].first.first + time;
+
+			if (next_cost > M)
+				continue;
+
+			if (dp[next][next_cost] > next_time) {
+				pq.push({ { -next_time, next }, next_cost });
+				dp[next][next_cost] = next_time;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 0; tc < T; tc++) {
+		cin >> N >> M >> K;
+
+		for (int k = 0; k < K; k++) {
+			int U, V, C, D;
+			cin >> U >> V >> C >> D;
+
+			v[U].push_back({ {D, V}, C });
+		}
+
+		for (int n = 1; n <= N; n++)
+			for (int i = 0; i <= M; i++)
+				dp[n][i] = MAX;
+
+		dijkstra();
+
+		int answer = MAX;
+
+		for (int i = 0; i <= M; i++)
+			answer = min(answer, dp[N][i]);
+
+		if (answer >= MAX)
+			cout << "Poor KCM\n";
+		else
+			cout << answer << "\n";
+
+		for (int n = 1; n <= N; n++)
+			v[n].clear();
+	}
+
+	return 0;
+}
