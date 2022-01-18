@@ -1,0 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+#define MAX 576
+
+int N, P;
+int min_cost = MAX;
+
+vector<int> v[17];
+int dp[65536];
+bool chk[17];
+
+void DFS(int cost, int bit, int cnt)
+{
+	if (dp[bit] <= cost)
+		return;
+
+	if (cnt >= P) {
+		dp[bit] = cost;
+		min_cost = min(min_cost, cost);
+		return;
+	}
+
+	dp[bit] = cost;
+
+	for (int i = 1; i <= N; i++) {
+		if (chk[i])
+			continue;
+
+		int temp_bit = 1 << (i - 1);
+		int temp_min = MAX;
+
+		for (int j = 1; j <= N; j++)
+			if (chk[j])
+				temp_min = min(temp_min, v[j][i]);
+
+		chk[i] = true;
+		DFS(cost + temp_min, bit | temp_bit, cnt + 1);
+		chk[i] = false;
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	int max_bit = 0;
+
+	for (int n = 1; n <= N; n++) {
+		v[n].push_back(0);
+
+		for (int i = 1; i <= N; i++) {
+			int in;
+			cin >> in;
+
+			v[n].push_back(in);
+		}
+
+		int temp = 1 << (n - 1);
+		max_bit |= temp;
+	}
+
+	int bit = 0, cnt = 0;
+	string s;
+	cin >> s;
+
+	for (int i = 0; i < s.size(); i++) {
+		if (s[i] == 'Y') {
+			chk[i + 1] = true;
+			cnt++;
+			int temp = 1 << i;
+			bit = bit | temp;
+		}
+		else
+			chk[i + 1] = false;
+	}
+
+	cin >> P;
+
+	for (int i = 0; i <= max_bit; i++)
+		dp[i] = MAX;
+
+	DFS(0, bit, cnt);
+
+	if (min_cost == MAX)
+		cout << "-1\n";
+	else
+		cout << min_cost << "\n";
+
+	return 0;
+}
