@@ -46,11 +46,7 @@ int main(void)
 
 	DFS(1);
 
-	int answer = 0;
-
-	for (int n = 1; n <= N; n++)
-		for (int i = 0; i < 2; i++)
-			answer = max(max(answer, dp[n][0]), dp[n][1]);
+	int answer = max(dp[1][0], dp[1][1]);
 
 	cout << answer << "\n";
 
