@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+#define PI 3.141592
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		int P, X, Y;
+		cin >> P >> X >> Y;
+
+		bool chk = true;
+		
+		double per = (double)P / 100.0;
+		int dis = (X - 50) * (X - 50) + (Y - 50) * (Y - 50);
+		
+		if (dis > 50 * 50) {
+			cout << "#" << tc << " 0\n";
+			continue;
+		}
+
+		double rad = 0;
+
+		if (X > 50 && Y > 50)
+			rad = atan((double)(X - 50) / (double)(Y - 50));
+		else if (X > 50 && Y < 50) {
+			rad = atan((double)(50 - Y) / (double)(X - 50));
+			rad += PI / 2.0;
+		}
+		else if (X < 50 && Y < 50) {
+			rad = atan((double)(50 - X) / (double)(50 - Y));
+			rad += PI;
+		}
+		else if (X < 50 && Y > 50) {
+			rad = atan((double)(Y - 50) / (double)(50 - X));
+			rad += PI * 1.5;
+		}
+
+		rad = rad / (double)(2 * PI);
+
+		if (per < rad)
+			chk = false;
+
+		if (chk)
+			cout << "#" << tc << " 1\n";
+		else
+			cout << "#" << tc << " 0\n";
+	}
+
+	return 0;
+}
