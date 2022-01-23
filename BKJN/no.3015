@@ -1,0 +1,51 @@
+#include <iostream>
+#include <stack>
+using namespace std;
+
+stack<pair<long long, long long>> s;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N;
+	cin >> N;
+
+	long long cnt = 0;
+
+	for (int n = 0; n < N; n++) {
+		long long input;
+		cin >> input;
+
+		while (!s.empty() && s.top().first < input) {
+			cnt += s.top().second;
+			s.pop();
+		}
+
+		if (s.empty())
+			s.push({ input, 1 });
+		else {
+			if (s.top().first == input) {
+				pair<long long, long long> cur = s.top();
+				s.pop();
+
+				cnt += cur.second;
+
+				if (!s.empty())
+					cnt++;
+
+				cur.second++;
+				s.push(cur);
+			}
+			else {
+				s.push({ input, 1 });
+				cnt++;
+			}
+		}
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
