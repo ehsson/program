@@ -1,0 +1,78 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 1000000000
+
+int input[100001];
+int tree[100000 * 4];
+
+int Init(int start, int end, int node)
+{
+	if (start == end)
+		return tree[node] = input[start];
+
+	int mid = (start + end) / 2;
+
+	return tree[node] = min(Init(start, mid, node * 2), Init(mid + 1, end, node * 2 + 1));
+}
+
+int query(int start, int end, int node, int left, int right)
+{
+	if (start > right || end < left)
+		return MAX;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return min(query(start, mid, node * 2, left, right), query(mid + 1, end, node * 2 + 1, left, right));
+}
+
+void Update(int start, int end, int node, int idx, int val)
+{
+	if (idx < start || idx > end)
+		return;
+
+	if (start == end) {
+		tree[node] = val;
+		return;
+	}
+
+	int mid = (start + end) / 2;
+
+	Update(start, mid, node * 2, idx, val);
+	Update(mid + 1, end, node * 2 + 1, idx, val);
+
+	tree[node] = min(tree[node * 2], tree[node * 2 + 1]);
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, M;
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> input[n];
+
+	Init(1, N, 1);
+
+	cin >> M;
+
+	for (int m = 0; m < M; m++) {
+		int op, a, b;
+		cin >> op >> a >> b;
+
+		if (op == 1) { // change
+			Update(1, N, 1, a, b);
+			input[a] = b;
+		}
+		else if (op == 2) // print
+			cout << query(1, N, 1, a, b) << "\n";
+	}
+
+	return 0;
+}
