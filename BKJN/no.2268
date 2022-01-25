@@ -1,0 +1,62 @@
+#include <iostream>
+using namespace std;
+
+long long input[1000001];
+long long tree[4 * 1000000 + 1];
+
+int N, M;
+
+long long Sum(int start, int end, int node, int left, int right)
+{
+	if (start > right || end < left)
+		return 0;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return Sum(start, mid, node * 2, left, right) + Sum(mid + 1, end, node * 2 + 1, left, right);
+}
+
+void Update(int start, int end, int node, int idx, long long diff)
+{
+	if (idx < start || idx > end)
+		return;
+
+	tree[node] += diff;
+
+	if (start != end) {
+		int mid = (start + end) / 2;
+
+		Update(start, mid, node * 2, idx, diff);
+		Update(mid + 1, end, node * 2 + 1, idx, diff);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M;
+
+	for (int m = 0; m < M; m++) {
+		long long a, b, c;
+		cin >> a >> b >> c;
+
+		if (a) { // modify
+			long long diff = c - input[b];
+			input[b] = c;
+			Update(1, N, 1, b, diff);
+		}
+		else {// sum
+			if (b > c)
+				swap(b, c);
+
+			cout << Sum(1, N, 1, b, c) << "\n";
+		}
+	}
+
+	return 0;
+}
