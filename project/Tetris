@@ -1,0 +1,162 @@
+#include <stdio.h>
+#include <conio.h>
+#include <windows.h>
+#include <time.h>
+
+int block[7][4][4][2] =
+{{(0, 0), (0, 1), (1,0), (1, 1)},
+ {(0, 0), (0, 1), (1,0), (1, 1)},
+ {(0, 0), (0, 1), (1,0), (1, 1)},
+ {(0, 0), (0, 1), (1,0), (1, 1)}
+};
+
+
+int now_t;
+int step_time;
+
+char Game_Board[22][12];
+
+void Goto_XY(int x, int y) {
+	COORD Pos;
+	Pos.X = x * 2;
+	Pos.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
+
+int Block_down()
+{
+	if (1) {
+		return 0;		//블럭을 내릴 수 없을 때
+	}
+
+	return 1;			//블럭을 내렸을 때
+}
+
+int Game_playing()
+{
+	if (clock() - now_t > step_time) {
+		if (Block_down()) {
+			now_t = clock();
+		}
+	}
+
+
+	int key = _getch();
+
+	printf("%d\n", key);
+
+
+	switch(key) {
+	case 224:
+		key = _getch();
+
+		printf("%d\n", key);
+
+		switch (key) {
+		case 75:				//왼쪽 방향키
+
+			break;
+		case 72:				//윗쪽 방향키
+
+			break;
+		case 77:				//오른쪽 방향키
+
+			break;
+		case 80:				//아래쪽 방향키
+			Block_down();
+			break;
+		default:
+			break;
+
+		}
+	case 32:			//스페이스키
+
+
+		break;
+	case 27:
+		printf("게임 종료 : ESC 키\n");
+		return 0;
+		break;
+	default:
+		return 0;		//게임 종료
+		break;
+	}
+
+	return 1;			//게임 계속
+}
+
+void Draw_Board()
+{
+	for (int row = 0; row < 22; row++) {
+		for (int col = 0; col < 12; col++) {
+			switch (Game_Board[row][col]) {
+			case 0:
+				Goto_XY(col, row);
+				printf(" ");
+				break;
+			case 1:
+				Goto_XY(col, row);
+				printf("□");
+				break;
+			case 2:
+				Goto_XY(col, row);
+				printf("▤");
+				break;
+			case 3:
+				Goto_XY(col, row);
+				printf("▥");
+				break;
+			case 4:
+				Goto_XY(col, row);
+				printf("▨");
+				break;
+			case 5:
+				Goto_XY(col, row);
+				printf("▧");
+				break;
+			case 6:
+				Goto_XY(col, row);
+				printf("▦");
+				break;
+			case 7:
+				Goto_XY(col, row);
+				printf("▩");
+				break;
+			case 10:			//벽
+				Goto_XY(col, row);
+				printf("■");
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+
+
+int main(void)
+{
+	for (int i = 0; i < 22; i++)
+		Game_Board[i][0] = Game_Board[i][11] = 10;
+
+	for (int i = 0; i < 12; i++)
+		Game_Board[0][i] = Game_Board[21][i] = 10;
+
+	for (int i = 1; i < 11; i++)
+		for (int k = 1; k < 21; k++)
+			Game_Board[k][i] = Game_Board[k][i] = 0;
+
+	Draw_Board();
+
+	step_time = 1000;
+	now_t = clock();
+
+	while( Game_playing() ) {
+
+
+	}
+
+
+	return 0;
+}
