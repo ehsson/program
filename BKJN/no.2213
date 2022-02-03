@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+
+int N;
+
+int val[10001];
+vector<int> v[10001];
+vector<int> order;
+int dp[10001][2];
+bool visit[10001];
+
+void DFS(int node)
+{
+	visit[node] = true;
+	dp[node][0] = 0;
+	dp[node][1] = val[node];
+
+	for (int i = 0; i < v[node].size(); i++) {
+		int next = v[node][i];
+
+		if (!visit[next]) {
+			DFS(next);
+			dp[node][0] += max(dp[next][0], dp[next][1]);
+			dp[node][1] += dp[next][0];
+		}
+	}
+}
+
+void trace(int node, int prev)
+{
+	if (dp[node][1] > dp[node][0] && !visit[prev]) {
+		order.push_back(node);
+		visit[node] = true;
+	}
+
+	for (int i = 0; i < v[node].size(); i++) {
+		int next = v[node][i];
+
+		if (next != prev)
+			trace(next, node);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> val[n];
+
+	for (int n = 1; n < N; n++) {
+		int n1, n2;
+		cin >> n1 >> n2;
+
+		v[n1].push_back(n2);
+		v[n2].push_back(n1);
+	}
+
+	DFS(1);
+	
+	memset(visit, false, sizeof(visit));
+	trace(1, 0);
+
+	sort(order.begin(), order.end());
+
+	cout << max(dp[1][0], dp[1][1]) << "\n";
+
+	for (int i = 0; i < order.size(); i++)
+		cout << order[i] << " ";
+
+	return 0;
+}
