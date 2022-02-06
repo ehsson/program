@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <time.h>
+#include <stdlib.h>
 
 int block[7][4][4][2] =
 {
@@ -41,9 +42,15 @@ int block[7][4][4][2] =
 	{{0, 0}, {0, 1}, {1, 1}, {2, 1}}}
 };
 
+enum {
+	LEFT = 0, RIGHT, DOWN
+};
+
 
 int now_t;
 int step_time;
+int y, x;
+int rotation, type;
 
 char Game_Board[22][12];
 
@@ -54,22 +61,50 @@ void Goto_XY(int x, int y) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-int Block_down(void)
+void New_Block()
 {
-	if (1) {
-		return 0;		//블럭을 내릴 수 없을 때
-	}
+	y = 1;
+	x = 4;
+	rotation = 0;
+	type = rand() % 7;
 
-	return 1;			//블럭을 내렸을 때
+	for (int i = 0; i < 4; i++)
+		Game_Board[y + block[type][rotation][i][0]][x + block[type][rotation][i][1]] = (char)(type + 1);
+
+
 }
 
-int Game_playing(void)
+int Check_Wall(int y, int x, int rotation)
 {
-	if (clock() - now_t > step_time) {
-		if (Block_down()) {
+	return 1;  //  벽에 닿음
+
+	return 0;  // 벽에 안 닿음
+}
+
+int Check_Game_Over(void)
+{
+	return 1;  // 게임 오버
+
+	return 0;  // 게임 계속
+}
+
+void Move_Block(int dir)
+{
+
+}
+
+int Block_Down(void)
+{
+	return 0;		//블럭을 내릴 수 없을 때
+
+	return 1;		//블럭을 내렸을 때
+}
+
+int Game_Playing(void)
+{
+	if (clock() - now_t > step_time)
+		if (Block_Down())
 			now_t = clock();
-		}
-	}
 
 	int key = _getch();
 
@@ -84,16 +119,23 @@ int Game_playing(void)
 
 		switch (key) {
 		case 75:				//왼쪽 방향키
+			if (Check_Wall(y, x - 1, rotation))
+				Move_Block(LEFT);
 
 			break;
 		case 72:				//윗쪽 방향키
 
+
 			break;
 		case 77:				//오른쪽 방향키
+			if (Check_Wall(y, x + 1, rotation))
+				Move_Block(RIGHT);
 
 			break;
 		case 80:				//아래쪽 방향키
-			Block_down();
+			if (Check_Wall(y + 1, x, rotation))
+				Move_Block(DOWN);
+
 			break;
 		default:
 			break;
@@ -166,6 +208,8 @@ void Draw_Board(void)
 
 int main(void)
 {
+	srand(time(NULL));
+
 	for (int i = 0; i < 22; i++)
 		Game_Board[i][0] = Game_Board[i][11] = 10;
 
@@ -181,13 +225,13 @@ int main(void)
 	step_time = 1000;
 	now_t = clock();
 
-	while( Game_playing() ) {
-		if (clock() - now_t == step_time) {
-			Block_down();
-			now_t = clock();
+	while( Game_Playing() ) {
+		Draw_Board();
+
+		if (Check_Game_Over()) {
+			printf("게임 오버\n");
+			break;
 		}
-
-
 	}
 
 	return 0;
