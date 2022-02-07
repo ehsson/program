@@ -4,6 +4,17 @@
 #include <time.h>
 #include <stdlib.h>
 
+#define EMPTY 0
+#define ACTIVE_BLOCK 1
+#define INACTIVE_BLOCK 2  // 굳은 블럭
+#define WALL 10
+#define LEFT 75
+#define UP 72	// 블럭 떨어뜨리기
+#define RIGHT 77
+#define DOWN 80
+#define ROTATE 32  // SPACE(회전)
+#define ESC 27	// 종료
+
 int block[7][4][4][2] =
 {
 	{{{0, 0}, {0, 1}, {1, 0}, {1, 1}},  // ㅁㅁ
@@ -42,15 +53,8 @@ int block[7][4][4][2] =
 	{{0, 0}, {0, 1}, {1, 1}, {2, 1}}}
 };
 
-enum {
-	LEFT = 0, RIGHT, DOWN
-};
-
-
-int now_t;
-int step_time;
-int y, x;
-int rotation, type;
+int by, bx; // 블럭의 위치
+int bRotation, bType; // 블럭의 상태
 
 char Game_Board[22][12];
 
@@ -63,99 +67,144 @@ void Goto_XY(int x, int y) {
 
 void New_Block()
 {
-	y = 1;
-	x = 4;
-	rotation = 0;
-	type = rand() % 7;
+	by = 1;
+	bx = 4;
+	bRotation = 0;
+	bType = rand() % 7;
 
 	for (int i = 0; i < 4; i++)
-		Game_Board[y + block[type][rotation][i][0]][x + block[type][rotation][i][1]] = (char)(type + 1);
-
-
+		Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = (char)ACTIVE_BLOCK;
 }
 
 int Check_Wall(int y, int x, int rotation)
 {
-	return 1;  //  벽에 닿음
+	//return 1;  //  벽에 닿음
 
 	return 0;  // 벽에 안 닿음
 }
 
 int Check_Game_Over(void)
 {
-	return 1;  // 게임 오버
+	//return 1;  // 게임 오버
 
 	return 0;  // 게임 계속
 }
 
 void Move_Block(int dir)
 {
+	switch (dir) {
+	case LEFT:
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
 
-}
+		bx--;
 
-int Block_Down(void)
-{
-	return 0;		//블럭을 내릴 수 없을 때
-
-	return 1;		//블럭을 내렸을 때
-}
-
-int Game_Playing(void)
-{
-	if (clock() - now_t > step_time)
-		if (Block_Down())
-			now_t = clock();
-
-	int key = _getch();
-
-	printf("%d\n", key);
-
-
-	switch(key) {
-	case 224:
-		key = _getch();
-
-		printf("%d\n", key);
-
-		switch (key) {
-		case 75:				//왼쪽 방향키
-			if (Check_Wall(y, x - 1, rotation))
-				Move_Block(LEFT);
-
-			break;
-		case 72:				//윗쪽 방향키
-
-
-			break;
-		case 77:				//오른쪽 방향키
-			if (Check_Wall(y, x + 1, rotation))
-				Move_Block(RIGHT);
-
-			break;
-		case 80:				//아래쪽 방향키
-			if (Check_Wall(y + 1, x, rotation))
-				Move_Block(DOWN);
-
-			break;
-		default:
-			break;
-		}
+		for(int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
 
 		break;
-	case 32:			//스페이스키(회전)
+	case RIGHT:
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
 
+		bx++;
+
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
 
 		break;
-	case 27:
-		printf("게임 종료 : ESC 키\n");
-		return 0;
+	case DOWN:
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
+
+		by++;
+
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
+
+		break;
+	case UP:  // 블록 떨어뜨리기
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
+
+		break;
+	case ROTATE: // 회전
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
+
+		bRotation = (bRotation + 1) % 1;
+
+		for (int i = 0; i < 4; i++)
+			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;
+
 		break;
 	default:
-		return 0;		//게임 종료
 		break;
 	}
+}
 
-	return 1;			//게임 계속
+void Block_Down(void)
+{
+	if (!Check_Wall(by + 1, bx, bRotation)) { // 벽에 닿지 않으면 내리기
+		Move_Block(DOWN);
+	}
+	else { // 굳은 블럭에 닿으면 블럭을 굳게 한 후 새블럭 만들기
+
+
+		New_Block();
+	}
+}
+
+void Check_Key(void)
+{
+	if (_kbhit()) {
+		int key = _getch();
+
+		switch (key) {
+		case 224:  // 방향키
+			key = _getch();
+
+			printf("%d\n", key);
+
+			switch (key) {
+			case LEFT:				//왼쪽 방향키
+				if (!Check_Wall(by, bx - 1, bRotation))
+					Move_Block(LEFT);
+
+				break;
+			case UP:				//윗쪽 방향키
+				
+
+				break;
+			case RIGHT:				//오른쪽 방향키
+				if (!Check_Wall(by, bx + 1, bRotation))
+					Move_Block(RIGHT);
+
+				break;
+			case DOWN:				//아래쪽 방향키
+				if (!Check_Wall(by + 1, bx, bRotation))
+					Move_Block(DOWN);
+
+				break;
+			default:
+				break;
+			}
+
+			break;
+		case ROTATE:				//스페이스키(회전)
+			if (!Check_Wall(by, bx, (bRotation + 1) % 4))
+				Move_Block(ROTATE);
+
+			break;
+		case ESC:
+			printf("\n\n게임 종료 : ESC 키\n");
+			exit(0);
+			break;
+		default:
+			return;					//게임 종료
+			break;
+		}
+	}
 }
 
 void Draw_Board(void)
@@ -163,39 +212,19 @@ void Draw_Board(void)
 	for (int row = 0; row < 22; row++) {
 		for (int col = 0; col < 12; col++) {
 			switch (Game_Board[row][col]) {
-			case 0:
+			case EMPTY:
 				Goto_XY(col, row);
 				printf(" ");
 				break;
-			case 1:
+			case ACTIVE_BLOCK:
 				Goto_XY(col, row);
 				printf("□");
 				break;
-			case 2:
-				Goto_XY(col, row);
-				printf("▤");
-				break;
-			case 3:
-				Goto_XY(col, row);
-				printf("▥");
-				break;
-			case 4:
+			case INACTIVE_BLOCK: // 굳은 블럭
 				Goto_XY(col, row);
 				printf("▨");
 				break;
-			case 5:
-				Goto_XY(col, row);
-				printf("▧");
-				break;
-			case 6:
-				Goto_XY(col, row);
-				printf("▦");
-				break;
-			case 7:
-				Goto_XY(col, row);
-				printf("▩");
-				break;
-			case 10:			//벽
+			case WALL:			// 벽
 				Goto_XY(col, row);
 				printf("■");
 				break;
@@ -211,25 +240,29 @@ int main(void)
 	srand(time(NULL));
 
 	for (int i = 0; i < 22; i++)
-		Game_Board[i][0] = Game_Board[i][11] = 10;
+		Game_Board[i][0] = Game_Board[i][11] = WALL;
 
 	for (int i = 0; i < 12; i++)
-		Game_Board[0][i] = Game_Board[21][i] = 10;
+		Game_Board[0][i] = Game_Board[21][i] = WALL;
 
 	for (int i = 1; i < 11; i++)
 		for (int k = 1; k < 21; k++)
-			Game_Board[k][i] = Game_Board[k][i] = 0;
+			Game_Board[k][i] = Game_Board[k][i] = EMPTY;
 
+	New_Block();
 	Draw_Board();
 
-	step_time = 1000;
-	now_t = clock();
+	while (1) {
+		for (int i = 0; i < 5; i++) {
+			Check_Key();
+			Draw_Board();
+			Sleep(100);
+		}
 
-	while( Game_Playing() ) {
-		Draw_Board();
+		Block_Down();
 
 		if (Check_Game_Over()) {
-			printf("게임 오버\n");
+			printf("\n\n게임 오버\n");
 			break;
 		}
 	}
