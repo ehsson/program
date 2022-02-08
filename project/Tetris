@@ -23,33 +23,33 @@ int block[7][4][4][2] =
 	{{0, 0}, {0, 1}, {1, 0}, {1, 1}}},
 
 	{{{0, 0}, {0, 1}, {1, 1}, {1, 2}},  // ㅁㅁ
-	{{0, 1}, {1, 0}, {1, 1}, {2, 0}},   //   ㅁㅁ
+	{{-1, 1}, {0, 0}, {0, 1}, {1, 0}},  //   ㅁㅁ
 	{{0, 0}, {0, 1}, {1, 1}, {1, 2}},
-	{{0, 1}, {1, 0}, {1, 1}, {2, 0}}},
+	{{-1, 1}, {0, 0}, {0, 1}, {1, 0}}},
 
 	{{{0, 1}, {0, 2}, {1, 0}, {1, 1}},  //   ㅁㅁ
-	{{0, 0}, {1, 0}, {1, 1}, {2, 1}},   // ㅁㅁ
+	{{-1, 0}, {0, 0}, {0, 1}, {1, 1}},  // ㅁㅁ
 	{{0, 1}, {0, 2}, {1, 0}, {1, 1}},
-	{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
+	{{-1, 0}, {0, 0}, {0, 1}, {1, 1}}},
 
 	{{{0, 0}, {0, 1}, {0, 2}, {0, 3}},  // ㅁㅁㅁㅁ
-	{{0, 0}, {1, 0}, {2, 0}, {3, 0}},
+	{{-1, 1}, {0, 1}, {1, 1}, {2, 1}},
 	{{0, 0}, {0, 1}, {0, 2}, {0, 3}},
-	{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
+	{{-1, 1}, {0, 1}, {1, 1}, {2, 1}}},
 
 	{{{0, 1}, {1, 0}, {1, 1}, {1, 2}},  //    ㅁ
-	{{0, 0}, {1, 0}, {1, 1}, {2, 0}},   //  ㅁㅁㅁ
-	{{0, 0}, {0, 1}, {0, 2}, {1, 1}},
+	{{0, 1}, {1, 1}, {1, 2}, {2, 1}},   //  ㅁㅁㅁ
+	{{1, 0}, {1, 1}, {1, 2}, {2, 1}},
 	{{0, 1}, {1, 0}, {1, 1}, {2, 1}}},
 
 	{{{0, 0}, {1, 0}, {1, 1}, {1, 2}},  //  ㅁ
-	{{0, 0}, {0, 1}, {1, 0}, {2, 0}},   //  ㅁㅁㅁ
-	{{0, 0}, {0, 1}, {0, 2}, {1, 0}},
+	{{0, 1}, {0, 2}, {1, 1}, {2, 1}},   //  ㅁㅁㅁ
+	{{1, 0}, {1, 1}, {1, 2}, {2, 2}},
 	{{0, 1}, {1, 1}, {2, 0}, {2, 1}}},
 
 	{{{0, 2}, {1, 0}, {1, 1}, {1, 2}},  //      ㅁ
-	{{0, 0}, {1, 0}, {2, 0}, {2, 1}},   //  ㅁㅁㅁ
-	{{0, 0}, {0, 1}, {0, 2}, {1, 0}},
+	{{0, 1}, {1, 1}, {2, 1}, {2, 2}},   //  ㅁㅁㅁ
+	{{1, 0}, {1, 1}, {1, 2}, {2, 0}},
 	{{0, 0}, {0, 1}, {1, 1}, {2, 1}}}
 };
 
@@ -58,11 +58,21 @@ int bRotation, bType; // 블럭의 상태
 
 char Game_Board[22][12];
 
+void Block_Down();
+
 void Goto_XY(int x, int y) {
 	COORD Pos;
 	Pos.X = x * 2;
 	Pos.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
+
+void CursorView()
+{
+	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+	cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
+	cursorInfo.bVisible = FALSE; //커서 Visible TRUE(보임) FALSE(숨김)
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
 
 void New_Block()
@@ -76,81 +86,87 @@ void New_Block()
 		Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = (char)ACTIVE_BLOCK;
 }
 
-int Check_Wall(int y, int x, int rotation)
+bool Check_Wall(int y, int x, int rotation)
 {
-	//return 1;  //  벽에 닿음
+	for (int i = 0; i < 4; i++)
+		if (Game_Board[y + block[bType][rotation][i][0]][x + block[bType][rotation][i][1]] == WALL || 
+			Game_Board[y + block[bType][rotation][i][0]][x + block[bType][rotation][i][1]] == INACTIVE_BLOCK)
+			return true;  // 벽에 닿음
 
-	return 0;  // 벽에 안 닿음
+	return false;  // 벽에 안 닿음
 }
 
-int Check_Game_Over(void)
+bool Check_Game_Over(void)
 {
-	//return 1;  // 게임 오버
+	for (int i = 1; i < 11; i++)
+		if (Game_Board[3][i] == INACTIVE_BLOCK)
+			return true; // 게임 종료
 
-	return 0;  // 게임 계속
+	return false;  // 게임 계속
 }
 
 void Move_Block(int dir)
 {
+	for (int i = 0; i < 4; i++)
+		Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
+
 	switch (dir) {
 	case LEFT:
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
-
 		bx--;
-
-		for(int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
-
 		break;
 	case RIGHT:
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
-
 		bx++;
-
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
-
 		break;
 	case DOWN:
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
-
 		by++;
-
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;  //  다음 위치 블록 만들기
-
 		break;
 	case UP:  // 블록 떨어뜨리기
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
-
+		while (!Check_Wall(by + 1, bx, bRotation))
+			Block_Down();
 		break;
 	case ROTATE: // 회전
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = EMPTY;  //  현재 위치 블록 지우기
-
-		bRotation = (bRotation + 1) % 1;
-
-		for (int i = 0; i < 4; i++)
-			Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK;
-
+		bRotation = (bRotation + 1) % 4;
 		break;
 	default:
 		break;
+	}
+
+	for (int i = 0; i < 4; i++)
+		Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = ACTIVE_BLOCK; // 다음 위치 블록 만들기
+}
+
+void Solidify_Block()
+{
+	for (int i = 0; i < 4; i++)
+		Game_Board[by + block[bType][bRotation][i][0]][bx + block[bType][bRotation][i][1]] = INACTIVE_BLOCK;
+
+	for (int line = 20; line > 2; line--) {
+		bool chk = true;
+
+		for (int i = 1; i < 11; i++) {
+			if (Game_Board[line][i] == EMPTY) {
+				chk = false;
+				break;
+			}
+		}
+
+		if (chk) {  // 해당 줄이 모두 INACTIVE_BLOCK들이라면
+			for (int i = line; i > 2; i--) {
+				for (int j = 1; j < 11; j++)
+					Game_Board[i][j] = Game_Board[i - 1][j];  // 윗줄의 블럭들을 한 칸 내리기
+			}
+
+			line++;
+		}
 	}
 }
 
 void Block_Down(void)
 {
-	if (!Check_Wall(by + 1, bx, bRotation)) { // 벽에 닿지 않으면 내리기
+	if (!Check_Wall(by + 1, bx, bRotation))  // 벽에 닿지 않으면 내리기
 		Move_Block(DOWN);
-	}
 	else { // 굳은 블럭에 닿으면 블럭을 굳게 한 후 새블럭 만들기
-
-
+		Solidify_Block();
 		New_Block();
 	}
 }
@@ -167,21 +183,21 @@ void Check_Key(void)
 			printf("%d\n", key);
 
 			switch (key) {
-			case LEFT:				//왼쪽 방향키
+			case LEFT:				// 왼쪽 방향키
 				if (!Check_Wall(by, bx - 1, bRotation))
 					Move_Block(LEFT);
 
 				break;
-			case UP:				//윗쪽 방향키
-				
+			case UP:				// 윗쪽 방향키
+				Move_Block(UP);
 
 				break;
-			case RIGHT:				//오른쪽 방향키
+			case RIGHT:				// 오른쪽 방향키
 				if (!Check_Wall(by, bx + 1, bRotation))
 					Move_Block(RIGHT);
 
 				break;
-			case DOWN:				//아래쪽 방향키
+			case DOWN:				// 아래쪽 방향키
 				if (!Check_Wall(by + 1, bx, bRotation))
 					Move_Block(DOWN);
 
@@ -191,7 +207,7 @@ void Check_Key(void)
 			}
 
 			break;
-		case ROTATE:				//스페이스키(회전)
+		case ROTATE:				// 스페이스키(회전)
 			if (!Check_Wall(by, bx, (bRotation + 1) % 4))
 				Move_Block(ROTATE);
 
@@ -201,7 +217,7 @@ void Check_Key(void)
 			exit(0);
 			break;
 		default:
-			return;					//게임 종료
+			return;					// 게임 종료
 			break;
 		}
 	}
@@ -214,7 +230,7 @@ void Draw_Board(void)
 			switch (Game_Board[row][col]) {
 			case EMPTY:
 				Goto_XY(col, row);
-				printf(" ");
+				printf("  ");
 				break;
 			case ACTIVE_BLOCK:
 				Goto_XY(col, row);
@@ -237,6 +253,7 @@ void Draw_Board(void)
 
 int main(void)
 {
+	CursorView();
 	srand(time(NULL));
 
 	for (int i = 0; i < 22; i++)
@@ -252,11 +269,11 @@ int main(void)
 	New_Block();
 	Draw_Board();
 
-	while (1) {
+	while (true) {
 		for (int i = 0; i < 5; i++) {
 			Check_Key();
 			Draw_Board();
-			Sleep(100);
+			Sleep(20);
 		}
 
 		Block_Down();
