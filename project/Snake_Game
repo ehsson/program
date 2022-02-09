@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <windows.h>
+#include <time.h>
+
+#define EMPTY 0
+#define WALL 10
+#define BODY 1 // 뱀의 몸통
+#define HEAD 2 // 뱀의 머리
+#define LEFT 75
+#define UP 72
+#define RIGHT 77
+#define DOWN 80
+#define ESC 27	// 종료
+
+char Map[17][22];
+
+int hy, hx, hDirection; // head의 위치, 방향
+int score;
+
+void Goto_XY(int x, int y)
+{
+	COORD Pos;
+	Pos.X = x * 2;
+	Pos.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+}
+
+void CursorView()
+{
+	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+	cursorInfo.dwSize = 1; //커서 굵기 (1 ~ 100)
+	cursorInfo.bVisible = FALSE; //커서 Visible TRUE(보임) FALSE(숨김)
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
+bool Check_Game_Over()
+{
+	//return true; // 게임 오버
+	return false; // 게임 계속
+}
+
+void Check_Key()
+{
+	if (_kbhit()) {
+		int key = _getch();
+
+		switch (key) {
+		case 224: // 방향키
+			switch (key) {
+			case LEFT:
+				hDirection = LEFT;
+
+				break;
+			case RIGHT:
+				hDirection = RIGHT;
+
+				break;
+			case UP:
+				hDirection = UP;
+
+				break;
+			case DOWN:
+				hDirection = DOWN;
+
+				break;
+			default:
+				break;
+			}
+
+			break;
+		case ESC: // 종료
+			printf("\n게임 종료\n");
+			exit(0);
+			break;
+		}
+	}
+}
+
+void forward()
+{
+
+}
+
+void Draw_Map()
+{
+	for (int row = 0; row < 17; row++) {
+		for (int col = 0; col < 22; col++) {
+			switch (Map[row][col]) {
+			case EMPTY:
+				Goto_XY(col, row);
+				printf("  ");
+				break;
+			case WALL:
+				Goto_XY(col, row);
+				printf("■");
+				break;
+			case HEAD:
+				Goto_XY(col, row);
+				printf("●");
+				break;
+			case BODY:
+				Goto_XY(col, row);
+				printf("○");
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	Goto_XY(25, 10);
+	printf("★ score: %d", score);
+}
+
+int main(void)
+{
+	CursorView();
+	srand((unsigned)time(NULL));
+
+	for (int i = 0; i < 22; i++)
+		Map[0][i] = Map[16][i] = WALL;
+
+	for (int i = 1; i < 16; i++)
+		Map[i][0] = Map[i][21] = WALL;
+
+	for (int i = 1; i <= 15; i++)
+		for (int j = 1; j <= 20; j++)
+			Map[i][j] = EMPTY;
+
+	hy = 8;
+	hx = 7;
+	hDirection = RIGHT;
+
+	while (true) {
+		Draw_Map();
+		Check_Key();
+		forward();
+
+		if (Check_Game_Over()) {
+			printf("\n게임 오버\n");
+			break;
+		}
+	}
+
+	return 0;
+}
