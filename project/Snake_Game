@@ -8,6 +8,7 @@
 #define WALL 10
 #define BODY 1 // 뱀의 몸통
 #define HEAD 2 // 뱀의 머리
+#define FOOD 3
 #define LEFT 75
 #define UP 72
 #define RIGHT 77
@@ -15,9 +16,15 @@
 #define ESC 27	// 종료
 
 char Map[17][22];
+int snake[100][2] = {
+	{8, 7}, {8, 6}, {8, 5}, {8, 4}, {8, 3}
+};
 
-int hy, hx, hDirection; // head의 위치, 방향
+int hDirection; // head의 방향
+int length; // 뱀의 길이
 int score;
+int fy, fx; // 먹이의 위치
+int sleep_t;
 
 void Goto_XY(int x, int y)
 {
@@ -35,10 +42,36 @@ void CursorView()
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
 
-bool Check_Game_Over()
+bool Check_Crush(int y, int x, int direction)
 {
-	//return true; // 게임 오버
-	return false; // 게임 계속
+	if (Map[y][x] == WALL) {
+		Goto_XY(10, 7);
+		printf("쿵!");
+		exit(0);
+	}
+
+	return false;
+}
+
+void Make_Food()
+{
+	while (true) {
+		fy = rand() % 15 + 1;
+		fx = rand() % 20 + 1;
+
+		bool chk = true;
+
+		for(int i = 0; i < length; i++)
+			if (snake[i][0] == fy && snake[i][1] == fx) {
+				chk = false;
+				break;
+			}
+
+		if (chk) {
+			Map[fy][fx] = FOOD;
+			break;
+		}
+	}
 }
 
 void Check_Key()
@@ -48,21 +81,27 @@ void Check_Key()
 
 		switch (key) {
 		case 224: // 방향키
+			key = _getch();
+
 			switch (key) {
 			case LEFT:
-				hDirection = LEFT;
+				if (hDirection != RIGHT)
+					hDirection = LEFT;
 
 				break;
 			case RIGHT:
-				hDirection = RIGHT;
+				if (hDirection != LEFT)
+					hDirection = RIGHT;
 
 				break;
 			case UP:
-				hDirection = UP;
+				if (hDirection != DOWN)
+					hDirection = UP;
 
 				break;
 			case DOWN:
-				hDirection = DOWN;
+				if (hDirection != UP)
+					hDirection = DOWN;
 
 				break;
 			default:
@@ -71,7 +110,8 @@ void Check_Key()
 
 			break;
 		case ESC: // 종료
-			printf("\n게임 종료\n");
+			Goto_XY(8, 7);
+			printf("게임 종료");
 			exit(0);
 			break;
 		}
@@ -80,7 +120,118 @@ void Check_Key()
 
 void forward()
 {
+	switch (hDirection) {
+	case LEFT:
+		if (!Check_Crush(snake[0][0], snake[0][1] - 1, LEFT)) {
+			if (fy == snake[0][0] && fx == snake[0][1] - 1) {
+				score++;
+				snake[length][0] = snake[length - 1][0];
+				snake[length][1] = snake[length - 1][1];
+				length++;
+				Make_Food();
+			}
+			else
+				Map[snake[length - 1][0]][snake[length - 1][1]] = EMPTY;
 
+			for (int i = length - 1; i > 0; i--) {
+				Map[snake[i][0]][snake[i][1]] = EMPTY;
+
+				snake[i][0] = snake[i - 1][0];
+				snake[i][1] = snake[i - 1][1];
+			}
+
+			for (int i = 1; i < length; i++)
+				Map[snake[i][0]][snake[i][1]] = BODY;
+
+			snake[0][1]--;
+			Map[snake[0][0]][snake[0][1]] = HEAD;
+		}
+
+		break;
+	case RIGHT:
+		if (!Check_Crush(snake[0][0], snake[0][1] + 1, RIGHT)) {
+			if (fy == snake[0][0] && fx == snake[0][1] + 1) {
+				score++;
+				snake[length][0] = snake[length - 1][0];
+				snake[length][1] = snake[length - 1][1];
+				length++;
+				Make_Food();
+			}
+			else
+				Map[snake[length - 1][0]][snake[length - 1][1]] = EMPTY;
+
+			for (int i = length - 1; i > 0; i--) {
+				Map[snake[i][0]][snake[i][1]] = EMPTY;
+
+				snake[i][0] = snake[i - 1][0];
+				snake[i][1] = snake[i - 1][1];
+			}
+
+			for (int i = 1; i < length; i++)
+				Map[snake[i][0]][snake[i][1]] = BODY;
+
+			snake[0][1]++;
+			Map[snake[0][0]][snake[0][1]] = HEAD;
+		}
+
+		break;
+	case UP:
+		if (!Check_Crush(snake[0][0] - 1, snake[0][1], UP)) {
+			if (fy == snake[0][0] - 1 && fx == snake[0][1]) {
+				score++;
+				snake[length][0] = snake[length - 1][0];
+				snake[length][1] = snake[length - 1][1];
+				length++;
+				Make_Food();
+			}
+			else
+				Map[snake[length - 1][0]][snake[length - 1][1]] = EMPTY;
+
+			for (int i = length - 1; i > 0; i--) {
+				Map[snake[i][0]][snake[i][1]] = EMPTY;
+
+				snake[i][0] = snake[i - 1][0];
+				snake[i][1] = snake[i - 1][1];
+			}
+
+			for (int i = 1; i < length; i++)
+				Map[snake[i][0]][snake[i][1]] = BODY;
+
+			snake[0][0]--;
+			Map[snake[0][0]][snake[0][1]] = HEAD;
+		}
+
+		break;
+	case DOWN:
+		if (!Check_Crush(snake[0][0] + 1, snake[0][1], DOWN)) {
+			if (fy == snake[0][0] + 1 && fx == snake[0][1]) {
+				score++;
+				snake[length][0] = snake[length - 1][0];
+				snake[length][1] = snake[length - 1][1];
+				length++;
+				Make_Food();
+			}
+			else
+				Map[snake[length - 1][0]][snake[length - 1][1]] = EMPTY;
+
+			for (int i = length - 1; i > 0; i--) {
+				Map[snake[i][0]][snake[i][1]] = EMPTY;
+
+				snake[i][0] = snake[i - 1][0];
+				snake[i][1] = snake[i - 1][1];
+			}
+
+			for (int i = 1; i < length; i++)
+				Map[snake[i][0]][snake[i][1]] = BODY;
+
+			snake[0][0]++;
+			Map[snake[0][0]][snake[0][1]] = HEAD;
+		}
+
+		break;
+	default:
+		break;
+	}
 }
 
 void Draw_Map()
@@ -104,6 +255,10 @@ void Draw_Map()
 				Goto_XY(col, row);
 				printf("○");
 				break;
+			case FOOD:
+				Goto_XY(col, row);
+				printf("♧");
+				break;
 			default:
 				break;
 			}
@@ -111,7 +266,7 @@ void Draw_Map()
 	}
 
 	Goto_XY(25, 10);
-	printf("★ score: %d", score);
+	printf("♧ score: %d", score);
 }
 
 int main(void)
@@ -129,19 +284,28 @@ int main(void)
 		for (int j = 1; j <= 20; j++)
 			Map[i][j] = EMPTY;
 
-	hy = 8;
-	hx = 7;
 	hDirection = RIGHT;
+	length = 5;
+
+	Map[snake[0][0]][snake[0][1]] = HEAD;
+
+	for (int i = 1; i < length; i++)
+		Map[snake[i][0]][snake[i][1]] = BODY;
+
+	Make_Food();
+
+	sleep_t = clock();
 
 	while (true) {
-		Draw_Map();
-		Check_Key();
-		forward();
+		int t = clock() - sleep_t;
 
-		if (Check_Game_Over()) {
-			printf("\n게임 오버\n");
-			break;
+		if (t > 400) {
+			forward();
+			Draw_Map();
+			sleep_t = clock();
 		}
+
+		Check_Key();
 	}
 
 	return 0;
