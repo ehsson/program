@@ -44,7 +44,7 @@ void CursorView()
 
 bool Check_Crush(int y, int x, int direction)
 {
-	if (Map[y][x] == WALL) {
+	if (Map[y][x] == WALL || Map[y][x] == BODY) {
 		Goto_XY(10, 7);
 		printf("쿵!");
 		exit(0);
