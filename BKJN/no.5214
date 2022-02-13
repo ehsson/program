@@ -1,15 +1,10 @@
-// memory limit code
-
 #include <iostream>
-#include <vector>
 #include <queue>
-#include <set>
+#include <vector>
 using namespace std;
 
-vector<int> v[100001];
-bool visit[100001];
-int input[1000];
-set<int> s[100001];
+bool visit[101001];
+vector<int> v[101001];
 
 int N, K, M;
 int answer = -1;
@@ -34,7 +29,11 @@ void BFS()
 			int next = v[cur][i];
 
 			if (!visit[next]) {
-				q.push({ next, cnt + 1 });
+				if (next > 100000)
+					q.push({ next, cnt });
+				else
+					q.push({ next, cnt + 1 });
+
 				visit[next] = true;
 			}
 		}
@@ -48,19 +47,13 @@ int main(void)
 	cout.tie(0);
 	cin >> N >> K >> M;
 
-	for (int m = 0; m < M; m++) {
+	for (int m = 1; m <= M; m++) {
 		for (int k = 0; k < K; k++) {
-			cin >> input[k];
+			int input;
+			cin >> input;
 
-			for (int i = 0; i < k; i++) {
-				if (s[input[k]].find(input[i]) == s[input[k]].end()) {
-					v[input[k]].push_back(input[i]);
-					v[input[i]].push_back(input[k]);
-
-					s[input[k]].insert(input[i]);
-					s[input[i]].insert(input[k]);
-				}
-			}
+			v[100000 + m].push_back(input);
+			v[input].push_back(100000 + m);
 		}
 	}
 
