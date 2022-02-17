@@ -1,0 +1,62 @@
+// fail code
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> v[100001];
+int depth[100001] = { 0, 1 };
+
+int N;
+
+void Find(int n1, int n2)
+{
+	if (depth[n1] < depth[n2])
+		swap(n1, n2);			// n1이 깊이 더 깊고 n2가 깊이 얕음
+
+	while (depth[n1] != depth[n2])
+		n1 = v[n1].front();
+
+	while (n1 != n2) {
+		n1 = v[n1].front();
+		n2 = v[n2].front();
+	}
+
+	cout << n1 << "\n";
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n < N; n++) {
+		int a, b;
+		cin >> a >> b;
+
+		if (depth[a]) {
+			v[b].push_back(a);
+			depth[b] = depth[a] + 1;
+		}
+		else if (depth[b]) {
+			v[a].push_back(b);
+			depth[a] = depth[b] + 1;
+		}
+	}
+
+	v[1].push_back(1);
+
+	int M;
+	cin >> M;
+
+	for (int m = 0; m < M; m++) {
+		int a, b;
+		cin >> a >> b;
+
+		Find(a, b);
+	}
+
+	return 0;
+}
