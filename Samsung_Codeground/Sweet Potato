@@ -1,0 +1,51 @@
+#include <iostream>
+#include <cstring>
+#include <set>
+using namespace std;
+
+typedef long long LL;
+
+LL input[300001];
+LL sum[300001];
+set<LL> s;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(input, 0, sizeof(input));
+		memset(sum, 0, sizeof(sum));
+		s.clear();
+		int N;
+		LL M;
+		cin >> N >> M;
+
+		for (int n = 1; n <= N; n++)
+			cin >> input[n];
+
+		set<LL>::iterator itr;
+		s.insert(0);
+		LL answer = 0;
+
+		for (int n = 1; n <= N; n++) {
+			sum[n] = sum[n - 1] + input[n];
+			itr = s.lower_bound(sum[n] - M);
+
+			if (itr != s.end())
+				answer = max(answer, sum[n] - *itr);
+
+			s.insert(sum[n]);
+		}
+
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
