@@ -1,0 +1,71 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int arr[1000001];
+int tmp[1000001];
+long long cnt;
+
+void merge(int start, int end)
+{
+	if (start >= end)
+		return;
+
+	int mid = (start + end) / 2;
+
+	merge(start, mid);
+	merge(mid + 1, end);
+
+	int left = start;
+	int right = mid + 1;
+	int idx = start;
+
+	while (left <= mid || right <= end) {
+		if (arr[left] < arr[right])
+			tmp[idx++] = arr[left++];
+		else {
+			cnt += mid - left + 1;
+			tmp[idx++] = arr[right++];
+		}
+
+		if (left == mid + 1 && right <= end) {
+			while (right <= end)
+				tmp[idx++] = arr[right++];
+		}
+
+		if (right == end + 1 && left <= mid) {
+			while (left <= mid)
+				tmp[idx++] = arr[left++];
+		}
+	}
+
+	for (int i = start; i <= end; i++)
+		arr[i] = tmp[i];
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		cnt = 0;
+		memset(arr, 0, sizeof(arr));
+		memset(tmp, 0, sizeof(tmp));
+		int N;
+		cin >> N;
+
+		for (int n = 1; n <= N; n++)
+			cin >> arr[n];
+
+		merge(1, N);
+
+		cout << "Case #" << tc << "\n";
+		cout << cnt << "\n";
+	}	
+
+	return 0;
+}
