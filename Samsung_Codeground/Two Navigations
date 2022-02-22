@@ -1,0 +1,116 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <queue>
+using namespace std;
+
+vector<pair<int, int>> android[10001];
+vector<pair<int, int>> iphone[10001];
+vector<int> P_trace[10001];
+vector<int> Q_trace[10001];
+int dp[10001];
+
+int N, M;
+
+void dijkstra(vector<pair<int, int>> v[], vector<int> trace[])
+{
+	priority_queue<pair<int, int>> pq;
+	pq.push({ 0, N });
+
+	while (!pq.empty()) {
+		int cost_sum = -pq.top().first;
+		int cur = pq.top().second;
+		pq.pop();
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int cost = v[cur][i].second + cost_sum;
+
+			if (dp[next] > cost) {
+				dp[next] = cost;
+				pq.push({ -cost, next });
+
+				trace[next].clear();
+				trace[next].push_back(cur);
+			}
+			else if (dp[next] == cost) {
+				pq.push({ -cost, next });
+				trace[next].push_back(cur);
+			}
+		}
+	}
+}
+
+void start()
+{
+	priority_queue<pair<int, int>> pq;
+	pq.push({ 0, N });
+
+	while (!pq.empty()) {
+		int cnt_sum = -pq.top().first;
+		int cur = pq.top().second;
+		pq.pop();
+
+		for (int i = 0; i < android[cur].size(); i++) {
+			int next = android[cur][i].first;
+			int cnt = 0;
+
+			if (!binary_search(P_trace[next].begin(), P_trace[next].end(), cur))
+				cnt++;
+
+			if (!binary_search(Q_trace[next].begin(), Q_trace[next].end(), cur))
+				cnt++;
+
+			if (dp[next] > cnt_sum + cnt) {
+				dp[next] = cnt_sum + cnt;
+				pq.push({ -(cnt_sum + cnt), next });
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		for (int i = 1; i <= 10000; i++) {
+			android[i].clear();
+			iphone[i].clear();
+			P_trace[i].clear();
+			Q_trace[i].clear();
+		}
+
+		cin >> N >> M;
+
+		for (int m = 0; m < M; m++) {
+			int a, b, p, q;
+			cin >> a >> b >> p >> q;
+
+			android[b].push_back({ a, p });
+			iphone[b].push_back({ a, q });
+		}
+
+		for (int i = 1; i <= N; i++)
+			dp[i] = 1000000000;
+		dijkstra(android, P_trace);
+
+		for (int i = 1; i <= N; i++)
+			dp[i] = 1000000000;
+		dijkstra(iphone, Q_trace);
+
+
+		for (int i = 1; i <= N; i++)
+			dp[i] = 20000;
+		start();
+
+		cout << "#testcase" << tc << "\n";
+		cout << dp[1] << "\n";
+	}
+
+	return 0;
+}
