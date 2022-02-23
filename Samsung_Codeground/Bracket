@@ -1,0 +1,76 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <vector>
+using namespace std;
+
+vector<pair<char, int>> v;
+bool chk[1000000];
+
+char Get_Pair(char c)
+{
+	switch (c) {
+	case '(':
+		return ')';
+		break;
+	case '{':
+		return '}';
+		break;
+	case '[':
+		return ']';
+		break;
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		v.clear();
+		memset(chk, false, sizeof(chk));
+		string s;
+		cin >> s;
+
+		for (int i = 0; i < s.size(); i++) {
+			if (s[i] == '(' || s[i] == '{' || s[i] == '[')
+				v.push_back({ s[i], i });
+			else {
+				if (!v.empty()) {
+					char c = Get_Pair(v.back().first);
+
+					if (c == s[i]) {
+						chk[i] = true;
+						chk[v.back().second] = true;
+						v.pop_back();
+					}
+					else
+						v.clear();
+				}
+			}
+		}
+
+		int answer = 0;
+		int cnt = 0;
+
+		for (int i = 0; i < s.size(); i++) {
+			if (chk[i])
+				cnt++;
+			else {
+				answer = max(answer, cnt);
+				cnt = 0;
+			}
+		}
+
+		answer = max(answer, cnt);
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
