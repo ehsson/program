@@ -1,0 +1,42 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+int arr[200000];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(arr, false, sizeof(arr));
+		int N, K;
+		cin >> N >> K;
+
+		for (int i = 0; i < N; i++)
+			cin >> arr[i];
+
+		sort(arr, arr + N);
+
+		int answer = 0;
+		int j = 0;
+
+		for (int i = 0; i < N; i++) {
+			while (j < N && arr[j] - arr[i] <= K)
+				j++;
+
+			answer = max(answer, j - i);
+		}
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
