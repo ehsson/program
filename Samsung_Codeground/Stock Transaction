@@ -1,0 +1,47 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+#define MAX 1000000000
+
+int arr[200000];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(arr, 0, sizeof(arr));
+		int N;
+		cin >> N;
+
+		for (int i = 0; i < N; i++)
+			cin >> arr[i];
+
+		int answer = 0;
+		bool chk = false;
+
+		for (int i = 1; i < N; i++) {
+			if (arr[i] > arr[i - 1])
+				chk = true;
+			else if (arr[i] < arr[i - 1]) {
+				if (chk) {
+					answer += 2;
+					chk = false;
+				}
+			}
+		}
+
+		if (chk)
+			answer += 2;
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
