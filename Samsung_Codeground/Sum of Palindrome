@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+bool chk[10001] = { true, true, true, true, true, true, true, true, true, true };
+vector<int> v;
+
+bool Palindrome(int num)
+{
+	int arr[5];
+	int idx = 0;
+
+	while (num != 0) {
+		arr[idx++] = num % 10;
+		num /= 10;
+	}
+
+	for (int i = 0; i < idx / 2; i++) {
+		if (arr[i] != arr[idx - i - 1])
+			return false;
+	}
+
+	return true;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int n = 10; n <= 10000; n++)
+		chk[n] = Palindrome(n);
+
+	for (int tc = 1; tc <= T; tc++) {
+		v.clear();
+		int N;
+		cin >> N;
+
+		if (N / 10 == 0 || chk[N]) {
+			cout << "Case #" << tc << "\n";
+			cout << "1 " << N << "\n";
+			continue;
+		}
+
+		for (int i = N; i >= (int)(N / 3); i--) {
+			if (chk[i]) {
+				if (chk[N - i]) { // 2개 짜리
+					v.clear();
+					v.push_back(i);
+					v.push_back(N - i);
+					break;
+				}
+				else {
+					for (int j = N - i - 1; j >= (int)((N - i) / 2); j--) {
+						if (chk[j] && chk[N - i - j]) { // 3개 짜리
+							v.clear();
+							v.push_back(i);
+							v.push_back(j);
+							v.push_back(N - i - j);
+						}
+					}
+				}
+			}
+		}
+
+		cout << "Case #" << tc << "\n";
+		cout << v.size() << " ";
+		for (int i = 0; i < v.size(); i++)
+			cout << v[i] << " ";
+		cout << "\n";
+	}
+
+	return 0;
+}
