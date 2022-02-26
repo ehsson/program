@@ -1,13 +1,14 @@
-// fail code
-
 #include <iostream>
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <set>
+#include <queue>
 using namespace std;
 
-int cnt[200001];
-vector<int> v[200001];
+vector<set<int>> vs[200001];
+set<int> s[200001];
+queue<int> q;
 
 int main(void)
 {
@@ -18,7 +19,8 @@ int main(void)
 	cin >> T;
 
 	for (int tc = 1; tc <= T; tc++) {
-		memset(cnt, 0, sizeof(cnt));
+		while (!q.empty())
+			q.pop();
 		int N, M;
 		cin >> N >> M;
 
@@ -26,44 +28,48 @@ int main(void)
 			int a, b;
 			cin >> a >> b;
 
-			v[a].push_back(b);
-			v[b].push_back(a);
-			cnt[a]++;
-			cnt[b]++;
+			s[a].insert(b);
+			s[b].insert(a);
 		}
 
 		for (int i = 1; i <= N; i++)
-			sort(v[i].begin(), v[i].end());
+			if (s[i].size() == 2)
+				q.push(i);
 
-		bool flag = true;
-		int answer = N;
+		while (!q.empty()) {
+			int cur = q.front();
+			q.pop();
 
-		while (flag) {
-			flag = false;
+			if (s[cur].size() != 2)
+				continue;
 
-			for (int i = 1; i <= N; i++) {
-				if (cnt[i] == 2) {
-					int first = v[i][0];
-					int second = v[i][1];
+			int first = *s[cur].begin();
+			int second = *s[cur].rbegin();
 
-					if(cnt[first] >= 2 && cnt[second] >= 2 && 
-						binary_search(v[first].begin(), v[first].end(), second) &&
-						binary_search(v[second].begin(), v[second].end(), first)) {
-						flag = true;
-						cnt[i] = 0;
-						cnt[first]--;
-						cnt[second]--;
-						answer--;
-					}
-				}
+			if (s[first].count(second) && s[second].count(first)) {
+				s[cur].clear();
+				s[first].erase(cur);
+				s[second].erase(cur);
+
+				if (s[first].size() == 2)
+					q.push(first);
+
+				if (s[second].size() == 2)
+					q.push(second);
 			}
+		}
+
+		int answer = 0;
+
+		for (int i = 1; i <= N; i++) {
+			if (s[i].size() > 0)
+				answer++;
+
+			s[i].clear();
 		}
 
 		cout << "Case #" << tc << "\n";
 		cout << answer << "\n";
-
-		for (int i = 1; i <= N; i++)
-			v[i].clear();
 	}
 
 	return 0;
