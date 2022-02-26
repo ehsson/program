@@ -1,0 +1,70 @@
+// fail code
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+int cnt[200001];
+vector<int> v[200001];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(cnt, 0, sizeof(cnt));
+		int N, M;
+		cin >> N >> M;
+
+		for (int m = 0; m < M; m++) {
+			int a, b;
+			cin >> a >> b;
+
+			v[a].push_back(b);
+			v[b].push_back(a);
+			cnt[a]++;
+			cnt[b]++;
+		}
+
+		for (int i = 1; i <= N; i++)
+			sort(v[i].begin(), v[i].end());
+
+		bool flag = true;
+		int answer = N;
+
+		while (flag) {
+			flag = false;
+
+			for (int i = 1; i <= N; i++) {
+				if (cnt[i] == 2) {
+					int first = v[i][0];
+					int second = v[i][1];
+
+					if(cnt[first] >= 2 && cnt[second] >= 2 && 
+						binary_search(v[first].begin(), v[first].end(), second) &&
+						binary_search(v[second].begin(), v[second].end(), first)) {
+						flag = true;
+						cnt[i] = 0;
+						cnt[first]--;
+						cnt[second]--;
+						answer--;
+					}
+				}
+			}
+		}
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+
+		for (int i = 1; i <= N; i++)
+			v[i].clear();
+	}
+
+	return 0;
+}
