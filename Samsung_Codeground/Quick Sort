@@ -1,0 +1,46 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int arr[200000];
+int dp[200000];
+int rdp[200000];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(arr, 0, sizeof(arr));
+		int N;
+		cin >> N;
+
+		for (int i = 0; i < N; i++)
+			cin >> arr[i];
+
+		dp[0] = arr[0];
+
+		for (int i = 1; i < N; i++)
+			dp[i] = max(arr[i - 1], dp[i - 1]);
+
+		rdp[N - 1] = arr[N - 1];
+
+		for (int i = N - 2; i >= 0; i--)
+			rdp[i] = min(arr[i + 1], rdp[i + 1]);
+
+		int answer = 0;
+
+		for (int i = 0; i < N; i++)
+			if (arr[i] >= dp[i] && arr[i] <= rdp[i])
+				answer++;
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
