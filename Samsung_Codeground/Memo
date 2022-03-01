@@ -1,0 +1,78 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+#define INF 2147483647
+
+typedef struct Data {
+	int y, h;
+
+	bool operator<(const Data& r) const
+	{
+		return y < r.y;
+	}
+} Data;
+
+Data arr[10001];
+int dp[2][10001];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int tc = 1; tc <= T; tc++) {
+		memset(arr, 0, sizeof(arr));
+		memset(dp, 0, sizeof(dp));
+
+		int N;
+		cin >> N;
+
+		for (int i = 1; i <= N; i++) {
+			int x;
+			cin >> x >> arr[i].y >> arr[i].h;
+		}
+
+		sort(arr + 1, arr + N + 1);
+
+		dp[0][0] = -INF;
+
+		for (int i = 1; i <= N; i++)
+			dp[0][i] = INF;
+
+		int p = 0, pp = 1;
+
+		for (int i = 1; i <= N; i++) {
+			p ^= 1;
+			pp ^= 1;
+
+			for (int j = 0; j <= i; j++) {
+				dp[p][j] = INF;
+
+				if (dp[pp][j] < INF && dp[pp][j] <= arr[i].y)
+					dp[p][j] = max(arr[i].y, dp[pp][j] + arr[i].h);
+
+				if (j > 0 && dp[pp][j - 1] < INF)
+					dp[p][j] = min(dp[p][j], dp[pp][j - 1] + arr[i].h);
+			}
+		}
+
+		int answer = 0;
+
+		for (int i = 0; i <= N; i++) {
+			if (dp[N % 2][i] < INF) {
+				answer = i;
+				break;
+			}
+		}
+
+		cout << "Case #" << tc << "\n";
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
