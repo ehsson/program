@@ -1,0 +1,62 @@
+// fail code
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<pair<int, int>> v[100001];
+bool visit[100001];
+
+int _max;
+
+void DFS(int node, int sum)
+{
+	_max = max(_max, sum);
+
+	for (int i = 0; i < v[node].size(); i++) {
+		int next = v[node][i].first;
+
+		if (!visit[next]) {
+			visit[next] = true;
+			DFS(next, sum + v[node][i].second);
+			visit[next] = false;
+		}
+	}
+}
+
+int main(void)
+{
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int V;
+	cin >> V;
+
+	for (int i = 1; i <= V; i++) {
+		cin >> i;
+
+		while (true) {
+			int in, dis;
+			cin >> in;
+
+			if (in == -1)
+				break;
+
+			cin >> dis;
+
+			v[i].push_back({ in, dis });
+		}
+	}
+
+	for (int i = 1; i <= V; i++) {
+		visit[i] = true;
+		DFS(i, 0);
+		visit[i] = false;
+	}
+
+	cout << _max << "\n";
+
+	return 0;
+}
