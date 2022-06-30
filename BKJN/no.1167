@@ -1,4 +1,4 @@
-// fail code
+// fail code1
 
 #include <iostream>
 #include <vector>
@@ -26,8 +26,6 @@ void DFS(int node, int sum)
 
 int main(void)
 {
-	FILE* pf;
-	freopen_s(&pf, "input.txt", "r", stdin);
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
@@ -57,6 +55,81 @@ int main(void)
 	}
 
 	cout << _max << "\n";
+
+	return 0;
+}
+
+// fail code2
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+vector<pair<int, int>> v[100001];
+bool visit[100001];
+
+int _max[2];
+int y;
+
+void BFS(int node, int idx)
+{
+	queue<pair<int, int>> q;
+	q.push({ node, 0 });
+	visit[node] = true;
+
+	while (!q.empty()) {
+		int cur = q.front().first;
+		int dis_sum = q.front().second;
+		q.pop();
+
+		if (_max[idx] < dis_sum) {
+			_max[idx] = dis_sum;
+			y = cur;
+		}
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int dis = v[cur][i].second;
+
+			if (!visit[next]) {
+				visit[next] = true;
+				q.push({ next, dis_sum + dis });
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int V;
+	cin >> V;
+
+	for (int i = 1; i <= V; i++) {
+		cin >> i;
+
+		while (true) {
+			int in, dis;
+			cin >> in;
+
+			if (in == -1)
+				break;
+
+			cin >> dis;
+
+			v[i].push_back({ in, dis });
+		}
+	}
+
+	BFS(1, 0);
+	memset(visit, false, sizeof(visit));
+	BFS(y, 1);
+
+	cout << _max[1] << "\n";
 
 	return 0;
 }
