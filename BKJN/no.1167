@@ -1,5 +1,3 @@
-// fail code1
-
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -7,18 +5,23 @@ using namespace std;
 vector<pair<int, int>> v[100001];
 bool visit[100001];
 
+int y;
 int _max;
 
 void DFS(int node, int sum)
 {
-	_max = max(_max, sum);
+	if (_max < sum) {
+		_max = sum;
+		y = node;
+	}
 
 	for (int i = 0; i < v[node].size(); i++) {
 		int next = v[node][i].first;
+		int dis = v[node][i].second;
 
 		if (!visit[next]) {
 			visit[next] = true;
-			DFS(next, sum + v[node][i].second);
+			DFS(next, sum + dis);
 			visit[next] = false;
 		}
 	}
@@ -32,13 +35,14 @@ int main(void)
 	int V;
 	cin >> V;
 
-	for (int i = 1; i <= V; i++) {
+	for (int k = 1; k <= V; k++) {
+		int i;
 		cin >> i;
 
 		while (true) {
 			int in, dis;
 			cin >> in;
-
+					
 			if (in == -1)
 				break;
 
@@ -48,88 +52,15 @@ int main(void)
 		}
 	}
 
-	for (int i = 1; i <= V; i++) {
-		visit[i] = true;
-		DFS(i, 0);
-		visit[i] = false;
-	}
+	visit[1] = true;
+	DFS(1, 0);
+	visit[1] = false;
+
+	_max = 0;
+	visit[y] = true;
+	DFS(y, 0);
 
 	cout << _max << "\n";
-
-	return 0;
-}
-
-// fail code2
-
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <cstring>
-using namespace std;
-
-vector<pair<int, int>> v[100001];
-bool visit[100001];
-
-int _max[2];
-int y;
-
-void BFS(int node, int idx)
-{
-	queue<pair<int, int>> q;
-	q.push({ node, 0 });
-	visit[node] = true;
-
-	while (!q.empty()) {
-		int cur = q.front().first;
-		int dis_sum = q.front().second;
-		q.pop();
-
-		if (_max[idx] < dis_sum) {
-			_max[idx] = dis_sum;
-			y = cur;
-		}
-
-		for (int i = 0; i < v[cur].size(); i++) {
-			int next = v[cur][i].first;
-			int dis = v[cur][i].second;
-
-			if (!visit[next]) {
-				visit[next] = true;
-				q.push({ next, dis_sum + dis });
-			}
-		}
-	}
-}
-
-int main(void)
-{
-	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
-	int V;
-	cin >> V;
-
-	for (int i = 1; i <= V; i++) {
-		cin >> i;
-
-		while (true) {
-			int in, dis;
-			cin >> in;
-
-			if (in == -1)
-				break;
-
-			cin >> dis;
-
-			v[i].push_back({ in, dis });
-		}
-	}
-
-	BFS(1, 0);
-	memset(visit, false, sizeof(visit));
-	BFS(y, 1);
-
-	cout << _max[1] << "\n";
 
 	return 0;
 }
