@@ -1,0 +1,58 @@
+#include <iostream>
+using namespace std;
+
+typedef long long LL;
+LL arr[1000001];
+LL tree[1000000 * 4];
+
+LL sum(int start, int end, int node, int left, int right)
+{
+	if (start > right || end < left)
+		return 0;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+	LL l_val = sum(start, mid, node * 2, left, right);
+	LL r_val = sum(mid + 1, end, node * 2 + 1, left, right);
+
+	return l_val + r_val;
+}
+
+void update(int start, int end, int node, LL diff, int idx)
+{
+	if (idx < start || idx > end)
+		return;
+
+	tree[node] += diff;
+
+	if (start < end) {
+		int mid = (start + end) / 2;
+		update(start, mid, node * 2, diff, idx);
+		update(mid + 1, end, node * 2 + 1, diff, idx);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, Q;
+	cin >> N >> Q;
+
+	for (int i = 0; i < Q; i++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+
+		if (a == 1) {
+			arr[b] += c;
+			update(1, N, 1, c, b);
+		}
+		else if (a == 2)
+			cout << sum(1, N, 1, b, c) << "\n";
+	}
+
+	return 0;
+}
