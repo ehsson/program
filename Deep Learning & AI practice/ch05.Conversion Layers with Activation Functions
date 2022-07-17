@@ -1,0 +1,34 @@
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.keras.layers import Conv2D
+
+N, n_H, n_W, n_C = 1, 5, 5, 3
+n_filter = 3
+k_size = 4
+
+images = tf.random.uniform(shape = (N, n_H, n_W, n_C))
+
+# Forward Propagation(Tensorflow)
+conv = Conv2D(filters = n_filter, kernel_size = k_size, activation = 'sigmoid')
+Y = conv(images)
+Y = np.transpose(Y.numpy().squeeze(), (2, 0, 1))
+print("Y(Tensorflow): \n{}".format(Y))
+
+# Forward Propagation(Manual)
+W, B = conv.get_weights()
+
+Y_man = np.zeros(shape = (N, n_H - k_size + 1, n_W - k_size + 1, n_filter))
+
+for c in range(n_filter):
+  c_W = W[:, :, :, c]
+  c_B = B[c]
+
+  for h in range(n_H - k_size + 1):
+    for w in range(n_W - k_size + 1):
+     window = images[h : h + k_size, w : w + k_size, :]
+     conv = np.sum(window * c_W) + c_B
+     conv = 1 / (1 + np.exp(-conv))
+     Y_man[h, w, c] = conv
+
+print("Y(Manual): \n", np.transpose(Y_man, (2, 0, 1)))
