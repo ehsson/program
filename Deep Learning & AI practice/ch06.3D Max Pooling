@@ -1,0 +1,37 @@
+import numpy as np
+import tensorflow as tf
+import math
+
+from tensorflow.keras.layers import MaxPooling2D
+
+N, n_H, n_W, n_C = 1, 5, 5, 3
+f, s = 2, 2
+
+x = tf.random.normal(shape = (N, n_H, n_W, n_C))
+
+pool_max = MaxPooling2D(pool_size = f, strides = s)
+pooled_max = pool_max(x)
+
+pooled_max_t = np.transpose(pooled_max.numpy().squeeze(), (2, 0, 1))
+print("pooled_max(Tensorflow): {}\n{}".format(pooled_max.shape, pooled_max_t))
+
+######
+x.numpy().squeeze()
+n_H_ = math.floor((n_H - f) / s + 1)
+n_W_ = math.floor((n_W - f) / s + 1)
+pooled_max_man = np.zeros(shape = (n_H_, n_W_, n_C))
+
+for c in range(n_C):
+  c_image = x[:, :, c]
+
+  h_ = 0
+  for h in range(0, n_H - f + 1, s):
+    w_ = 0
+    for w in range(0, n_W - f + 1, s):
+      window = c_image[h:h + f, w:w + f]
+      pooled_max_man[h_, w_, c] = np.max(window)
+      w_ += 1
+    h_ += 1
+
+pooled_max_t = np.transpose(pooled_max_man, (2, 0, 1))
+print("pooled_max(Manual): {}\n{}".format(pooled_max_man.shape, pooled_max_t))
