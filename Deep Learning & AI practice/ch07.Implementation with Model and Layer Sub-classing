@@ -1,0 +1,41 @@
+import tensorflow as tf
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dense
+
+class MyConv(Layer):
+  def __init__(self, n_neuron):
+    super(MyConv, self).__init__()
+
+    self.conv = Conv2D(filters = n_neuron, kernel_size = k_size, padding = padding, activation = activation)
+    self.conv_pool = MaxPooling2D(pool_size = pool_size, strides = pool_strides)
+
+  def call(self, x):
+    x = self.conv(x)
+    x = self.conv_pool(x)
+    return x
+
+class TestCNN(Model):
+  def __init__(self):
+    super(TestCNN, self).__init__()
+
+    self.fe = Sequential()
+    self.fe.add(MyConv(n_conv_neurons[0]))
+    self.fe.add(MyConv(n_conv_neurons[1]))
+    self.fe.add(MyConv(n_conv_neurons[2]))
+    self.fe.add(Flatten())
+
+    self.classifier = Sequential()
+    self.classifier.add(Dense(units = n_dense_neurons[0], activation = activation))
+    self.classifier.add(Dense(units = n_dense_neurons[1], activation = activation))
+    self.classifier.add(Dense(units = n_dense_neurons[2], activation = 'softmax'))
+
+  def call(self, x):
+    x = self.fe(x)
+    x = self.classifier(x)
+    return x
