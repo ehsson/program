@@ -1,0 +1,272 @@
+from google.colab import drive
+drive.mount("/content/drive")
+
+import os
+import sys
+sys.path.append("/content/drive/MyDrive/#fastcampus")
+drive_project_root = "/content/drive/MyDrive/#fastcampus"
+!pip install -r "/content/drive/MyDrive/#fastcampus/requirements.txt"
+
+
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+import tensorflow as tf
+
+
+with mirrored_strategy.scope():
+  # 데이터 셋 정의
+  fashion_mnist = tf.keras.datasets.fashion_mnist
+  (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+
+  # normalization
+  x_train = x_train / 255.0
+  x_test = x_test / 255.0
+
+  # train/val splits
+  train_size = int(len(x_train) * 0.9)
+  val_size = len(x_train) - train_size
+
+  dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(buffer_size = 1024)
+  test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).shuffle(buffer_size = 1024)
+
+  train_dataset = dataset.take(train_size)
+  val_dataset = dataset.skip(train_size)
+  print(len(train_dataset), len(val_dataset), len(dataset), len(test_dataset))
+
+  # dataloader 정의
+  train_batch_size = 100
+  val_batch_size = 10
+  test_batch_size = 100
+
+  train_dataloader = train_dataset.batch(train_batch_size, drop_remainder = True)
+  val_dataloader = val_dataset.batch(val_batch_size, drop_remainder = True)
+  test_dataloader = test_dataset.batch(test_batch_size, drop_remainder = True)
+
+sample_example = next(iter(train_dataloader))
+print(sample_example)
+
+
+# plot figure
+plt.figure(figsize = (10, 10))
+
+for c in range(16):
+  plt.subplot(4, 4, c + 1)
+  plt.imshow(x_train[c].reshape(28, 28), cmap = 'gray')
+plt.show()
+
+
+class MLP(tf.keras.Model):
+  def __init__(self, input_dim: int, h1_dim: int, h2_dim: int, out_dim: int):
+    super().__init__()
+    self.flatten = tf.keras.layers.Flatten()
+    self.linear1 = tf.keras.layers.Dense(input_dim = input_dim, units = h1_dim)
+    self.linear2 = tf.keras.layers.Dense(units = h2_dim)
+    self.linear3 = tf.keras.layers.Dense(units = out_dim)
+    self.relu = tf.nn.relu
+
+  def call(self, input, training = False):
+    x = self.flatten(input)
+    x = self.relu(self.linear1(x))
+    x = self.relu(self.linear2(x))
+    out = self.linear3(x)
+    out = tf.nn.softmax(out)
+    return out
+
+  def train_step(self, data):
+    images, labels = data
+
+    with tf.GradientTape() as tape:
+      outputs = self(images, training = True)
+      preds = tf.argmax(outputs, 1)
+
+      loss = self.compiled_loss(labels, outputs)
+
+    # compute gradients
+    trainable_vars = self.trainable_variables
+    gradients = tape.gradient(loss, trainable_vars)
+
+    # update weights
+    self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+  def test_step(self, data):
+    images, labels = data
+    outputs = self(images, training = False)
+    preds = tf.argmax(outputs, 1)
+    loss = self.compiled_loss(labels, outputs)
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+
+
+class MLPWithDropout(tf.keras.Model):
+  def __init__(self, input_dim: int, h1_dim: int, h2_dim: int, out_dim: int, dropout_prob: float):
+    super().__init__()
+    self.flatten = tf.keras.layers.Flatten()
+    self.linear1 = tf.keras.layers.Dense(input_dim = input_dim, units = h1_dim)
+    self.linear2 = tf.keras.layers.Dense(units = h2_dim)
+    self.linear3 = tf.keras.layers.Dense(units = out_dim)
+    self.dropout = tf.keras.layers.Dropout(dropout_prob)
+    self.relu = tf.nn.relu
+
+  def call(self, input, training = False):
+    x = self.flatten(input)
+    x = self.relu(self.linear1(x))
+    x = self.dropout(x, training = training)
+    x = self.relu(self.linear2(x))
+    x = self.dropout(x, training = training)
+    out = self.linear3(x)
+    out = tf.nn.softmax(out)
+    return out
+
+  def train_step(self, data):
+    images, labels = data
+
+    with tf.GradientTape() as tape:
+      outputs = self(images, training = True)
+      preds = tf.argmax(outputs, 1)
+
+      loss = self.compiled_loss(labels, outputs)
+
+    # compute gradients
+    trainable_vars = self.trainable_variables
+    gradients = tape.gradient(loss, trainable_vars)
+
+    # update weights
+    self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+  def test_step(self, data):
+    images, labels = data
+    outputs = self(images, training = False)
+    preds = tf.argmax(outputs, 1)
+    loss = self.compiled_loss(labels, outputs)
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs   
+
+
+
+# 모델 정의
+n_class = 10
+max_epoch = 50
+
+with mirrored_strategy.scope():
+  #model = MLP(28 * 28 * 1, 128, 64, n_class)
+  model = MLPWithDropout(28 * 28 * 1, 128, 64, n_class, dropout_prob = 0.3)
+  model_name = type(model).__name__
+
+  # define loss
+  loss_function = tf.losses.SparseCategoricalCrossentropy()
+
+  # define optimizer
+  lr = 1e-3
+  optimizer = tf.optimizers.Adam(learning_rate = lr)
+
+  model.compile(
+      loss = loss_function,
+      optimizer = optimizer,
+      metrics = [tf.keras.metrics.Accuracy()],
+  )
+
+  model.build((1, 28 * 28 * 1))
+model.summary()
+
+
+# define logging & callbacks
+log_interval = 100
+run_name = f"{datetime.now()}-{model_name}"
+run_dirname = "dnn-tutorial-fashion-mnist-runs-tf"
+log_dir = os.path.join(drive_project_root, "runs", run_dirname, run_name)
+!ls /content/drive/MyDrive/#fastcampus/runs/
+tb_callback = tf.keras.callbacks.TensorBoard(
+    log_dir, update_freq = log_interval
+)
+
+early_stop_callback = tf.keras.callbacks.EarlyStopping(patience = 5, verbose = True)
+
+
+
+%load_ext tensorboard
+%tensorboard --logdir /content/drive/MyDrive/\#fastcampus/runs/
+
+model.fit(
+    train_dataloader,
+    validation_data = val_dataloader,
+    epochs = max_epoch,
+    callbacks = [tb_callback, early_stop_callback]
+)
+
+
+model.evaluate(test_dataloader)
+
+test_labels_list = []
+test_preds_list = []
+test_outputs_list = []
+
+for i, (test_images, test_labels) in enumerate(tqdm(test_dataloader, position = 0, leave = True, desc = "testing")):
+  with mirrored_strategy.scope():
+    test_outputs = model(test_images)
+  test_preds = tf.argmax(test_outputs, 1)
+
+  final_outs = test_outputs.numpy()
+  test_outputs_list.extend(final_outs)
+  test_preds_list.extend(test_preds.numpy())
+  test_labels_list.extend(test_labels.numpy())
+
+test_preds_list = np.array(test_preds_list)
+test_labels_list = np.array(test_labels_list)
+
+test_accuracy = np.mean(test_preds_list == test_labels_list)
+print(f"\nacc: {test_accuracy * 100}%")
+
+
+
+# ROC curve
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+
+fpr = {}
+tpr = {}
+thresh = {}
+n_class = 10
+
+for i in range(n_class):
+  fpr[i], tpr[i], thresh[i] = roc_curve(test_labels_list, np.array(test_outputs_list)[:, i], pos_label = i)
+
+# plot
+for i in range(n_class):
+  plt.plot(fpr[i], tpr[i], linestyle = "--", label = f"Class {i} vs Rest")
+
+plt.title("Multi-class ROC curve")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.legend(loc = "best")
+plt.show()
+
+auc_score = roc_auc_score(test_labels_list, test_outputs_list, multi_class = "ovo", average = 'macro')
+print(f"auc_score: {auc_score}")
