@@ -1,0 +1,600 @@
+from google.colab import drive
+drive.mount("/content/drive")
+
+import os
+import sys
+sys.path.append("/content/drive/MyDrive/#fastcampus")
+drive_project_root = "/content/drive/MyDrive/#fastcampus"
+!pip install -r "/content/drive/MyDrive/#fastcampus/requirements.txt"
+
+
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+from omegaconf import OmegaConf
+from omegaconf import DictConfig
+from datetime import datetime
+import hydra
+from hydra.core.config_store import ConfigStore
+
+import tensorflow as tf
+import tensorflow_addons as tfa
+!pip install wandb
+!wandb login
+import wandb
+
+
+from config_utils_tf import flatten_dict
+from config_utils_tf import register_config
+from config_utils_tf import get_optimizer_element
+from config_utils_tf import get_callbacks
+
+
+class MLP(tf.keras.Model):
+  def __init__(self, cfg: DictConfig):
+    super().__init__()
+    self.flatten = tf.keras.layers.Flatten()
+    self.linear1 = tf.keras.layers.Dense(input_dim = cfg.input_dim, units = cfg.h1_dim)
+    self.linear2 = tf.keras.layers.Dense(units = cfg.h2_dim)
+    self.linear3 = tf.keras.layers.Dense(units = cfg.out_dim)
+    self.relu = tf.nn.relu
+
+  def call(self, input, training = False):
+    x = self.flatten(input)
+    x = self.relu(self.linear1(x))
+    x = self.relu(self.linear2(x))
+    out = self.linear3(x)
+    out = tf.nn.softmax(out)
+    return out
+
+  def train_step(self, data):
+    images, labels = data
+
+    with tf.GradientTape() as tape:
+      outputs = self(images, training = True)
+      preds = tf.argmax(outputs, 1)
+
+      loss = self.compiled_loss(labels, outputs)
+
+    # compute gradients
+    trainable_vars = self.trainable_variables
+    gradients = tape.gradient(loss, trainable_vars)
+
+    # update weights
+    self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+  def test_step(self, data):
+    images, labels = data
+    outputs = self(images, training = False)
+    preds = tf.argmax(outputs, 1)
+    loss = self.compiled_loss(labels, outputs)
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+
+
+class MLPWithDropout(tf.keras.Model):
+  def __init__(self, cfg: DictConfig):
+    super().__init__()
+    self.flatten = tf.keras.layers.Flatten()
+    self.linear1 = tf.keras.layers.Dense(input_dim = cfg.input_dim, units = cfg.h1_dim)
+    self.linear2 = tf.keras.layers.Dense(units = cfg.h2_dim)
+    self.linear3 = tf.keras.layers.Dense(units = cfg.out_dim)
+    self.dropout = tf.keras.layers.Dropout(cfg.dropout_prob)
+    self.relu = tf.nn.relu
+
+  def call(self, input, training = False):
+    x = self.flatten(input)
+    x = self.relu(self.linear1(x))
+    x = self.dropout(x, training = training)
+    x = self.relu(self.linear2(x))
+    x = self.dropout(x, training = training)
+    out = self.linear3(x)
+    out = tf.nn.softmax(out)
+    return out
+
+  def train_step(self, data):
+    images, labels = data
+
+    with tf.GradientTape() as tape:
+      outputs = self(images, training = True)
+      preds = tf.argmax(outputs, 1)
+
+      loss = self.compiled_loss(labels, outputs)
+
+    # compute gradients
+    trainable_vars = self.trainable_variables
+    gradients = tape.gradient(loss, trainable_vars)
+
+    # update weights
+    self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs
+
+  def test_step(self, data):
+    images, labels = data
+    outputs = self(images, training = False)
+    preds = tf.argmax(outputs, 1)
+    loss = self.compiled_loss(labels, outputs)
+
+    # update metrics
+    self.compiled_metrics.update_state(labels, preds)
+
+    # return a dict mapping metrics names to current values
+    logs = {m.name: m.result() for m in self.metrics}
+    return logs   
+    
+
+
+
+class ConvBatchNormMaxPool(tf.keras.layers.Layer):
+    def __init__(
+            self,
+            conv2d_filters,
+            conv2d_kernel_size,
+            conv2d_strides,
+            conv2d_padding,
+            maxpool2d_pool_size,
+            maxpool2d_strides,
+            maxpool2d_padding
+        ):
+        super().__init__()
+        self.conv2d = tf.keras.layers.Conv2D(
+            filters = conv2d_filters,
+            kernel_size = conv2d_kernel_size,
+            strides = conv2d_strides,
+            padding = conv2d_padding
+        )
+        self.batchnorm = tf.keras.layers.BatchNormalization()
+        self.maxpool2d = tf.keras.layers.MaxPool2D(
+            pool_size = maxpool2d_pool_size,
+            strides = maxpool2d_strides,
+            padding = maxpool2d_padding
+        )
+
+    def call(self, input):
+        """Conv2D -> BatchNormalization -> Activation -> MaxPooling"""
+        x = self.conv2d(input)
+        x = self.batchnorm(x)
+        x = tf.keras.activations.relu(x)
+        out = self.maxpool2d(x)
+        return out
+
+class CNN(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.layer1 = ConvBatchNormMaxPool(
+            cfg.layer_1.conv2d_filters,
+            cfg.layer_1.conv2d_kernel_size,
+            cfg.layer_1.conv2d_strides,
+            cfg.layer_1.conv2d_padding,
+            cfg.layer_1.maxpool2d_pool_size,
+            cfg.layer_1.maxpool2d_strides,
+            cfg.layer_1.maxpool2d_padding
+        )
+        self.layer2 = ConvBatchNormMaxPool(
+            cfg.layer_2.conv2d_filters,
+            cfg.layer_2.conv2d_kernel_size,
+            cfg.layer_2.conv2d_strides,
+            cfg.layer_2.conv2d_padding,
+            cfg.layer_2.maxpool2d_pool_size,
+            cfg.layer_2.maxpool2d_strides,
+            cfg.layer_2.maxpool2d_padding
+        )
+
+        self.flatten = tf.keras.layers.Flatten()
+        self.fc1 = tf.keras.layers.Dense(cfg.fc_1.units)
+        self.fc2 = tf.keras.layers.Dense(cfg.fc_2.units)
+        self.fc3 = tf.keras.layers.Dense(cfg.fc_3.units)
+        self.dropout = tf.keras.layers.Dropout(cfg.dropout_prob)
+
+    def call(self, input, training = False):
+        input = tf.expand_dims(input, -1) # [B X 28 X 28 X 1]
+        x = self.layer1(input)
+        x = self.layer2(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.dropout(x, training = training)
+        x = self.fc2(x)
+        out = self.fc3(x)
+        out = tf.nn.softmax(out)
+        return out
+
+    def train_step(self, data):
+        images, labels = data
+
+        with tf.GradientTape() as tape:
+            outputs = self(images, training = True)
+            preds = tf.argmax(outputs, 1)
+
+            loss = self.compiled_loss(labels, outputs)
+
+        # compute gradients
+        trainable_vars = self.trainable_variables
+        gradients = tape.gradient(loss, trainable_vars)
+
+        # update weights
+        self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+        # update metrics
+        self.compiled_metrics.update_state(labels, preds)
+
+        # return a dict mapping metrics names to current values
+        logs = {m.name: m.result() for m in self.metrics}
+        return logs
+
+    def test_step(self, data):
+        images, labels = data
+        outputs = self(images, training = False)
+        preds = tf.argmax(outputs, 1)
+        loss = self.compiled_loss(labels, outputs)
+
+        # update metrics
+        self.compiled_metrics.update_state(labels, preds)
+
+        # return a dict mapping metrics names to current values
+        logs = {m.name: m.result() for m in self.metrics}
+        return logs   
+
+
+
+class EfficientNetFinetune(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.efficientnet = getattr(
+            tf.keras.applications.efficientnet,
+            cfg.efficient_net_model_name
+        )(**cfg.kwargs)
+        self.efficientnet.trainable = cfg.efficient_net_weight_trainable
+
+        self.resize = tf.keras.layers.Resizing(224, 224)
+        self.avgpool = tf.keras.layers.GlobalAveragePooling2D(name = "avg_pool")
+        self.out_dense = tf.keras.layers.Dense(units = cfg.classes)
+        
+
+    def call(self, input, training = False):
+        input = tf.expand_dims(input, -1) # [B, 28, 28, 1]
+        x = self.resize(input) # [B, 224, 224, 1]
+        x = tf.stack([x, x, x], axis = -2) # [B, 224, 224, 3]
+        x = self.efficientnet(x, training = training)
+
+        # build top
+        x = self.avgpool(x)
+        out = self.out_dense(x)
+        out = tf.nn.softmax(out)
+        return out
+
+    def train_step(self, data):
+        images, labels = data
+
+        with tf.GradientTape() as tape:
+            outputs = self(images, training = True)
+            preds = tf.argmax(outputs, 1)
+
+            loss = self.compiled_loss(labels, outputs)
+
+        # compute gradients
+        trainable_vars = self.trainable_variables
+        gradients = tape.gradient(loss, trainable_vars)
+
+        # update weights
+        self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+
+        # update metrics
+        self.compiled_metrics.update_state(labels, preds)
+
+        # return a dict mapping metrics names to current values
+        logs = {m.name: m.result() for m in self.metrics}
+        return logs
+
+    def test_step(self, data):
+        images, labels = data
+        outputs = self(images, training = False)
+        preds = tf.argmax(outputs, 1)
+        loss = self.compiled_loss(labels, outputs)
+
+        # update metrics
+        self.compiled_metrics.update_state(labels, preds)
+
+        # return a dict mapping metrics names to current values
+        logs = {m.name: m.result() for m in self.metrics}
+        return logs   
+        
+        
+
+# data configuration
+data_fashion_mnist_cfg: dict = {
+    "n_class": 10,
+    "train_val_split": [0.9, 0.1],
+    "train_val_shuffle": True,
+    "train_val_shuffle_buffer_size": 1024,
+    "test_shuffle": False,
+    "test_shuffle_buffer_size": 1024
+}
+
+# model configuration
+
+model_mnist_mlp_cfg: dict = {
+    "name": "MLP",
+    "data_normalize": True,
+    "input_dim": 28 * 28 * 1,
+    "h1_dim": 128,
+    "h2_dim": 64,
+    "out_dim": 10
+}
+
+model_mnist_mlp_with_dropout_cfg: dict = {
+    "name": "MLPWithDropout",
+    "data_normalize": True,
+    "input_dim": 28 * 28 * 1,
+    "h1_dim": 128,
+    "h2_dim": 64,
+    "out_dim": 10,
+    "dropout_prob": 0.3
+}
+
+model_mnist_cnn_cfg: dict = {
+    "name": "CNN",
+    "data_normalize": True,
+    "layer_1": {
+        "conv2d_filters": 32,
+        "conv2d_kernel_size": [3, 3],
+        "conv2d_strides": [1, 1],
+        "conv2d_padding": "same",
+        "maxpool2d_pool_size": [2, 2],
+        "maxpool2d_strides": [2, 2],
+        "maxpool2d_padding": "valid"
+    },
+    "layer_2": {
+        "conv2d_filters": 64,
+        "conv2d_kernel_size": [3, 3],
+        "conv2d_strides": [1, 1],
+        "conv2d_padding": "valid",
+        "maxpool2d_pool_size": [2, 2],
+        "maxpool2d_strides": [1, 1],
+        "maxpool2d_padding": "valid"
+    },
+    "fc_1": {"units": 512},
+    "fc_2": {"units": 128},
+    "fc_3": {"units": 10},
+    "dropout_prob": 0.25
+}
+
+model_mnist_efficient_finetune_cfg: dict = {
+    "name": "EfficientNetFinetune",
+    "data_normalize": False,
+    "efficient_net_model_name": "EfficientNetB0",
+    "classes": 10,
+    "efficient_net_weight_trainable": True,
+    "kwargs": {
+        "include_top": False,
+        "weights": "imagenet"
+    }
+}
+
+# optimizer configs
+adam_warmup_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "Adam",
+        "other_kwargs": {}
+    },
+    "lr_scheduler": {
+        "name": "LinearWarmupLRSchedule",
+        "kwargs": {
+            "lr_peak": 1e-3,
+            "warmup_end_steps": 1500
+        }
+    }
+}
+
+radam_no_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "RectifiedAdam",
+        "learning_rate": 1e-3,
+        "other_kwargs": {}
+    },
+    "lr_scheduler": None
+}
+
+# train_cfg
+train_cfg: dict = {
+    "train_batch_size": 128,
+    "val_batch_size": 32,
+    "test_batch_size": 32,
+    "max_epochs": 50,
+    "distribute_strategy": "MirroredStrategy"
+}
+
+_merged_cfg_presets = {
+    "cnn_fashion_mnist_radam": {
+        "data": data_fashion_mnist_cfg,
+        "model": model_mnist_cnn_cfg,
+        "opt": radam_no_lr_sch_opt_cfg,
+        "train": train_cfg
+    },
+    "mlp_with_dropout_fashion_mnist_adam_with_warmup_lr_schedule": {
+        "data": data_fashion_mnist_cfg,
+        "model": model_mnist_mlp_with_dropout_cfg,
+        "opt": adam_warmup_lr_sch_opt_cfg,
+        "train": train_cfg
+    }
+}
+
+### hydra composition ###
+# clear hydra instance
+hydra.core.global_hydra.GlobalHydra.instance().clear()
+
+# register preset configs
+register_config(_merged_cfg_presets)
+
+# initialize
+hydra.initialize(config_path = None)
+
+using_config_key = "mlp_with_dropout_fashion_mnist_adam_with_warmup_lr_schedule"
+cfg = hydra.compose(using_config_key)
+
+
+# define & override log_cfg
+model_name = cfg.model.name
+run_dirname = "dnn-tutorial-fashion-mnist-runs-tf"
+run_name = f"{datetime.now().isoformat(timespec = 'seconds')}-{using_config_key}-{model_name}"
+log_dir = os.path.join(drive_project_root, 'runs', run_dirname, run_name)
+
+log_cfg = {
+    "run_name": run_name,
+    "callbacks": {
+        "TensorBoard": {
+            "log_dir": log_dir,
+            "update_freq": 1
+        },
+        "EarlyStopping": {
+            "patience": 3,
+            "verbose": True
+        }
+    },
+    "wandb": {
+        "project": "fastcampus_fashion_mnist_tutorials_tf",
+        "name": run_name,
+        "tags": ["fastcampus_fashion_mnist_tutorials_tf"],
+        "reinit": True,
+        "sync_tensorboard": True
+    }
+}
+
+# unlock struct of config & set log config
+OmegaConf.set_struct(cfg, False)
+cfg.log = log_cfg
+
+# relock config
+OmegaConf.set_struct(cfg, True)
+print(OmegaConf.to_yaml(cfg))
+
+# save yaml
+# with open("config.yaml", "w") as f:
+#     OmegaConf.save(cfg, f)
+
+
+def get_distribute_strategy(strategy_name: str, **kwargs):
+    return getattr(tf.distribute, strategy_name)(**kwargs)
+
+distribute_strategy = get_distribute_strategy(cfg.train.distribute_strategy)
+
+
+
+with distribute_strategy.scope():
+    # 데이터 셋 정의
+    fashion_mnist = tf.keras.datasets.fashion_mnist
+    (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+
+    # normalization
+    if cfg.model.data_normalize:
+        x_train = x_train / 255.0
+        x_test = x_test / 255.0
+
+    # train/val splits
+    assert sum(cfg.data.train_val_split) == 1.0
+    train_size = int(len(x_train) * cfg.data.train_val_split[0])
+    val_size = len(x_train) - train_size
+
+    dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
+    if cfg.data.train_val_shuffle:
+        dataset = dataset.shuffle(
+            buffer_size = cfg.data.train_val_shuffle_buffer_size
+        )
+    if cfg.data.test_shuffle:
+        test_dataset = test_dataset.shuffle(
+            buffer_size = cfg.data.test_val_shuffle_buffer_size
+        )
+
+    train_dataset = dataset.take(train_size)
+    val_dataset = dataset.skip(train_size)
+    print(len(train_dataset), len(val_dataset), len(dataset), len(test_dataset))
+
+    # dataloader 정의
+    train_batch_size = cfg.train.train_batch_size
+    val_batch_size = cfg.train.val_batch_size
+    test_batch_size = cfg.train.test_batch_size
+
+    train_dataloader = train_dataset.batch(train_batch_size, drop_remainder = True)
+    val_dataloader = val_dataset.batch(val_batch_size, drop_remainder = True)
+    test_dataloader = test_dataset.batch(test_batch_size, drop_remainder = True)
+
+sample_example = next(iter(train_dataloader))
+print(sample_example)
+
+
+# 모델 정의
+def get_model(cfg: DictConfig):
+    if cfg.model.name == "CNN":
+        model = CNN(cfg.model)
+    elif cfg.model.name == "EfficientNetFinetune":
+        model = EfficientNetFinetune(cfg.model)
+    elif cfg.model.name == "MLP":
+        model = MLP(cfg.model)
+    elif cfg.model.name == "MLPWithDropout":
+        model = MLPWithDropout(cfg.model)
+    else:
+        raise NotImplementedError()
+
+    return model
+
+
+with distribute_strategy.scope():
+  model = get_model(cfg)
+
+  # define loss
+  loss_function = tf.losses.SparseCategoricalCrossentropy()
+
+  # define optimizer & schduler
+  optimizer, scheduler = get_optimizer_element(
+      cfg.opt.optimizer, cfg.opt.lr_scheduler
+  )
+
+  model.compile(
+      loss = loss_function,
+      optimizer = optimizer,
+      metrics = [tf.keras.metrics.Accuracy()],
+  )
+
+  model.build((1, 28, 28))
+model.summary()
+
+
+# get callbacks
+callbacks = get_callbacks(cfg.log)
+
+
+# wandb setup
+wandb.init(
+    config= flatten_dict(cfg),
+    **cfg.log.wandb
+)
+
+
+%load_ext tensorboard
+%tensorboard --logdir /content/drive/MyDrive/\#fastcampus/runs/
+
+model.fit(
+    train_dataloader,
+    validation_data = val_dataloader,
+    epochs = cfg.train.max_epochs,
+    callbacks = callbacks
+)
