@@ -1,0 +1,528 @@
+from google.colab import drive
+drive.mount("/content/drive")
+
+import os
+import sys
+sys.path.append("/content/drive/MyDrive/#fastcampus")
+drive_project_root = "/content/drive/MyDrive/#fastcampus"
+!pip install -r "/content/drive/MyDrive/#fastcampus/requirements.txt"
+
+
+from typing import Optional
+from typing import List
+from typing import Dict
+from typing import Tuple
+
+import io
+import re
+import unicodedata
+import time
+from datetime import datetime
+import random
+
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as ticker
+from omegaconf import OmegaConf
+from omegaconf import DictConfig
+import hydra
+from hydra.core.config_store import ConfigStore
+
+import tensorflow as tf
+import tensorflow_addons as tfa
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+!pip install wandb
+!wandb login
+import wandb
+
+
+from config_utils_tf import flatten_dict
+from config_utils_tf import register_config
+from config_utils_tf import get_optimizer_element
+from config_utils_tf import get_callbacks
+
+
+# Download the file
+data_root = os.path.join(drive_project_root, "data", "anki_spa_eng")
+if not os.path.exists(data_root):
+    os.mkdir(data_root)
+
+data_path = os.path.join(data_root, "spa-eng.zip")
+path_to_zip = tf.keras.utils.get_file(
+    data_path, 
+    origin = "http://storage.googleapis.com/download.tensorflow.org/data/spa-eng.zip",
+    extract = True,
+    cache_dir = data_root
+)
+
+path_to_file = os.path.join(
+    os.path.dirname(path_to_zip),
+    "datasets",
+    "spa-eng",
+    "spa.txt"
+)
+
+print(path_to_file)
+
+
+# 전처리
+def unicode_to_ascii(s):
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
+
+def preprocess_sentence(w):
+    # ascii로 변환 및 소문자로 변환
+    w = unicode_to_ascii(w.lower().strip())
+
+    # 단어와 단어 뒤에 오는 구두점(.) 사이에 공백을 생성
+    w = re.sub(r"([?.!,¿'])", r" \1 ", w)
+    w = re.sub(r'[" "]+', " ", w)
+
+    # (a-z, A-Z, [?.!,¿']을 제외한 모든 것을 공백으로 대체)
+    w = re.sub(r"[^a-zA-Z?.!,¿']+", " ", w)
+    w = w.strip()
+
+    # 모델의 앞뒤에 start, end 토큰  추가
+    w = "<start> " + w + " <end>"
+    return w
+
+def create_dataset(path: str, num_examples: Optional[int] = None):
+    lines = io.open(path, encoding = "UTF-8").read().strip().split("\n")
+
+    word_pairs = [[preprocess_sentence(w) for w in l.split("\t")] for l in lines[:num_examples]]
+    return zip(*word_pairs)
+
+en, sp = create_dataset(path_to_file)
+print(en[-1])
+print(sp[-1])
+
+
+# Tokenizer 정의, 최종적으로 쓸 데이터 정리
+
+def tokenize(lang):
+    lang_tokenizer = Tokenizer(filters = "")
+    lang_tokenizer.fit_on_texts(lang)
+
+    tensor = lang_tokenizer.texts_to_sequences(lang)
+    tensor = pad_sequences(tensor, padding = "post")
+
+    return tensor, lang_tokenizer
+
+def load_dataset(path, num_examples = None):
+    tar_lang, src_lang = create_dataset(path, num_examples) # en, sp
+
+    src_tensor, src_tokenizer = tokenize(src_lang)
+    tar_tensor, tar_tokenizer = tokenize(tar_lang)
+
+    return src_tensor, tar_tensor, src_tokenizer, tar_tokenizer
+
+# 언어 데이터셋 불러오기
+num_examples = 30000
+src_tensor, tar_tensor, src_tokenizer, tar_tokenizer = load_dataset(
+    path_to_file, num_examples
+)
+
+max_tar_len, max_src_len = tar_tensor.shape[1], src_tensor.shape[1]
+
+src_vocab_size = len(src_tokenizer.word_index) + 1
+tar_vocab_size = len(tar_tokenizer.word_index) + 1
+
+print(src_vocab_size, tar_vocab_size)
+
+
+class GRUEncoder(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.enc_emb = tf.keras.layers.Embedding(
+            cfg.data.src.vocab_size,
+            cfg.model.enc.embed_size
+        )
+        self.enc_gru = tf.keras.layers.GRU(
+            cfg.model.enc.rnn.units,
+            return_state = True,
+            return_sequences = True,
+            recurrent_initializer = "glorot_uniform"
+        )
+
+    def call(self, src_tokens, state = None, training = False):
+        embed_enc = self.enc_emb(src_tokens)
+        enc_outputs, enc_states = self.enc_gru(
+            embed_enc, initial_state = state
+        )
+        return enc_outputs, enc_states
+
+class GRUDecoder(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.dec_emb = tf.keras.layers.Embedding(
+            cfg.data.tar.vocab_size,
+            cfg.model.dec.embed_size
+        )
+        self.dec_gru = tf.keras.layers.GRU(
+            cfg.model.dec.rnn.units,
+            return_state = True,
+            return_sequences = True,
+            recurrent_initializer = "glorot_uniform"
+        )
+        self.fc = tf.keras.layers.Dense(cfg.data.tar.vocab_size)
+
+    def call(self, tar_tokens, state = None, training = False):
+        embed_dec = self.dec_emb(tar_tokens)
+        dec_outputs, dec_states = self.dec_gru(
+            embed_dec, initial_state = state
+        )
+        final_outputs = self.fc(dec_outputs)
+        return final_outputs, dec_states, None # None은 추후 attention 등 추가시 인터페이스 통일 위함
+        
+        
+
+# data configuration
+data_anki_spa_eng_cfg = {
+    "name": "anki_spa_eng_cfg",
+    "src": {
+        "vocab_size": src_vocab_size,
+        "max_len": max_src_len
+    },
+    "tar": {
+        "vocab_size": tar_vocab_size,
+        "max_len": max_tar_len
+    },
+    "train_val_test_split_ratio": [0.8, 0.1, 0.1],
+    "train_val_shuffle": True
+}
+
+# model configuration
+model_translate_rnn_seq2seq_cfg = {
+    "name": "RNNSeq2Seq",
+    "enc": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    },
+    "dec": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    }
+}
+
+# optimizer configs
+adam_warmup_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "Adam",
+        "other_kwargs": {}
+    },
+    "lr_scheduler": {
+        "name": "LinearWarmupLRSchedule",
+        "kwargs": {
+            "lr_peak": 1e-3,
+            "warmup_end_steps": 1500
+        }
+    }
+}
+
+radam_no_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "RectifiedAdam",
+        "learning_rate": 1e-3,
+        "other_kwargs": {}
+    },
+    "lr_scheduler": None
+}
+
+# train_cfg
+train_cfg: dict = {
+    "train_batch_size": 128,
+    "val_batch_size": 32,
+    "test_batch_size": 32,
+    "max_epochs": 50,
+    "distribute_strategy": "MirroredStrategy",
+    "teacher_forcing_ratio": 0.5
+}
+
+_merged_cfg_presets = {
+    "rnn_translate_spa_eng_radam": {
+        "data": data_anki_spa_eng_cfg,
+        "model": model_translate_rnn_seq2seq_cfg,
+        "opt": radam_no_lr_sch_opt_cfg,
+        "train": train_cfg
+    }
+}
+
+### hydra composition ###
+# clear hydra instance
+hydra.core.global_hydra.GlobalHydra.instance().clear()
+
+# register preset configs
+register_config(_merged_cfg_presets)
+
+# initialize
+hydra.initialize(config_path = None)
+
+using_config_key = "rnn_translate_spa_eng_radam"
+cfg = hydra.compose(using_config_key)
+
+
+# define & override log_cfg
+model_name = cfg.model.name
+run_dirname = "dnn-tutorial-spa-eng-translate-runs-tf"
+run_name = f"{datetime.now().isoformat(timespec = 'seconds')}-{using_config_key}-{model_name}"
+log_dir = os.path.join(drive_project_root, 'runs', run_dirname, run_name)
+
+log_cfg = {
+    "run_name": run_name,
+    "checkpoint_filepath": os.path.join(log_dir, "model"),
+    "tensorboard_log_dir": log_dir,
+    "callbacks": {
+        "TensorBoard": {
+            "log_dir": log_dir,
+            "update_freq": 50
+        },
+        "EarlyStopping": {
+            "patience": 30,
+            "verbose": True
+        }
+    },
+    "wandb": {
+        "project": "dnn-tutorial-spa-eng-translate-runs-tf",
+        "name": run_name,
+        "tags": ["dnn-tutorial-spa-eng-translate-runs-tf"],
+        "reinit": True,
+        "sync_tensorboard": True
+    }
+}
+
+# unlock struct of config & set log config
+OmegaConf.set_struct(cfg, False)
+cfg.log = log_cfg
+
+# relock config
+OmegaConf.set_struct(cfg, True)
+print(OmegaConf.to_yaml(cfg))
+
+# save yaml
+# with open("config.yaml", "w") as f:
+#     OmegaConf.save(cfg, f)
+
+
+def get_distribute_strategy(strategy_name: str, **kwargs):
+    return getattr(tf.distribute, strategy_name)(**kwargs)
+
+distribute_strategy = get_distribute_strategy(cfg.train.distribute_strategy)
+
+
+# dataset batchify 및 train/val/test splits
+dataset = tf.data.Dataset.from_tensor_slices((src_tensor, tar_tensor))
+total_n = len(src_tensor)
+
+print(cfg.data.train_val_test_split_ratio)
+train_size = int(total_n * cfg.data.train_val_test_split_ratio[0])
+val_size = int(total_n * cfg.data.train_val_test_split_ratio[1])
+test_size = total_n - (train_size + val_size)
+
+# split (train, val) (test) dataset
+test_dataset = dataset.skip(train_size + val_size)
+train_val_dataset = dataset.take(train_size + val_size)
+
+if cfg.data.train_val_shuffle:
+    train_val_dataset = train_val_dataset.shuffle(buffer_size = 1024)
+
+train_dataset = train_val_dataset.take(train_size)
+val_dataset = train_val_dataset.skip(train_size)
+
+train_n, val_n, test_n = len(train_dataset), len(val_dataset), len(test_dataset)
+print(train_n, val_n, test_n)
+assert train_n + val_n + test_n == total_n
+
+# batchfy (dataloader)
+train_batch_size = cfg.train.train_batch_size
+val_batch_size = cfg.train.val_batch_size
+test_batch_size = cfg.train.test_batch_size
+
+train_dataloader = train_dataset.batch(train_batch_size, drop_remainder= True)
+val_dataloader = val_dataset.batch(val_batch_size, drop_remainder = True)
+test_dataloader = test_dataset.batch(test_batch_size, drop_remainder = True)
+
+
+# 모델 정의
+def get_seq2seq_model(cfg: DictConfig):
+    if cfg.model.name == "RNNSeq2Seq":
+        encoder = GRUEncoder(cfg)
+        decoder = GRUDecoder(cfg)
+        return encoder, decoder
+    else:
+        raise NotImplementedError()
+        
+        
+        
+# loss 정의
+def loss_function(
+    real,
+    pred,
+    loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
+        from_logits = True, reduction = "none"
+    )
+):
+    # delete [pad] loss part with masks
+    mask = tf.math.logical_not(
+        tf.math.equal(real, 0)
+    )
+    _loss = loss_object(real, pred)
+
+    mask = tf.cast(mask, dtype = _loss.dtype)
+    _loss *= mask
+
+    return tf.reduce_mean(_loss)
+    
+    
+    
+# get model
+encoder, decoder = get_seq2seq_model(cfg)
+
+# get optimizer
+optimizer, scheduler = get_optimizer_element(
+    cfg.opt.optimizer, cfg.opt.lr_scheduler
+)
+
+# checkpoints
+checkpoint_prefix = cfg.log.checkpoint_filepath
+checkpoint = tf.train.Checkpoint(
+    optimizer = optimizer,
+    encoder = encoder,
+    decoder = decoder,
+)
+
+
+# get callbacks
+#callbacks = get_callbacks(cfg.log)
+
+
+# wandb setup
+wandb.init(
+    config= flatten_dict(cfg),
+    **cfg.log.wandb
+)
+
+
+@tf.function
+def _step(src, tar, enc_hidden, teacher_forcing_ratio = 0.5):
+    enc_output, enc_hidden = encoder(src, enc_hidden)
+
+    dec_hidden = enc_hidden
+
+    # add start token
+    dec_input = tf.expand_dims(
+        [tar_tokenizer.word_index["<start>"]] * src.shape[0], # multiply with batch_size
+        1
+    )
+
+    outputs = []
+    loss = 0
+    for t in range(1, tar.shape[1]): # sequence 길이만큼 루프
+        predictions, dec_hidden, _ = decoder(dec_input, dec_hidden)
+        outputs.append(predictions[:, 0])
+        final_outs = tf.argmax(predictions, 2)
+
+        ground_truth = tf.expand_dims(tar[:, t], 1)
+
+        loss += loss_function(ground_truth, predictions)
+
+        if random.random() < teacher_forcing_ratio:
+            dec_input = ground_truth
+        else: # no teacher
+            dec_input = final_outs
+
+    return loss, outputs
+
+@tf.function
+def train_step(src, tar, enc_hidden, teacher_forcing_ratio = 0.5):
+    with tf.GradientTape() as tape:
+        loss, outputs = _step(src, tar, enc_hidden, teacher_forcing_ratio)
+
+    batch_loss = (loss / int(tar.shape[1])) # divide with seq_len
+
+    variables = encoder.trainable_variables + decoder.trainable_variables
+    gradients = tape.gradient(loss, variables)
+    optimizer.apply_gradients(zip(gradients, variables))
+
+    return batch_loss, outputs
+
+@tf.function
+def eval_step(src, tar, enc_hidden):
+    loss, outputs = _step(src, tar, enc_hidden, 0.0)
+    batch_loss = (loss / int(tar.shape[1])) # divide with seq_len
+    return batch_loss, outputs
+
+
+%load_ext tensorboard
+%tensorboard --logdir /content/drive/MyDrive/\#fastcampus/runs/
+
+val_dataloader = iter(val_dataloader)
+steps_per_epoch = train_n // cfg.train.train_batch_size
+
+# tensorboard summary writer
+tb_writer = tf.summary.create_file_writer(
+    cfg.log.tensorboard_log_dir
+)
+
+# custom loop
+step = 0
+for epoch in range(cfg.train.max_epochs):
+    start = time.time()
+    total_epoch_loss = 0
+
+    for (batch, (cur_src, cur_tar)) in enumerate(
+        train_dataloader.take(steps_per_epoch)
+    ):
+        enc_hidden = tf.zeros((
+            cfg.train.train_batch_size,
+            cfg.model.enc.rnn.units
+        ))
+        batch_loss, outputs = train_step(cur_src, cur_tar, enc_hidden)
+        total_epoch_loss += batch_loss
+
+        if batch % 100 == 0 or steps_per_epoch == batch:
+            print("Epoch {} Batch {} Train Loss {:.4f}".format(epoch + 1, batch, batch_loss.numpy()))
+
+        step += 1
+
+    # save model per 2 epoch
+    if (epoch + 1) % 2 == 0:
+        checkpoint.save(file_prefix = checkpoint_prefix)
+
+    train_loss = total_epoch_loss / steps_per_epoch
+    print("Epoch {} Train Loss {:.4f}".format(epoch + 1, train_loss))
+
+    with tb_writer.as_default():
+        tf.summary.scalar("train_loss", train_loss, step = step)
+
+    # validation step
+    enc_hidden = tf.zeros((
+        cfg.train.val_batch_size,
+        cfg.model.enc.rnn.units
+    ))
+    cur_src, cur_tar = next(val_dataloader)
+    val_loss, outputs = eval_step(cur_src, cur_tar, enc_hidden)
+    print("Epoch {} Val Loss {:.4f}".format(epoch + 1, val_loss))
+
+    # token -> text & logging
+    preds = tf.stack(outputs, axis = 1)
+    preds = tf.argmax(preds, axis = 2)
+    preds = [p.numpy() for p in preds]
+
+    src_texts = src_tokenizer.sequences_to_texts(cur_src.numpy())
+    tar_texts = tar_tokenizer.sequences_to_texts(cur_tar.numpy())
+    pred_texts = tar_tokenizer.sequences_to_texts(preds)
+
+    with tb_writer.as_default():
+        tf.summary.scalar("val_loss", val_loss, step = step)
+        tf.summary.text("val_src_text", src_texts[0], step = step)
+        tf.summary.text("val_tar_text", tar_texts[0], step = step)
+        tf.summary.text("val_pred_text", pred_texts[0], step = step)
+
+    print(f"Time taken for 1 epoch {time.time() - start} sec\n")
