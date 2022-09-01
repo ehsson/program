@@ -1,0 +1,791 @@
+from google.colab import drive
+drive.mount("/content/drive")
+
+import os
+import sys
+sys.path.append("/content/drive/MyDrive/#fastcampus")
+drive_project_root = "/content/drive/MyDrive/#fastcampus"
+!pip install -r "/content/drive/MyDrive/#fastcampus/requirements.txt"
+
+
+from typing import Optional
+from typing import List
+from typing import Dict
+from typing import Tuple
+
+import io
+import re
+import unicodedata
+import time
+from datetime import datetime
+import random
+
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as ticker
+from omegaconf import OmegaConf
+from omegaconf import DictConfig
+import hydra
+from hydra.core.config_store import ConfigStore
+
+import tensorflow as tf
+import tensorflow_addons as tfa
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+!pip install wandb
+!wandb login
+import wandb
+
+
+from config_utils_tf import flatten_dict
+from config_utils_tf import register_config
+from config_utils_tf import get_optimizer_element
+from config_utils_tf import get_callbacks
+
+
+# Download the file
+data_root = os.path.join(drive_project_root, "data", "anki_spa_eng")
+if not os.path.exists(data_root):
+    os.mkdir(data_root)
+
+data_path = os.path.join(data_root, "spa-eng.zip")
+path_to_zip = tf.keras.utils.get_file(
+    data_path, 
+    origin = "http://storage.googleapis.com/download.tensorflow.org/data/spa-eng.zip",
+    extract = True,
+    cache_dir = data_root
+)
+
+path_to_file = os.path.join(
+    os.path.dirname(path_to_zip),
+    "datasets",
+    "spa-eng",
+    "spa.txt"
+)
+
+print(path_to_file)
+
+
+# 전처리
+def unicode_to_ascii(s):
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
+
+def preprocess_sentence(w):
+    # ascii로 변환 및 소문자로 변환
+    w = unicode_to_ascii(w.lower().strip())
+
+    # 단어와 단어 뒤에 오는 구두점(.) 사이에 공백을 생성
+    w = re.sub(r"([?.!,¿'])", r" \1 ", w)
+    w = re.sub(r'[" "]+', " ", w)
+
+    # (a-z, A-Z, [?.!,¿']을 제외한 모든 것을 공백으로 대체)
+    w = re.sub(r"[^a-zA-Z?.!,¿']+", " ", w)
+    w = w.strip()
+
+    # 모델의 앞뒤에 start, end 토큰  추가
+    w = "<start> " + w + " <end>"
+    return w
+
+def create_dataset(path: str, num_examples: Optional[int] = None):
+    lines = io.open(path, encoding = "UTF-8").read().strip().split("\n")
+
+    word_pairs = [[preprocess_sentence(w) for w in l.split("\t")] for l in lines[:num_examples]]
+    return zip(*word_pairs)
+
+en, sp = create_dataset(path_to_file)
+print(en[-1])
+print(sp[-1])
+
+
+# Tokenizer 정의, 최종적으로 쓸 데이터 정리
+
+def tokenize(lang):
+    lang_tokenizer = Tokenizer(filters = "")
+    lang_tokenizer.fit_on_texts(lang)
+
+    tensor = lang_tokenizer.texts_to_sequences(lang)
+    tensor = pad_sequences(tensor, padding = "post")
+
+    return tensor, lang_tokenizer
+
+def load_dataset(path, num_examples = None):
+    tar_lang, src_lang = create_dataset(path, num_examples) # en, sp
+
+    src_tensor, src_tokenizer = tokenize(src_lang)
+    tar_tensor, tar_tokenizer = tokenize(tar_lang)
+
+    return src_tensor, tar_tensor, src_tokenizer, tar_tokenizer
+
+# 언어 데이터셋 불러오기
+#num_examples = 30000
+num_examples = 100000
+src_tensor, tar_tensor, src_tokenizer, tar_tokenizer = load_dataset(
+    path_to_file, num_examples
+)
+
+max_tar_len, max_src_len = tar_tensor.shape[1], src_tensor.shape[1]
+
+src_vocab_size = len(src_tokenizer.word_index) + 1
+tar_vocab_size = len(tar_tokenizer.word_index) + 1
+
+print(src_vocab_size, tar_vocab_size)
+
+
+### 모델 정의 ###
+class GRUEncoder(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.enc_emb = tf.keras.layers.Embedding(
+            cfg.data.src.vocab_size,
+            cfg.model.enc.embed_size
+        )
+        self.enc_gru = tf.keras.layers.GRU(
+            cfg.model.enc.rnn.units,
+            return_state = True,
+            return_sequences = True,
+            recurrent_initializer = "glorot_uniform"
+        )
+
+    def call(self, src_tokens, state = None, training = False):
+        embed_enc = self.enc_emb(src_tokens)
+        enc_outputs, enc_states = self.enc_gru(
+            embed_enc, initial_state = state
+        )
+        return enc_outputs, enc_states
+
+class GRUDecoder(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.dec_emb = tf.keras.layers.Embedding(
+            cfg.data.tar.vocab_size,
+            cfg.model.dec.embed_size
+        )
+        self.dec_gru = tf.keras.layers.GRU(
+            cfg.model.dec.rnn.units,
+            return_state = True,
+            return_sequences = True,
+            recurrent_initializer = "glorot_uniform"
+        )
+        self.fc = tf.keras.layers.Dense(cfg.data.tar.vocab_size)
+
+    def call(self, tar_tokens, state = None, training = False):
+        embed_dec = self.dec_emb(tar_tokens)
+        dec_outputs, dec_states = self.dec_gru(
+            embed_dec, initial_state = state
+        )
+        final_outputs = self.fc(dec_outputs)
+        return final_outputs, dec_states, None # None은 추후 attention 등 추가시 인터페이스 통일 위함
+        
+        
+# Attention 모델 정의
+class BahdanaouAttention(tf.keras.layers.Layer):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.fc1 = tf.keras.layers.Dense(cfg.model.attention.latent_dim)
+        self.fc2 = tf.keras.layers.Dense(cfg.model.attention.latent_dim)
+        self.fc_score = tf.keras.layers.Dense(1)
+
+    def call(self, query, value):
+        # query = hidden, value = enc_outputs
+        query_with_time_axis = tf.expand_dims(query, 1) # [B, L, hidden_dim]
+
+        score = self.fc_score(
+            tf.nn.tanh(
+                self.fc1(query_with_time_axis) + self.fc2(value)
+            )
+        ) # [B, L, hidden] -> [B, L, 1]
+
+        attention_weights = tf.nn.softmax(score, axis = 1) # [B, L, 1]
+
+        context_vector = attention_weights * value # [B, hidden]
+        context_vector = tf.reduce_sum(context_vector, axis = 1)
+
+        return context_vector, attention_weights
+
+class AttentionalGRUDecoder(tf.keras.Model):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.dec_emb = tf.keras.layers.Embedding(
+            cfg.data.tar.vocab_size,
+            cfg.model.dec.embed_size
+        )
+        self.dec_gru = tf.keras.layers.GRU(
+            cfg.model.dec.rnn.units,
+            return_state = True,
+            return_sequences = True,
+            recurrent_initializer = "glorot_uniform"
+        )
+        self.attention = BahdanaouAttention(cfg)
+        self.fc = tf.keras.layers.Dense(cfg.data.tar.vocab_size)
+
+    def call(self, tar_tokens, hidden, enc_output):
+        # enc_output: [B, L, hidden_dim]
+        context_vector, attention_weights = self.attention(hidden, enc_output)
+
+        x = self.dec_emb(tar_tokens)
+
+        # embedding된 tar_token과 context_vector를 concat으로 합친다
+        x = tf.concat([tf.expand_dims(context_vector, 1), x], axis = -1)
+
+        dec_outputs, dec_states = self.dec_gru(x)
+        dec_outputs = tf.reshape(dec_outputs, (-1, dec_outputs.shape[2])) # [B * 1, embedding_dim, hidden_dim]
+
+        final_outputs = self.fc(dec_outputs)
+        return final_outputs, dec_states, attention_weights
+        
+        
+        
+# Transformer layer 정의
+
+# 1. Positional Embedding
+class PositionalEmbedding(tf.keras.layers.Layer):
+    def __init__(self, sequence_size, vocab_size, embed_dim):
+        super().__init__()
+        self.sequence_size = sequence_size
+        self.vocab_size = vocab_size
+        self.embed_dim = embed_dim
+
+        self.token_embedding = tf.keras.layers.Embedding(
+            input_dim = self.vocab_size, output_dim = self.embed_dim
+        )
+        self.position_embedding = tf.keras.layers.Embedding(
+            input_dim = self.sequence_size, output_dim = self.embed_dim
+        )
+
+    def call(self, inputs):
+        length = tf.shape(inputs)[-1]
+        positions = tf.range(start = 0, limit = length, delta = 1)
+        embedded_tokens = self.token_embedding(inputs)
+        embedded_positions = self.position_embedding(positions)
+        return embedded_tokens + embedded_positions
+
+    def compute_mask(self, inputs, mask = None):
+        # pad masking
+        return tf.math.not_equal(inputs, 0)
+
+# 2. TransformerEncoder
+class TransformerEncoder(tf.keras.layers.Layer):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.embed_dim = cfg.model.enc.embed_dim
+
+        self.dense_dim = cfg.model.enc.tr.dense_dim
+        self.num_heads = cfg.model.enc.tr.num_heads
+        self.supports_masking = cfg.model.enc.tr.supports_masking
+
+        self.attention = tf.keras.layers.MultiHeadAttention(
+            num_heads = self.num_heads, key_dim = self.embed_dim
+        )
+
+        self.dense_proj = tf.keras.Sequential([
+            tf.keras.layers.Dense(self.dense_dim, activation = "relu"),
+            tf.keras.layers.Dense(self.embed_dim)
+        ])
+
+        self.layernorm_1 = tf.keras.layers.LayerNormalization()
+        self.layernorm_2 = tf.keras.layers.LayerNormalization()
+
+        self.positional_embedding = PositionalEmbedding(
+            cfg.data.src.max_len,
+            cfg.data.src.vocab_size,
+            cfg.model.enc.embed_dim
+        )
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            "cfg": self.config,
+            "attention": self.attention,
+            "dense_proj": self.dense_proj,
+            "layernorm_1": self.layernorm_1,
+            "layernorm_2": self.layernorm_2,
+            "positional_embedding": self.positional_embedding
+        })
+        return config
+
+    def call(self, inputs, padding_mask = None, training = False):
+        inputs = self.positional_embedding(inputs)
+        if padding_mask is not None:
+            padding_mask = tf.cast(
+                padding_mask[:, tf.newaxis, tf.newaxis, :],
+                dtype = "int32"
+            )
+        attention_output = self.attention(
+            query = inputs,
+            value = inputs,
+            key = inputs,
+            attention_mask = padding_mask,
+            training = training
+        )
+        proj_input = self.layernorm_1(inputs + attention_output) # skip_connection + norm
+        proj_output = self.dense_proj(proj_input)
+        return self.layernorm_2(proj_input + proj_output) # skip_connection + norm
+
+# 3. TransformerDecoder (encoder와 decoder를 잇는 attention도 존재)
+class TransformerDecoder(tf.keras.layers.Layer):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.embed_dim = cfg.model.dec.embed_dim
+
+        self.latent_dim = cfg.model.dec.tr.latent_dim
+        self.num_heads = cfg.model.dec.tr.num_heads
+        self.supports_masking = cfg.model.dec.tr.supports_masking
+
+        self.attention_1 = tf.keras.layers.MultiHeadAttention(
+            num_heads = self.num_heads, key_dim = self.embed_dim
+        )
+
+        self.attention_2 = tf.keras.layers.MultiHeadAttention(
+            num_heads = self.num_heads, key_dim = self.embed_dim
+        )
+
+        self.dense_proj = tf.keras.Sequential([
+            tf.keras.layers.Dense(self.latent_dim, activation = "relu"),
+            tf.keras.layers.Dense(self.embed_dim)
+        ])
+
+        self.layernorm_1 = tf.keras.layers.LayerNormalization()
+        self.layernorm_2 = tf.keras.layers.LayerNormalization()
+        self.layernorm_3 = tf.keras.layers.LayerNormalization()
+
+        self.positional_embedding = PositionalEmbedding(
+            cfg.data.src.max_len,
+            cfg.data.src.vocab_size,
+            cfg.model.dec.embed_dim
+        )
+        self.dropout = tf.keras.layers.Dropout(cfg.model.dropout_prob)
+        self.out_dense = tf.keras.layers.Dense(cfg.data.tar.vocab_size)
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            "cfg": self.config,
+            "attention_1": self.attention_1,
+            "attention_2": self.attention_2,
+            "dense_proj": self.dense_proj,
+            "layernorm_1": self.layernorm_1,
+            "layernorm_2": self.layernorm_2,
+            "layernorm_3": self.layernorm_3,
+            "positional_embedding": self.positional_embedding,
+            "dropout": self.dropout,
+            "out_dense": self.out_dense
+        })
+        return config
+
+    def get_causal_attention_mask(self, inputs):
+        input_shape= tf.shape(inputs)
+        batch_size, sequence_length = input_shape[0], input_shape[1]
+        i = tf.range(sequence_length)[:, tf.newaxis]
+        j = tf.range(sequence_length)
+        mask = tf.cast(i >= j, dtype = "int32")
+        mask = tf.reshape(mask, (1, input_shape[1], input_shape[1]))
+        mult = tf.concat(
+            [tf.expand_dims(batch_size, -1), tf.constant([1, 1], dtype = tf.int32)],
+            axis = 0
+        )
+        return tf.tile(mask, mult)
+
+    def call(self, inputs, encoder_outputs, padding_mask = None, training = False):
+        inputs = self.positional_embedding(inputs)
+        causal_mask = self.get_causal_attention_mask(inputs)
+        if padding_mask is not None:
+            padding_mask = tf.cast(
+                padding_mask[:, tf.newaxis, tf.newaxis, :],
+                dtype = "int32"
+            )
+            padding_mask = tf.minimum(padding_mask, causal_mask)
+
+        # masked dec self-attention
+        attention_output_1 = self.attention_1(
+            query = inputs,
+            value = inputs,
+            key = inputs,
+            attention_mask = causal_mask,
+            training = training
+        )
+        out_1 = self.layernorm_1(inputs + attention_output_1) # skip_connection + norm
+
+        # migrate with encoder
+        attention_output_2 = self.attention_2(
+            query = out_1,
+            value = encoder_outputs,
+            key = encoder_outputs,
+            attention_mask = padding_mask,
+            training = training
+        )
+        out_2 = self.layernorm_2(out_1 + attention_output_2) # skip_connection + norm
+
+        proj_output = self.dense_proj(out_2)
+        out_3 = self.layernorm_3(out_2 + proj_output) # skip_connection + norm
+        out_3 = self.dropout(out_3, training = training)
+        return self.out_dense(out_3)
+        
+        
+        
+# data configuration
+data_anki_spa_eng_cfg = {
+    "name": "anki_spa_eng_cfg",
+    "src": {
+        "vocab_size": src_vocab_size,
+        "max_len": max_src_len
+    },
+    "tar": {
+        "vocab_size": tar_vocab_size,
+        "max_len": max_tar_len
+    },
+    "train_val_test_split_ratio": [0.8, 0.1, 0.1],
+    "train_val_shuffle": True
+}
+
+# model configuration
+model_translate_rnn_seq2seq_cfg = {
+    "name": "RNNSeq2Seq",
+    "enc": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    },
+    "dec": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    }
+}
+
+model_translate_attention_based_seq2seq_cfg = {
+    "name": "AttentionBasedSeq2Seq",
+    "enc": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    },
+    "dec": {
+        "embed_size": 256,
+        "rnn": {
+            "units": 1024
+        }
+    },
+    "attention": {
+        "latent_dim": 1024
+    }
+}
+
+model_translate_transformer_based_seq2seq_cfg = {
+    "name": "TransformerBasedSeq2Seq",
+    "dropout_prob": 0.5,
+    "enc": {
+        "embed_dim": 256,
+        "tr": {
+            "dense_dim": 2048,
+            "num_heads": 8,
+            "supports_masking": True
+        }
+    },
+    "dec": {
+        "embed_dim": 256,
+        "tr": {
+            "latent_dim": 2048,
+            "num_heads": 8,
+            "supports_masking": True
+        }
+    },
+}
+
+# optimizer configs
+adam_warmup_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "Adam",
+        "other_kwargs": {}
+    },
+    "lr_scheduler": {
+        "name": "LinearWarmupLRSchedule",
+        "kwargs": {
+            "lr_peak": 1e-3,
+            "warmup_end_steps": 1500
+        }
+    }
+}
+
+radam_no_lr_sch_opt_cfg = {
+    "optimizer": {
+        "name": "RectifiedAdam",
+        "learning_rate": 1e-3,
+        "other_kwargs": {}
+    },
+    "lr_scheduler": None
+}
+
+# train_cfg
+train_cfg: dict = {
+    "train_batch_size": 128,
+    "val_batch_size": 32,
+    "test_batch_size": 32,
+    "max_epochs": 50,
+    "distribute_strategy": "MirroredStrategy",
+    "teacher_forcing_ratio": 0.5
+}
+
+_merged_cfg_presets = {
+    "rnn_translate_spa_eng_radam": {
+        "data": data_anki_spa_eng_cfg,
+        "model": model_translate_rnn_seq2seq_cfg,
+        "opt": radam_no_lr_sch_opt_cfg,
+        "train": train_cfg
+    },
+    "attention_based_translate_spa_eng_radam": {
+        "data": data_anki_spa_eng_cfg,
+        "model": model_translate_attention_based_seq2seq_cfg,
+        "opt": radam_no_lr_sch_opt_cfg,
+        "train": train_cfg
+    },
+    "transformer_based_translate_spa_eng_radam": {
+        "data": data_anki_spa_eng_cfg,
+        "model": model_translate_transformer_based_seq2seq_cfg,
+        "opt": radam_no_lr_sch_opt_cfg,
+        "train": train_cfg
+    }
+}
+
+### hydra composition ###
+# clear hydra instance
+hydra.core.global_hydra.GlobalHydra.instance().clear()
+
+# register preset configs
+register_config(_merged_cfg_presets)
+
+# initialize
+hydra.initialize(config_path = None)
+
+#using_config_key = "rnn_translate_spa_eng_radam"
+#using_config_key = "attention_based_translate_spa_eng_radam"
+using_config_key = "transformer_based_translate_spa_eng_radam"
+cfg = hydra.compose(using_config_key)
+
+
+# define & override log_cfg
+model_name = cfg.model.name
+run_dirname = "dnn-tutorial-spa-eng-translate-runs-tf"
+run_name = f"{datetime.now().isoformat(timespec = 'seconds')}-{using_config_key}-{model_name}"
+log_dir = os.path.join(drive_project_root, 'runs', run_dirname, run_name)
+
+log_cfg = {
+    "run_name": run_name,
+    "checkpoint_filepath": os.path.join(log_dir, "model"),
+    "tensorboard_log_dir": log_dir,
+    "callbacks": {
+        "TensorBoard": {
+            "log_dir": log_dir,
+            "update_freq": 50
+        },
+        "EarlyStopping": {
+            "patience": 30,
+            "verbose": True
+        }
+    },
+    "wandb": {
+        "project": "dnn-tutorial-spa-eng-translate-runs-tf",
+        "name": run_name,
+        "tags": ["dnn-tutorial-spa-eng-translate-runs-tf"],
+        "reinit": True,
+        "sync_tensorboard": True
+    }
+}
+
+# unlock struct of config & set log config
+OmegaConf.set_struct(cfg, False)
+cfg.log = log_cfg
+
+# relock config
+OmegaConf.set_struct(cfg, True)
+print(OmegaConf.to_yaml(cfg))
+
+# save yaml
+# with open("config.yaml", "w") as f:
+#     OmegaConf.save(cfg, f)
+
+
+def get_distribute_strategy(strategy_name: str, **kwargs):
+    return getattr(tf.distribute, strategy_name)(**kwargs)
+
+distribute_strategy = get_distribute_strategy(cfg.train.distribute_strategy)
+
+
+# dataset batchify 및 train/val/test splits
+dataset = tf.data.Dataset.from_tensor_slices((src_tensor, tar_tensor))
+total_n = len(src_tensor)
+
+print(cfg.data.train_val_test_split_ratio)
+train_size = int(total_n * cfg.data.train_val_test_split_ratio[0])
+val_size = int(total_n * cfg.data.train_val_test_split_ratio[1])
+test_size = total_n - (train_size + val_size)
+
+# split (train, val) (test) dataset
+test_dataset = dataset.skip(train_size + val_size)
+train_val_dataset = dataset.take(train_size + val_size)
+
+if cfg.data.train_val_shuffle:
+    train_val_dataset = train_val_dataset.shuffle(buffer_size = 1024)
+
+train_dataset = train_val_dataset.take(train_size)
+val_dataset = train_val_dataset.skip(train_size)
+
+train_n, val_n, test_n = len(train_dataset), len(val_dataset), len(test_dataset)
+print(train_n, val_n, test_n)
+assert train_n + val_n + test_n == total_n
+
+# batchfy (dataloader)
+train_batch_size = cfg.train.train_batch_size
+val_batch_size = cfg.train.val_batch_size
+test_batch_size = cfg.train.test_batch_size
+
+train_dataloader = train_dataset.batch(train_batch_size, drop_remainder= True)
+val_dataloader = val_dataset.batch(val_batch_size, drop_remainder = True)
+test_dataloader = test_dataset.batch(test_batch_size, drop_remainder = True)
+
+
+# 모델 정의
+def get_seq2seq_model(cfg: DictConfig):
+    if cfg.model.name == "RNNSeq2Seq":
+        encoder = GRUEncoder(cfg)
+        decoder = GRUDecoder(cfg)
+        return encoder, decoder
+    elif cfg.model.name == "AttentionBasedSeq2Seq":
+        encoder = GRUEncoder(cfg)
+        decoder = AttentionalGRUDecoder(cfg)
+        return encoder, decoder
+    elif cfg.model.name == "TransformerBasedSeq2Seq":
+        encoder = TransformerEncoder(cfg)
+        decoder = TransformerDecoder(cfg)
+    else:
+        raise NotImplementedError()
+
+    return encoder, decoder
+    
+    
+   
+# loss 정의
+def loss_function(
+    real,
+    pred,
+    loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
+        from_logits = True, reduction = "none"
+    )
+):
+    # delete [pad] loss part with masks
+    mask = tf.math.logical_not(
+        tf.math.equal(real, 0)
+    )
+    _loss = loss_object(real, pred)
+
+    mask = tf.cast(mask, dtype = _loss.dtype)
+    _loss *= mask
+
+    return tf.reduce_mean(_loss)
+    
+    
+    
+# get model
+encoder, decoder = get_seq2seq_model(cfg)
+encoder_inputs = tf.keras.Input(shape = (None, ), dtype = "int64", name = "encoder_inputs")
+encoder_outputs = encoder(encoder_inputs)
+
+decoder_inputs = tf.keras.Input(shape = (None, ), dtype = "int64", name = "decoder_inputs")
+decoder_outputs = decoder(decoder_inputs, encoder_outputs)
+
+transformer = tf.keras.Model(
+    [encoder_inputs, decoder_inputs], decoder_outputs, name = "transformer"
+)
+
+transformer.summary()
+
+# get optimizer
+optimizer, scheduler = get_optimizer_element(
+    cfg.opt.optimizer, cfg.opt.lr_scheduler
+)
+
+
+transformer.compile(
+    optimizer,
+    loss = loss_function,
+    metrics = []
+)
+
+# get callbacks
+callbacks = get_callbacks(cfg.log)
+
+
+def decode_tr_sequence(sentence: str):
+    sentence = preprocess_sentence(sentence)
+
+    inputs = [src_tokenizer.word_index[i] for i in sentence.split(" ")]
+    inputs = pad_sequences([inputs], maxlen = max_src_len, padding = "post")
+
+    inputs = tf.convert_to_tensor(inputs)
+
+    result = ""
+
+    # autoregressive inference of decoder
+    dec_inputs = tf.cast(
+        tf.expand_dims([tar_tokenizer.word_index["<start>"]], 0),
+        tf.int64
+    ) # start token
+
+    for t in range(max_tar_len):
+        dec_outputs = transformer([inputs, dec_inputs]) # [B, L, Vocab Size]
+        predicted_id = tf.expand_dims(
+            tf.argmax(
+                tf.math.softmax(dec_outputs[:, t, :]), # [B, Vocab Size]
+                axis = 1
+            ), # [B]
+            0
+        ) # [1, B]
+
+        # prep next steps
+        dec_inputs = tf.concat([dec_inputs, predicted_id], 1)
+
+        sampled_token = tar_tokenizer.index_word[predicted_id.numpy()[0, 0]]
+
+        if sampled_token == "<end>":
+            break
+        result += sampled_token + " "
+
+
+    return result
+
+print(decode_tr_sequence(u"Esta es mi vida."))
+
+
+# wandb setup
+wandb.init(
+    config= flatten_dict(cfg),
+    **cfg.log.wandb
+)
+
+
+%load_ext tensorboard
+%tensorboard --logdir /content/drive/MyDrive/\#fastcampus/runs/dnn-tutorial-spa-eng-translate-runs-tf
+
+def format_dataset(_src, _tar):
+    return ({
+        "encoder_inputs": _src,
+        "decoder_inputs": _tar[:, :-1],
+    }, _tar[:, 1:])
+
+transformer.fit(
+    train_dataloader.map(format_dataset),
+    validation_data = val_dataloader.map(format_dataset),
+    epochs = cfg.train.max_epochs,
+    callbacks = callbacks
+)
+
+
