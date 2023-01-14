@@ -1,0 +1,172 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+int N, M;
+int map[12][12];
+
+enum {
+	R = 0,
+	D,
+	L,
+	U
+};
+
+bool DFS(int ry, int rx, int by, int bx, int direction, int cnt)
+{
+	if (cnt == 11)
+		return false;
+
+	bool flag = false;
+
+	switch (direction) {
+	case R:
+		while (map[by][bx + 1] != '#' && !(by == ry && (bx + 1) == rx)) {
+			bx++;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+		
+		while (map[ry][rx + 1] != '#' && !(ry == by && (rx + 1) == bx)) {
+			rx++;
+			if (map[ry][rx] == 'O') {
+				flag = true;
+				ry = rx = 0;
+				break;
+			}
+		}
+
+		while (map[by][bx + 1] != '#' && !(by == ry && (bx + 1) == rx)) {
+			bx++;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		break;
+	case D:
+		while (map[by + 1][bx] != '#' && !((by + 1) == ry && bx == rx)) {
+			by++;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		while (map[ry + 1][rx] != '#' && !((ry + 1) == by && rx == bx)) {
+			ry++;
+			if (map[ry][rx] == 'O') {
+				flag = true;
+				ry = rx = 0;
+				break;
+			}
+		}
+
+		while (map[by + 1][bx] != '#' && !((by + 1) == ry && bx == rx)) {
+			by++;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		break;
+	case L:
+		while (map[by][bx - 1] != '#' && !(by == ry && (bx - 1) == rx)) {
+			bx--;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		while (map[ry][rx - 1] != '#' && !(ry == by && (rx - 1) == bx)) {
+			rx--;
+			if (map[ry][rx] == 'O') {
+				flag = true;
+				ry = rx = 0;
+				break;
+			}
+		}
+
+		while (map[by][bx - 1] != '#' && !(by == ry && (bx - 1) == rx)) {
+			bx--;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		break;
+	case U:
+		while (map[by - 1][bx] != '#' && !((by - 1) == ry && bx == rx)) {
+			by--;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		while (map[ry - 1][rx] != '#' && !((ry - 1) == by && rx == bx)) {
+			ry--;
+			if (map[ry][rx] == 'O') {
+				flag = true;
+				ry = rx = 0;
+				break;
+			}
+		}
+
+		while (map[by - 1][bx] != '#' && !((by - 1) == ry && bx == rx)) {
+			by--;
+			if (map[by][bx] == 'O')
+				return false;
+		}
+
+		break;
+	default:
+		break;
+	}
+
+	if (flag)
+		return true;
+
+	for (int i = 0; i < 4; i++) {
+		if (direction == i)
+			continue;
+
+		if (DFS(ry, rx, by, bx, i, cnt + 1))
+			return true;
+	}
+
+	return false;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M;
+	
+	int ry = 0, rx = 0, by = 0, bx = 0;
+	for (int y = 1; y <= N; y++) {
+		string s;
+		cin >> s;
+
+		for (int x = 1; x <= M; x++) {
+			map[y][x] = s[x - 1];
+
+			if (map[y][x] == 'B') {
+				by = y;
+				bx = x;
+				map[y][x] = '.';
+			}
+			else if (map[y][x] == 'R') {
+				ry = y;
+				rx = x;
+				map[y][x] = '.';
+			}
+		}
+	}
+
+	bool flag = false;
+
+	for (int i = 0; i < 4; i++)
+		if (DFS(ry, rx, by, bx, i, 1)) {
+			cout << "1\n";
+			return 0;
+		}
+
+	cout << "0\n";
+
+	return 0;
+}
