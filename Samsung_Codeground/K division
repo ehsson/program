@@ -1,0 +1,89 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+#define DIV 1000000007
+
+long long N, K;
+long long sum[500001];
+long long fac[500001];
+long long inv[500001];
+long long dp[500001];
+
+long long pow1(long long a, long long b)
+{
+	long long res = 1;
+	for (; b; b >>= 1) {
+		if (b & 1)
+			res = res * a % DIV;
+		a = a * a % DIV;
+	}
+	return res;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	fac[0] = 1;
+	for (int i = 1; i <= 500000; i++)
+		fac[i] = (fac[i - 1] * i) % DIV;
+
+	inv[500000] = pow1(fac[500000], DIV - 2);
+	for (int i = 500000 - 1; i >= 0; i--)
+		inv[i] = inv[i + 1] * (i + 1) % DIV;
+
+	for (int t = 1; t <= T; t++) {
+		memset(dp, 0, sizeof(dp));
+		memset(sum, 0, sizeof(sum));
+		cin >> N >> K;
+
+		sum[0] = 0;
+		for (int i = 1; i <= N; i++) {
+			int in;
+			cin >> in;
+			sum[i] += sum[i - 1] + in;
+		}
+
+		if (sum[N] % K) {
+			cout << "Case #" << t << "\n";
+			cout << "0\n";
+			continue;
+		}
+
+		long long div = sum[N] / K;
+		if (div == 0) {
+			long long cnt = 0;
+			for (int i = 1; i < N; i++) {
+				if (!sum[i])
+					cnt++;
+			}
+
+			long long answer = fac[cnt] * inv[K - 1] % DIV * inv[cnt - K + 1] % DIV;
+			cout << "Case #" << t << "\n";
+			cout << answer << "\n";
+			continue;
+		}
+
+		dp[0] = 1;
+		for (int i = 1; i <= N; i++) {
+			if (sum[i] % div)
+				continue;
+			int idx = sum[i] / div;
+			if (idx >= 1 && idx <= K) {
+				if (i == N) {
+					cout << "Case #" << t << "\n";
+					cout << dp[idx - 1] << "\n";
+				}
+				dp[idx] += dp[idx - 1];
+				dp[idx] %= DIV;
+			}
+		}
+	}
+
+	return 0;
+}
