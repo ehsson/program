@@ -1,0 +1,61 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int N, C;
+vector<long long> v1, v2;
+int arr[31];
+
+void recur(int idx, long long sum, int end)
+{
+	if (idx == end + 1) {
+		if (end == (int)(N / 2))
+			v1.push_back(sum);
+		else if (end == N)
+			v2.push_back(sum);
+
+		return;
+	}
+
+	recur(idx + 1, sum + arr[idx], end);
+	recur(idx + 1, sum, end);
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> C;
+
+	for (int n = 1; n <= N; n++)
+		cin >> arr[n];
+
+	if (N == 1) {
+		if (arr[1] <= C)
+			cout << "2\n";
+		else
+			cout << "1\n";
+		return 0;
+	}
+
+	recur(1, 0, (int)(N / 2));
+	recur((int)(N / 2) + 1, 0, N);
+	sort(v2.begin(), v2.end());
+
+	long long cnt = 0;
+
+	for (int i = 0; i < v1.size(); i++) {
+		for (int j = 0; j < v2.size(); j++) {
+			if (v1[i] + v2[j] <= C)
+				cnt++;
+			else
+				break;
+		}
+	}
+
+	cout << cnt << "\n";
+
+	return 0;
+}
