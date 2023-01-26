@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+#include <vector>
+using namespace std;
+
+#define INF 2147483647
+
+int N, M, K;
+
+vector<pair<int, int>> map[10001];
+long long dp[10001][21];
+
+void dijkstra()
+{
+	priority_queue<pair<long long, pair<int, int>>> pq; // (sum, (pos, k))
+	pq.push({ 0, {1, 0} });
+	dp[1][0] = 0;
+
+	while (!pq.empty()) {
+		long long sum = -pq.top().first;
+		int pos = pq.top().second.first;
+		int k = pq.top().second.second;
+		pq.pop();
+
+		if (sum > dp[pos][k])
+			continue;
+
+		for (int i = 0; i < map[pos].size(); i++) {
+			int next = map[pos][i].first;
+			int dis = map[pos][i].second;
+
+			if (k < K) {
+				if (dp[next][k + 1] == -1 || dp[next][k + 1] > sum) {
+					dp[next][k + 1] = sum;
+					pq.push({ -sum, {next, k + 1} });
+				}
+			}
+
+			if (dp[next][k] == -1 || dp[next][k] > sum + dis) {
+				dp[next][k] = sum + dis;
+				pq.push({ -(sum + dis), {next, k} });
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M >> K;
+
+	for (int i = 1; i <= N; i++)
+		for (int k = 0; k <= K; k++)
+			dp[i][k] = -1;
+
+	for (int m = 0; m < M; m++) {
+		int in1, in2, dis;
+		cin >> in1 >> in2 >> dis;
+
+		map[in1].push_back({ in2, dis });
+		map[in2].push_back({ in1, dis });
+	}
+
+	dijkstra();
+
+	long long answer = dp[N][0];
+
+	for (int k = 1; k <= K; k++)
+		answer = min(answer, dp[N][k]);
+
+	cout << answer << "\n";
+
+	return 0;
+}
