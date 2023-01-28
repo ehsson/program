@@ -1,0 +1,76 @@
+// wrong code
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#define INF 2147483647
+
+int map[50][50];
+int money[50];
+long long bf[50];
+
+vector<pair<pair<int, int>, int>> v;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int N, start, end, M;
+	cin >> N >> start >> end >> M;
+
+	for (int m = 0; m < M; m++) {
+		int s, e, cost;
+		cin >> s >> e >> cost;
+
+		map[s][e] = cost;
+	}
+
+	for (int n = 0; n < N; n++) {
+		bf[n] = -INF;
+		cin >> money[n];
+	}
+
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			if (map[i][j])
+				v.push_back({ {i, j}, money[j] - map[i][j] });
+
+	bf[start] = money[start];
+	for (int n = 0; n < N - 1; n++) {
+		for (int i = 0; i < v.size(); i++) {
+			int from = v[i].first.first;
+			int to = v[i].first.second;
+			int cost = v[i].second;
+
+			if (bf[from] == -INF)
+				continue;
+			if (bf[to] < bf[from] + cost)
+				bf[to] = bf[from] + cost;
+		}
+	}
+
+	for (int i = 0; i < v.size(); i++) {
+		int from = v[i].first.first;
+		int to = v[i].first.second;
+		int cost = v[i].second;
+
+		if (bf[from] == -INF)
+			continue;
+		if (bf[to] < bf[from] + cost) {
+			if (bf[end] == -INF)
+				cout << "gg\n";
+			else
+				cout << "Gee\n";
+			return 0;
+		}
+	}
+
+	if (bf[end] == -INF)
+		cout << "gg\n";
+	else
+		cout << bf[end] << "\n";
+
+	return 0;
+}
