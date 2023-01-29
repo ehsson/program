@@ -1,76 +1,95 @@
-// wrong code
-
 #include <iostream>
 #include <vector>
+#include <queue>
 using namespace std;
 
-#define INF 2147483647
+#define INF 9223372036854775807
 
-int map[50][50];
 int money[50];
 long long bf[50];
+bool visit[50];
+
+int N, start, ende, M;
 
 vector<pair<pair<int, int>, int>> v;
+queue<int> q;
+
+bool BFS()
+{
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+
+		for (int i = 0; i < v.size(); i++) {
+			if (v[i].first.first == cur) {
+				int next = v[i].first.second;
+
+				if (visit[next])
+					continue;
+				visit[next] = true;
+				q.push(next);
+			}
+		}
+	}
+
+	if (visit[ende])
+		return true;
+	else
+		return false;
+}
 
 int main(void)
 {
+	FILE* pf;
+	freopen_s(&pf, "input.txt", "r", stdin);
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
-	int N, start, end, M;
-	cin >> N >> start >> end >> M;
+	cin >> N >> start >> ende >> M;
 
 	for (int m = 0; m < M; m++) {
 		int s, e, cost;
 		cin >> s >> e >> cost;
 
-		map[s][e] = cost;
+		v.push_back({ { s, e }, cost });
 	}
 
 	for (int n = 0; n < N; n++) {
-		bf[n] = -INF;
 		cin >> money[n];
+		bf[n] = -INF;
 	}
-
-	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++)
-			if (map[i][j])
-				v.push_back({ {i, j}, money[j] - map[i][j] });
 
 	bf[start] = money[start];
-	for (int n = 0; n < N - 1; n++) {
-		for (int i = 0; i < v.size(); i++) {
-			int from = v[i].first.first;
-			int to = v[i].first.second;
-			int cost = v[i].second;
 
-			if (bf[from] == -INF)
-				continue;
-			if (bf[to] < bf[from] + cost)
-				bf[to] = bf[from] + cost;
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j < v.size(); j++) {
+			int from = v[j].first.first;
+			int to = v[j].first.second;
+			int cost = v[j].second;
+
+			if (bf[from] != -INF && bf[to] < bf[from] - cost + money[to])
+				bf[to] = bf[from] - cost + money[to];
 		}
 	}
 
-	for (int i = 0; i < v.size(); i++) {
-		int from = v[i].first.first;
-		int to = v[i].first.second;
-		int cost = v[i].second;
+	for (int j = 0; j < v.size(); j++) {
+		int from = v[j].first.first;
+		int to = v[j].first.second;
+		int cost = v[j].second;
 
-		if (bf[from] == -INF)
-			continue;
-		if (bf[to] < bf[from] + cost) {
-			if (bf[end] == -INF)
-				cout << "gg\n";
-			else
-				cout << "Gee\n";
-			return 0;
+		if (bf[from] != -INF && bf[to] < bf[from] - cost + money[to]) {
+			q.push(from);
 		}
 	}
 
-	if (bf[end] == -INF)
+	if (bf[ende] == -INF)
 		cout << "gg\n";
-	else
-		cout << bf[end] << "\n";
+	else {
+		if (BFS())
+			cout << "Gee\n";
+		else
+			cout << bf[ende] << "\n";
+	}
 
 	return 0;
 }
