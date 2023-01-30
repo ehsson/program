@@ -1,0 +1,52 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+int N;
+
+char coin[21][21];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++) {
+		string s;
+		cin >> s;
+
+		for (int i = 0; i < N; i++)
+			coin[n][i + 1] = s[i];
+	}
+
+	int answer = N * N;
+
+	for (int row_state = 0; row_state < 1 << N; row_state++) { // 1이면 뒷면, 0이면 앞면
+		int temp = 0;
+
+		for (int j = 1; j <= N; j++) {
+			int t_cnt = 0;
+
+			for (int i = 1; i <= N; i++) {
+				if ((row_state & (1 << (i-1))) == (1 << (i - 1))) { // 행이 뒤집어짐
+					if (coin[i][j] == 'H')
+						t_cnt++;
+				}
+				else {
+					if (coin[i][j] == 'T')
+						t_cnt++;
+				}
+			}
+
+			temp += min(t_cnt, N - t_cnt);
+		}
+
+		answer = min(answer, temp);
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
