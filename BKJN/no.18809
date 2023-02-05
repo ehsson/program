@@ -1,0 +1,121 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int N, M, G, R;
+int answer, y_cnt;
+
+typedef struct Point {
+	int y, x;
+} Point;
+
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+int map[51][51];
+int visit[51][51][2];
+vector<Point> yellow;
+vector<pair<Point, int>> temp;
+queue<pair<pair<Point, int>, int>> q; // red: 0, green: 1
+
+void BFS()
+{
+	int _max = 0;
+
+	while (!q.empty()) {
+		Point p = q.front().first.first;
+		int rgb = q.front().first.second;
+		int cnt = q.front().second;
+		q.pop();
+
+		if (visit[p.y][p.x][0] == -1) // 꽃이 핀 경우
+			continue;
+
+		visit[p.y][p.x][rgb] = cnt;
+
+		for (int i = 0; i < 4; i++) {
+			Point next = { p.y + dy[i], p.x + dx[i] };
+
+			if (next.y >= 1 && next.y <= N && next.x >= 1 && next.x <= M && map[next.y][next.x]) {
+				if (!rgb) { // red인 경우
+					if (visit[next.y][next.x][1] == cnt + 1) {
+						visit[next.y][next.x][0] = -1;
+						visit[next.y][next.x][1] = -1;
+						_max++;
+					}
+					else if (visit[next.y][next.x][0] == 0 && visit[next.y][next.x][1] == 0) {
+						q.push({ {{next.y, next.x}, rgb}, cnt + 1 });
+						visit[next.y][next.x][0] = cnt + 1;
+					}
+				}
+				else { // green인 경우
+					if (visit[next.y][next.x][0] == cnt + 1) {
+						visit[next.y][next.x][0] = -1;
+						visit[next.y][next.x][1] = -1;
+						_max++;
+					}
+					else if (visit[next.y][next.x][0] == 0 && visit[next.y][next.x][1] == 0) {
+						q.push({ {{next.y, next.x}, rgb}, cnt + 1 });
+						visit[next.y][next.x][1] = cnt + 1;
+					}
+				}
+			}
+		}
+	}
+
+	answer = max(answer, _max);
+}
+
+void combination(int cnt, int r_cnt, int g_cnt)
+{
+	if (yellow.size() == cnt) {
+		if (r_cnt == R && g_cnt == G) {
+			memset(visit, 0, sizeof(visit));
+			for (int i = 0; i < temp.size(); i++) {
+				visit[temp[i].first.y][temp[i].first.x][temp[i].second] = 1;
+				q.push({ {{temp[i].first.y, temp[i].first.x}, temp[i].second}, 1 });
+			}
+
+			BFS();
+		}
+
+		return;
+	}
+
+	combination(cnt + 1, r_cnt, g_cnt);
+
+	if (r_cnt < R) {
+		temp.push_back({ {yellow[cnt].y, yellow[cnt].x}, 0 });
+		combination(cnt + 1, r_cnt + 1, g_cnt);
+		temp.pop_back();
+	}
+
+	if (g_cnt < G) {
+		temp.push_back({ {yellow[cnt].y, yellow[cnt].x}, 1 });
+		combination(cnt + 1, r_cnt, g_cnt + 1);
+		temp.pop_back();
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M >> G >> R;
+
+	for (int n = 1; n <= N; n++)
+		for (int m = 1; m <= M; m++) {
+			cin >> map[n][m];
+			if (map[n][m] == 2)
+				yellow.push_back({n, m});
+		}
+
+	combination(0, 0, 0);
+
+	cout << answer << "\n";
+
+	return 0;
+}
