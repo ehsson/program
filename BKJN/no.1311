@@ -1,0 +1,50 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 2000000
+
+int N;
+int input[21][21];
+int dp[21][0b11111111111111111111];
+
+int DFS(int p, int bit)
+{
+	if (p == N)
+		return 0;
+
+	if (dp[p][bit] != MAX)
+		return dp[p][bit];
+
+	for (int i = 1, j = 1; i <= (1 << N) - 1; i = i << 1, j++) {
+		if (bit & i)
+			continue;
+
+		int temp = bit | i;
+		dp[p][bit] = min(dp[p][bit], DFS(p + 1, temp) + input[p + 1][j]);
+	}
+	
+	return dp[p][bit];
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int i = 1; i <= N; i++)
+		for (int j = 1; j <= N; j++)
+			cin >> input[i][j];
+
+	dp[0][0] = MAX;
+	for (int i = 1; i <= N; i++)
+		for (int j = 1; j <= (1 << N) - 1; j++)
+			dp[i][j] = MAX;
+
+	DFS(0, 0);
+
+	cout << dp[0][0] << "\n";
+
+	return 0;
+}
