@@ -1,0 +1,44 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int N;
+
+int price[16][16];
+int dp[16][0b111111111111111];
+
+int DFS(int num, int bit, int prev_price)
+{
+	if (dp[num][bit])
+		return dp[num][bit];
+
+	for (int i = 1, j = 1; i < (1 << N); i = i << 1, j++) {
+		if (!(bit & i) && prev_price <= price[num][j])
+			dp[num][bit] = max(dp[num][bit], DFS(j, bit | i, price[num][j]) + 1);
+	}
+
+	return dp[num][bit];
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++) {
+		string s;
+		cin >> s;
+
+		for (int i = 0; i < N; i++)
+			price[n][i + 1] = s[i] - '0';
+	}
+
+	DFS(1, 1, 0);
+
+	cout << dp[1][1] + 1 << "\n";
+
+	return 0;
+}
