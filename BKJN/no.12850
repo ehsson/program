@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#define DIV 1000000007
+
+vector<vector<long long>> mat = { {0, 1, 1, 0, 0, 0, 0, 0},
+								  {1, 0, 1, 1, 0, 0, 0, 0},
+								  {1, 1, 0, 1, 1, 0, 0, 0},
+								  {0, 1, 1, 0, 1, 1, 0, 0},
+								  {0, 0, 1, 1, 0, 1, 1, 0},
+								  {0, 0, 0, 1, 1, 0, 0, 1},
+								  {0, 0, 0, 0, 1, 0, 0, 1},
+								  {0, 0, 0, 0, 0, 1, 1, 0} };
+
+int D;
+
+long long pow(long long a, long long b)
+{
+	long long res = 1;
+
+	while (b > 0) {
+		if (b & 1)
+			res *= a;
+
+		a = a * a;
+		b >>= 1;
+	}
+
+	return res;
+}
+
+vector<vector<long long>> matmul(vector<vector<long long>> a, vector<vector<long long>> b)
+{
+	vector<vector<long long>> v(8, vector<long long>(8));
+
+	for(int i = 0; i < 8; i++)
+		for (int j = 0; j < 8; j++)
+			for (int k = 0; k < 8; k++)
+				v[i][j] = (v[i][j] + a[i][k] * b[k][j]) % DIV;
+
+	return v;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> D;
+	
+	vector<vector<long long>> ans(8, vector<long long>(8));
+	for (int i = 0; i < 8; i++)
+		ans[i][i] = 1;
+
+	vector<vector<long long>> v = mat;
+
+	while (D) {
+		if (D & 1)
+			ans = matmul(ans, v);
+
+		v = matmul(v, v);
+		D >>= 1;
+	}
+
+	cout << ans[0][0] << "\n";
+
+	return 0;
+}
