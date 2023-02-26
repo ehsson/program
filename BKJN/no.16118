@@ -1,12 +1,9 @@
-// time limit code
-
 #include <iostream>
 #include <queue>
 #include <vector>
-#include <cstring>
 using namespace std;
 
-#define MAX 2000000000
+#define MAX 2147483647
 
 int N, M;
 
@@ -16,29 +13,32 @@ vector<pair<int, int>> map[4001];	//(location, dis)
 
 void wBFS()
 {
-	priority_queue<pair<pair<int, int>, int>> pq;	//((time, location), chk)
-	pq.push({ {0, 1}, 0 });
+	priority_queue<pair<int, pair<int, int>>> pq;	//(time, (location, chk))
+	pq.push({ 0, {1, 0} });
 
 	while (!pq.empty()) {
-		int time = -pq.top().first.first;
-		int cur = pq.top().first.second;
-		int chk = pq.top().second;
+		int time = -pq.top().first;
+		int cur = pq.top().second.first;
+		int chk = pq.top().second.second;
 		pq.pop();
+
+		if (wolf[cur][chk] < time)
+			continue;
 
 		for (int i = 0; i < map[cur].size(); i++) {
 			int next = map[cur][i].first;
 			int dis = map[cur][i].second;
 
 			if (chk) {	// 두배 속도로 달려왔음
-				if (wolf[next][chk] > time + (dis * 2)) {
-					wolf[next][chk] = time + (dis * 2);
-					pq.push({ {-(time + (dis * 2)), next}, 0 });
+				if (wolf[next][0] > time + (dis * 2)) {
+					wolf[next][0] = time + (dis * 2);
+					pq.push({ -wolf[next][0], {next, 0} });
 				}
 			}
 			else {	// 체력 회복 함
-				if (wolf[next][chk] > time + (dis / 2)) {
-					wolf[next][chk] = time + (dis / 2);
-					pq.push({ {-(time + (dis / 2)), next}, 1 });
+				if (wolf[next][1] > time + (dis / 2)) {
+					wolf[next][1] = time + (dis / 2);
+					pq.push({ -wolf[next][1], {next, 1} });
 				}
 			}
 		}
@@ -82,6 +82,7 @@ int main(void)
 		map[b].push_back({ a, d * 2 });
 	}
 
+	wolf[1][1] = MAX;
 	for (int i = 2; i <= N; i++)
 		fox[i] = wolf[i][0] = wolf[i][1] = MAX;
 
