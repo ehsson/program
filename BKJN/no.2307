@@ -1,0 +1,84 @@
+// time limit code
+
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+#define MAX 50000001
+
+int N, M;
+
+int node[5001];
+vector<pair<pair<int, int>, int>> v[5001];
+
+int dijkstra(int num)
+{
+	priority_queue<pair<int, int>> pq;
+	pq.push({ 0, 1 });
+
+	while (!pq.empty()) {
+		int time = -pq.top().first;
+		int cur = pq.top().second;
+		pq.pop();
+
+		if (node[cur] < time)
+			continue;
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			if (v[cur][i].second == num)
+				continue;
+
+			int next = v[cur][i].first.first;
+			int sum = time + v[cur][i].first.second;
+
+			if (node[next] > sum) {
+				node[next] = sum;
+				pq.push({ -sum, next });
+			}
+		}
+	}
+
+	return node[N];
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M;
+
+	for (int m = 1; m <= M; m++) {
+		int a, b, t;
+		cin >> a >> b >> t;
+
+		v[a].push_back({ {b, t}, m });
+		v[b].push_back({ {a, t}, m });
+	}
+
+	for (int j = 2; j <= N; j++)
+		node[j] = MAX;
+
+	int std = dijkstra(0);
+	int answer = 0;
+
+	for (int i = 1; i <= M; i++) {
+		for (int j = 2; j <= N; j++)
+			node[j] = MAX;
+
+		int temp = dijkstra(i);
+
+		if (temp == MAX) {
+			answer = -1;
+			break;
+		}
+
+		if (temp >= std)
+			answer = max(answer, temp - std);
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
