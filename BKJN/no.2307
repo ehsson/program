@@ -1,5 +1,3 @@
-// time limit code
-
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -10,6 +8,7 @@ using namespace std;
 int N, M;
 
 int node[5001];
+int best[5001];
 vector<pair<pair<int, int>, int>> v[5001];
 
 int dijkstra(int num)
@@ -24,6 +23,9 @@ int dijkstra(int num)
 
 		if (node[cur] < time)
 			continue;
+
+		if (cur == N)
+			return node[N];
 
 		for (int i = 0; i < v[cur].size(); i++) {
 			if (v[cur][i].second == num)
