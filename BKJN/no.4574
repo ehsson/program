@@ -1,0 +1,169 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int N;
+bool flag;
+bool row[10][10];
+bool col[10][10];
+bool sq[10][10];
+bool tile[10][10];
+int map[10][10];
+
+int dr[2] = { 0, 1 };
+int dc[2] = { 1, 0 };
+
+int get_square(int r, int c)
+{
+	if (r >= 1 && r <= 3) {
+		if (c >= 1 && c <= 3)
+			return 1;
+		else if (c >= 4 && c <= 6)
+			return 2;
+		else if (c >= 7 && c <= 9)
+			return 3;
+	}
+	else if (r >= 4 && r <= 6) {
+		if (c >= 1 && c <= 3)
+			return 4;
+		else if (c >= 4 && c <= 6)
+			return 5;
+		else if (c >= 7 && c <= 9)
+			return 6;
+	}
+	else if (r >= 7 && r <= 9) {
+		if (c >= 1 && c <= 3)
+			return 7;
+		else if (c >= 4 && c <= 6)
+			return 8;
+		else if (c >= 7 && c <= 9)
+			return 9;
+	}
+}
+
+void DFS(int idx, int cnt)
+{
+	if (idx == 81) {
+		flag = true;
+		cout << "Puzzle " << cnt << "\n";
+		for (int i = 1; i <= 9; i++) {
+			for (int j = 1; j <= 9; j++)
+				cout << map[i][j];
+
+			cout << "\n";
+		}
+
+		return;
+	}
+
+	int r = idx / 9 + 1;
+	int c = idx % 9 + 1;
+
+	if (map[r][c])
+		DFS(idx + 1, cnt);
+	else {
+		for (int i = 0; i < 2; i++) {
+			int r1 = r, r2 = r + dr[i], c1 = c, c2 = c + dc[i];
+
+			if (r2 > 9 || c2 > 9 || map[r2][c2])
+				continue;
+
+			int sq_num1 = get_square(r1, c1), sq_num2 = get_square(r2, c2);
+
+			for (int j = 1; j <= 9; j++) {
+				for (int k = 1; k <= 9; k++) {
+					if (j == k || tile[j][k] || tile[k][j])
+						continue;
+
+					if (!row[r1][j] && !col[c1][j] && !sq[sq_num1][j]) {
+						map[r1][c1] = j;
+						row[r1][j] = col[c1][j] = sq[sq_num1][j] = true;
+						if (!row[r2][k] && !col[c2][k] && !sq[sq_num2][k]) {
+							tile[j][k] = tile[k][j] = true;
+							map[r2][c2] = k;
+							row[r2][k] = col[c2][k] = sq[sq_num2][k] = true;
+							DFS(idx + 1, cnt);
+							tile[j][k] = tile[k][j] = false;
+							map[r2][c2] = 0;
+							row[r2][k] = col[c2][k] = sq[sq_num2][k] = false;
+						}
+						map[r1][c1] = 0;
+						row[r1][j] = col[c1][j] = sq[sq_num1][j] = false;
+						if (flag)
+							return;
+					}
+				}
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int cnt = 1;
+
+	while (true) {
+		cin >> N;
+
+		if (N == 0)
+			break;
+
+		memset(map, 0, sizeof(map));
+		memset(row, false, sizeof(row));
+		memset(col, false, sizeof(col));
+		memset(sq, false, sizeof(sq));
+		memset(tile, false, sizeof(tile));
+
+		for (int n = 0; n < N; n++) {
+			int U, V;
+			string LU, LV;
+			cin >> U >> LU >> V >> LV;
+
+			LU[0] = LU[0] - 'A' + 1;
+			LU[1] = LU[1] - '0';
+			LV[0] = LV[0] - 'A' + 1;
+			LV[1] = LV[1] - '0';
+
+			map[LU[0]][LU[1]] = U;
+			map[LV[0]][LV[1]] = V;
+
+			col[LU[1]][U] = true;
+			col[LV[1]][V] = true;
+
+			row[LU[0]][U] = true;
+			row[LV[0]][V] = true;
+
+			sq[get_square(LU[0], LU[1])][U] = true;
+			sq[get_square(LV[0], LV[1])][V] = true;
+
+			tile[U][V] = tile[V][U] = true;
+		}
+
+		for (int i = 1; i <= 9; i++) {
+			string s;
+			cin >> s;
+
+			s[0] = s[0] - 'A' + 1;
+			s[1] = s[1] - '0';
+
+			map[s[0]][s[1]] = i;
+
+			col[s[1]][i] = true;
+			
+			row[s[0]][i] = true;
+
+			sq[get_square(s[0], s[1])][i] = true;
+		}
+
+		flag = false;
+		DFS(0, cnt);
+
+		cnt++;
+	}
+
+	return 0;
+}
