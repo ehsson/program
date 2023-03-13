@@ -1,0 +1,99 @@
+#include <iostream>
+#include <queue>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int N, M;
+int c_cnt;
+
+int map[51][51];
+bool visit[51][51][4][3];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+typedef struct INFO {
+	int y, x, complete, cnt, prev_dir;
+} INFO;
+
+bool isin(int y, int x)
+{
+	if (y >= 1 && y <= N && x >= 1 && x <= M && map[y][x] != '#')
+		return true;
+	else
+		return false;
+}
+
+int BFS(int sy, int sx)
+{
+	queue<INFO> q;
+	q.push({ sy, sx, 0, 0, -1 });
+	
+	while (!q.empty()) {
+		int y = q.front().y;
+		int x = q.front().x;
+		int complete = q.front().complete;
+		int cnt = q.front().cnt;
+		int prev_dir = q.front().prev_dir;
+		q.pop();
+
+		if (map[y][x] == 'C' || map[y][x] == 'D') {
+			if ((map[y][x] == 'C' && complete == 2) || (map[y][x] == 'D' && complete == 1))
+				return cnt;
+			else if (complete == 0) {
+				if (map[y][x] == 'C')
+					complete = 1;
+				else if (map[y][x] == 'D')
+					complete = 2;
+			}
+		}
+
+		for (int i = 0; i < 4; i++) {
+			if (i == prev_dir)
+				continue;
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (isin(ny, nx) && !visit[ny][nx][i][complete]) {
+				q.push({ ny, nx, complete, cnt + 1, i });
+				visit[ny][nx][i][complete] = true;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M;
+
+	int sy = 0, sx = 0;
+
+	bool flag = false;
+
+	for (int n = 1; n <= N; n++) {
+		string s;
+		cin >> s;
+
+		for (int i = 0; i < s.size(); i++) {
+			map[n][i + 1] = s[i];
+
+			if (map[n][i + 1] == 'S') {
+				sy = n;
+				sx = i + 1;
+			}
+			else if (map[n][i + 1] == 'C' && !flag) {
+				map[n][i + 1] = 'D';
+				flag = true;
+			}
+		}
+	}
+
+	cout << BFS(sy, sx) << "\n";
+
+	return 0;
+}
