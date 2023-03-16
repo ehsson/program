@@ -1,0 +1,38 @@
+#include <iostream>
+#include <stack>
+using namespace std;
+
+int N;
+int answer;
+
+int arr[100002];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> arr[n];
+
+	stack<int> s;
+	s.push(0);
+
+	int answer = 0;
+
+	for (int i = 1; i <= N + 1; i++) {
+		while (!s.empty() && arr[s.top()] > arr[i]) {
+			int idx = s.top();
+			s.pop();
+			answer = max(answer, (i - s.top() - 1) * arr[idx]);
+		}
+
+		s.push(i);
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
