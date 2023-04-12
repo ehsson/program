@@ -1,0 +1,95 @@
+// Kosaraju algorithm
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+int V, E;
+
+vector<int> graph[10001];
+vector<int> inv_graph[10001];
+bool visit[10001];
+stack<int> s;
+vector<int> v;
+vector<vector<int>> result;
+
+void DFS(int node)
+{
+	for (int i = 0; i < graph[node].size(); i++) {
+		int next = graph[node][i];
+
+		if (!visit[next]) {
+			visit[next] = true;
+			DFS(next);
+		}
+	}
+
+	s.push(node);
+}
+
+void inv_DFS(int node)
+{
+	v.push_back(node);
+
+	for (int i = 0; i < inv_graph[node].size(); i++) {
+		int next = inv_graph[node][i];
+
+		if (!visit[next]) {
+			visit[next] = true;
+			inv_DFS(next);
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> V >> E;
+
+	for (int e = 0; e < E; e++) {
+		int start, end;
+		cin >> start >> end;
+
+		graph[start].push_back(end);
+		inv_graph[end].push_back(start);
+	}
+
+	for (int i = 1; i <= V; i++)
+		if (!visit[i]) {
+			visit[i] = true;
+			DFS(i);
+		}
+
+	memset(visit, false, sizeof(visit));
+
+	while (!s.empty()) {
+		int node = s.top();
+		s.pop();
+
+		if (!visit[node]) {
+			visit[node] = true;
+			v.clear();
+			inv_DFS(node);
+			sort(v.begin(), v.end());
+			result.push_back(v);
+		}
+	}
+
+	sort(result.begin(), result.end());
+
+	cout << result.size() << "\n";
+
+	for (int i = 0; i < result.size(); i++) {
+		for (int j = 0; j < result[i].size(); j++)
+			cout << result[i][j] << " ";
+
+		cout << "-1\n";
+	}
+
+	return 0;
+}
