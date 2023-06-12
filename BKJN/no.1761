@@ -1,22 +1,25 @@
-// time limit code
-
 #include <iostream>
 #include <vector>
 using namespace std;
 
+typedef struct Pair {
+	int node, dis;
+} Pair;
+
 int N, M;
 vector<pair<int, int>> v[40001];
 int depth[40001];
-int parent[40001][20];
+Pair parent[40001][20];
 
 void get_depth(int node)
 {
 	for (int i = 0; i < v[node].size(); i++) {
 		int next = v[node][i].first;
+		int dis = v[node][i].second;
 
 		if (depth[next] == 0) {
 			depth[next] = depth[node] + 1;
-			parent[next][0] = node;
+			parent[next][0] = { node, dis };
 			get_depth(next);
 		}
 	}
@@ -24,24 +27,26 @@ void get_depth(int node)
 
 int get_distance(int a, int b)
 {
-	int ori_a = a, ori_b = b;
-
-	if (depth[a] < depth[b]) {
+	if (depth[a] < depth[b])
 		swap(a, b);
-		swap(ori_a, ori_b);
-	}
+
+	int dis = 0;
 
 	while (depth[a] != depth[b]) {
 		int i = 0;
 
 		while (true) {
-			int temp = parent[a][i];
+			int temp_node = parent[a][i].node;
 
-			if (depth[temp] <= depth[b]) {
-				if (depth[temp] == depth[b])
-					a = parent[a][i];
-				else
-					a = parent[a][i - 1];
+			if (depth[temp_node] <= depth[b]) {
+				if (depth[temp_node] == depth[b]) {
+					dis += parent[a][i].dis;
+					a = parent[a][i].node;
+				}
+				else {
+					dis += parent[a][i - 1].dis;
+					a = parent[a][i - 1].node;
+				}
 
 				break;
 			}
@@ -52,44 +57,18 @@ int get_distance(int a, int b)
 
 	if (a != b) {
 		for (int i = 19; i >= 0; i--)
-			if (parent[a][i] != parent[b][i]) {
-				a = parent[a][i];
-				b = parent[b][i];
+			if (parent[a][i].node != parent[b][i].node) {
+				dis += parent[a][i].dis;
+				dis += parent[b][i].dis;
+				a = parent[a][i].node;
+				b = parent[b][i].node;
 			}
 
-		a = parent[a][0];
+		dis += parent[a][0].dis;
+		dis += parent[b][0].dis;
 	}
 
-	int dis1 = 0, dis2 = 0;
-	int temp = ori_a;
-
-	while (temp != a) {
-		for (int i = 0; i < v[temp].size(); i++) {
-			int next = v[temp][i].first;
-			int dis = v[temp][i].second;
-			if (depth[temp] > depth[next]) {
-				temp = next;
-				dis1 += dis;
-				break;
-			}
-		}
-	}
-
-	temp = ori_b;
-
-	while (temp != a) {
-		for (int i = 0; i < v[temp].size(); i++) {
-			int next = v[temp][i].first;
-			int dis = v[temp][i].second;
-			if (depth[temp] > depth[next]) {
-				temp = next;
-				dis2 += dis;
-				break;
-			}
-		}
-	}
-
-	return dis1 + dis2;
+	return dis;
 }
 
 int main(void)
@@ -110,8 +89,10 @@ int main(void)
 	get_depth(1);
 
 	for (int i = 0; i < 19; i++)
-		for (int j = 1; j <= N; j++)
-			parent[j][i + 1] = parent[parent[j][i]][i];
+		for (int j = 1; j <= N; j++) {
+			parent[j][i + 1].node = parent[parent[j][i].node][i].node;
+			parent[j][i + 1].dis = parent[parent[j][i].node][i].dis + parent[j][i].dis;
+		}
 
 	cin >> M;
 
