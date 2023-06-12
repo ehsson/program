@@ -1,0 +1,126 @@
+// time limit code
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int N, M;
+vector<pair<int, int>> v[40001];
+int depth[40001];
+int parent[40001][20];
+
+void get_depth(int node)
+{
+	for (int i = 0; i < v[node].size(); i++) {
+		int next = v[node][i].first;
+
+		if (depth[next] == 0) {
+			depth[next] = depth[node] + 1;
+			parent[next][0] = node;
+			get_depth(next);
+		}
+	}
+}
+
+int get_distance(int a, int b)
+{
+	int ori_a = a, ori_b = b;
+
+	if (depth[a] < depth[b]) {
+		swap(a, b);
+		swap(ori_a, ori_b);
+	}
+
+	while (depth[a] != depth[b]) {
+		int i = 0;
+
+		while (true) {
+			int temp = parent[a][i];
+
+			if (depth[temp] <= depth[b]) {
+				if (depth[temp] == depth[b])
+					a = parent[a][i];
+				else
+					a = parent[a][i - 1];
+
+				break;
+			}
+
+			i++;
+		}
+	}
+
+	if (a != b) {
+		for (int i = 19; i >= 0; i--)
+			if (parent[a][i] != parent[b][i]) {
+				a = parent[a][i];
+				b = parent[b][i];
+			}
+
+		a = parent[a][0];
+	}
+
+	int dis1 = 0, dis2 = 0;
+	int temp = ori_a;
+
+	while (temp != a) {
+		for (int i = 0; i < v[temp].size(); i++) {
+			int next = v[temp][i].first;
+			int dis = v[temp][i].second;
+			if (depth[temp] > depth[next]) {
+				temp = next;
+				dis1 += dis;
+				break;
+			}
+		}
+	}
+
+	temp = ori_b;
+
+	while (temp != a) {
+		for (int i = 0; i < v[temp].size(); i++) {
+			int next = v[temp][i].first;
+			int dis = v[temp][i].second;
+			if (depth[temp] > depth[next]) {
+				temp = next;
+				dis2 += dis;
+				break;
+			}
+		}
+	}
+
+	return dis1 + dis2;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int i = 0; i < N-1; i++) {
+		int a, b, dis;
+		cin >> a >> b >> dis;
+		v[a].push_back({b, dis});
+		v[b].push_back({a, dis});
+	}
+
+	depth[1] = 1;
+	get_depth(1);
+
+	for (int i = 0; i < 19; i++)
+		for (int j = 1; j <= N; j++)
+			parent[j][i + 1] = parent[parent[j][i]][i];
+
+	cin >> M;
+
+	for (int i = 0; i < M; i++) {
+		int a, b;
+		cin >> a >> b;
+
+		cout << get_distance(a, b) << "\n";
+	}
+
+	return 0;
+}
