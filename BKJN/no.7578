@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+
+int N;
+
+int A[500001];
+int B[1000001];
+long long tree[2000000];
+
+long long sum(int start, int end, int node, int left, int right)
+{
+	if (start > right || end < left)
+		return 0;
+
+	if (start >= left && end <= right)
+		return tree[node];
+
+	int mid = (start + end) / 2;
+
+	return sum(start, mid, node * 2, left, right) + sum(mid + 1, end, node * 2 + 1, left, right);
+}
+
+void update(int start, int end, int node, int idx)
+{
+	if (start > idx || end < idx)
+		return;
+
+	tree[node] += 1;
+
+	if (start != end) {
+		int mid = (start + end) / 2;
+
+		update(start, mid, node * 2, idx);
+		update(mid + 1, end, node * 2 + 1, idx);
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int n = 1; n <= N; n++)
+		cin >> A[n];
+
+	for (int n = 1; n <= N; n++) {
+		int val;
+		cin >> val;
+		B[val] = n;
+	}
+
+	long long answer = 0;
+
+	for (int i = 1; i <= N; i++) {
+		int idx = B[A[i]];
+
+		answer += sum(1, N, 1, idx + 1, N);
+		update(1, N, 1, idx);
+	}
+
+	cout << answer << "\n";
+
+	return 0;
+}
