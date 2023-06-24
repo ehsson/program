@@ -1,0 +1,79 @@
+// failed code
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <algorithm>
+using namespace std;
+
+int N;
+
+int arr[500001];
+int idx[500001];
+bool chk[500001];
+vector<int> v;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+
+	for (int i = 1; i <= N; i++) {
+		int a, b;
+		cin >> a >> b;
+		arr[a] = b;
+	}
+
+	int len = 0;
+	int num = 1, i = 0; // num: 번호의 개수 카운트, i: 전기줄 개수 카운트
+	v.push_back(0);
+
+	while (i < N) {
+		if (arr[num] == 0) {
+			num++;
+			continue;
+		}
+
+		if (arr[num] > v[len]) {
+			v.push_back(arr[num]);
+			len++;
+			idx[num] = len;
+		}
+		else {
+			vector<int>::iterator low = lower_bound(v.begin(), v.end(), arr[num]);
+			*low = arr[num];
+			idx[num] = low - v.begin();
+		}
+
+		num++;
+		i++;
+	}
+
+	int temp = v.size() - 1;
+
+	for (int i = num; i >= 1; i--) {
+		if (temp == 0)
+			break;
+
+		if (idx[i] == 0) {
+			chk[i] = true;
+			continue;
+		}
+
+		if (temp == idx[i]) {
+			chk[i] = true;
+			temp--;
+		}
+	}
+
+	cout << N - (v.size() - 1) << "\n";
+	v.clear();
+
+	for (int i = 1; i <= num; i++)
+		if (!chk[i])
+			cout << i << "\n";
+
+	return 0;
+}
