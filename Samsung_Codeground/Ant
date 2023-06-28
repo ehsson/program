@@ -1,0 +1,48 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+int pos[300000];
+int val[300000];
+vector<pair<int, int>> v;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		memset(val, 0, sizeof(val));
+		memset(pos, 0, sizeof(pos));
+		long long answer = 0;
+		int N;
+		cin >> N;
+
+		for (int n = 0; n < N; n++)
+			cin >> pos[n];
+
+		for (int n = 0; n < N; n++) {
+			cin >> val[n];
+			v.push_back({ val[n], pos[n] });
+		}
+
+		sort(v.begin(), v.end());
+
+		for (int n = 0; n < N; n++) {
+			int temp = abs(v[n].second - pos[n]);
+			answer += temp;
+		}
+
+		cout << "Case #" << t << "\n";
+		cout << answer << "\n";
+		v.clear();
+	}
+
+	return 0;
+}
