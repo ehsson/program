@@ -1,0 +1,109 @@
+// wrong code
+
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+#define MAX 50000000
+
+vector<pair<int, int>> v[500];
+vector<pair<int, int>> back[500];
+int dist[500];
+
+void dijkstra(int start, int end)
+{
+	priority_queue<pair<int, int>> pq;
+	pq.push({ start, 0 });
+
+	while (!pq.empty()) {
+		int cur = pq.top().first;
+		int cur_dist = -pq.top().second;
+		pq.pop();
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int next_dist = v[cur][i].second;
+			if (next_dist == MAX)
+				continue;
+
+			if (dist[next] > cur_dist + next_dist) {
+				pq.push({ next, -(cur_dist + next_dist) });
+				dist[next] = cur_dist + next_dist;
+			}
+		}
+	}
+}
+
+void DFS(int start, int end)
+{
+	queue<int> q;
+	q.push(start);
+
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+
+		for (int i = 0; i < back[cur].size(); i++) {
+			int next = back[cur][i].first;
+			int next_dist = back[cur][i].second;
+
+			if (dist[next] == dist[cur] - next_dist) {
+				q.push(next);
+				for (int j = 0; j < v[next].size(); j++)
+					if (v[next][j].first == cur)
+						v[next][j].second = MAX;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+
+	while (true) {
+		int N, M;
+		cin >> N >> M;
+
+		if (N == 0 && M == 0)
+			break;
+
+		for (int n = 0; n < N; n++) {
+			dist[n] = MAX;
+			v[n].clear();
+		}
+
+		int S, D;
+		cin >> S >> D;
+
+		dist[S] = 0;
+
+		for (int m = 0; m < M; m++) {
+			int U, V, P;
+			cin >> U >> V >> P;
+
+			v[U].push_back({ V, P });
+			back[V].push_back({ U, P });
+		}
+
+		dijkstra(S, D);
+		DFS(D, S);
+
+		for (int n = 0; n < N; n++)
+			dist[n] = MAX;
+
+		dist[S] = 0;
+
+		dijkstra(S, D);
+
+		if (dist[D] == MAX)
+			cout << "-1\n";
+		else
+			cout << dist[D] << "\n";
+	}
+
+	return 0;
+}
