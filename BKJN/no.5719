@@ -1,8 +1,7 @@
-// wrong code
-
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <cstring>
 using namespace std;
 
 #define MAX 50000000
@@ -10,49 +9,54 @@ using namespace std;
 vector<pair<int, int>> v[500];
 vector<pair<int, int>> back[500];
 int dist[500];
+bool visit[500][500];
 
 void dijkstra(int start, int end)
 {
 	priority_queue<pair<int, int>> pq;
-	pq.push({ start, 0 });
+	pq.push({ 0, start });
 
 	while (!pq.empty()) {
-		int cur = pq.top().first;
-		int cur_dist = -pq.top().second;
+		int cur_dist = -pq.top().first;
+		int cur = pq.top().second;
 		pq.pop();
 
 		for (int i = 0; i < v[cur].size(); i++) {
 			int next = v[cur][i].first;
 			int next_dist = v[cur][i].second;
-			if (next_dist == MAX)
+			if (next_dist == -1)
 				continue;
 
 			if (dist[next] > cur_dist + next_dist) {
-				pq.push({ next, -(cur_dist + next_dist) });
+				pq.push({ -(cur_dist + next_dist), next });
+				back[next].clear();
+				back[next].push_back({ cur, i });
 				dist[next] = cur_dist + next_dist;
 			}
+			else if (dist[next] == cur_dist + next_dist)
+				back[next].push_back({ cur, i });
 		}
 	}
 }
 
-void DFS(int start, int end)
+void BFS(int start, int end)
 {
 	queue<int> q;
 	q.push(start);
+	memset(visit, false, sizeof(visit));
 
 	while (!q.empty()) {
-		int cur = q.front();
+		int parent = q.front();
 		q.pop();
 
-		for (int i = 0; i < back[cur].size(); i++) {
-			int next = back[cur][i].first;
-			int next_dist = back[cur][i].second;
+		for (int i = 0; i < back[parent].size(); i++) {
+			int child = back[parent][i].first;
+			int idx = back[parent][i].second;
 
-			if (dist[next] == dist[cur] - next_dist) {
-				q.push(next);
-				for (int j = 0; j < v[next].size(); j++)
-					if (v[next][j].first == cur)
-						v[next][j].second = MAX;
+			if (!visit[child][parent]) {
+				q.push(child);
+				v[child][idx].second = -1;
+				visit[child][parent] = true;
 			}
 		}
 	}
@@ -74,6 +78,7 @@ int main(void)
 		for (int n = 0; n < N; n++) {
 			dist[n] = MAX;
 			v[n].clear();
+			back[n].clear();
 		}
 
 		int S, D;
@@ -86,11 +91,10 @@ int main(void)
 			cin >> U >> V >> P;
 
 			v[U].push_back({ V, P });
-			back[V].push_back({ U, P });
 		}
 
 		dijkstra(S, D);
-		DFS(D, S);
+		BFS(D, S);
 
 		for (int n = 0; n < N; n++)
 			dist[n] = MAX;
