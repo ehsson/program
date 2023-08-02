@@ -1,0 +1,87 @@
+// wrong code
+
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int N, M;
+int node[10001];
+
+vector<pair<int, int>> v[10001];
+vector<pair<int, int>> back[10001];
+
+int BFS(int start, int end)
+{
+	int cnt = 0;
+
+	queue<pair<int, int>> q;
+	q.push({ end, node[end] });
+
+	while (!q.empty()) {
+		int cur = q.front().first;
+		int dist_sum = q.front().second;
+		q.pop();
+
+		if (cur == start)
+			continue;
+
+		for (int i = 0; i < back[cur].size(); i++) {
+			int next = back[cur][i].first;
+			int dist = back[cur][i].second;
+
+			if (node[next] == dist_sum - dist) {
+				q.push({ next, dist_sum - dist });
+				cnt++;
+			}
+		}
+	}
+
+	return cnt;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N;
+	cin >> M;
+
+	for (int m = 0; m < M; m++) {
+		int s, e, d;
+		cin >> s >> e >> d;
+
+		v[s].push_back({ e, d });
+		back[e].push_back({ s, d });
+	}
+
+	int start, end;
+	cin >> start >> end;
+
+	queue<pair<int, int>> q;
+	q.push({ start, 0 });
+
+	while (!q.empty()) {
+		int cur = q.front().first;
+		int dist_sum = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < v[cur].size(); i++) {
+			int next = v[cur][i].first;
+			int dist = v[cur][i].second;
+
+			if (node[next] == 0 || (node[next] != 0 && node[next] < dist_sum + dist)) {
+				node[next] = dist_sum + dist;
+				q.push({ next, dist_sum + dist });
+			}
+		}
+	}
+
+	int answer = BFS(start, end);
+
+	cout << node[end] << "\n";
+	cout << answer << "\n";
+
+	return 0;
+}
