@@ -1,5 +1,3 @@
-// wrong code
-
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -7,6 +5,7 @@ using namespace std;
 
 int N, M;
 int node[10001];
+bool visit[10001][10001];
 
 vector<pair<int, int>> v[10001];
 vector<pair<int, int>> back[10001];
@@ -30,8 +29,9 @@ int BFS(int start, int end)
 			int next = back[cur][i].first;
 			int dist = back[cur][i].second;
 
-			if (node[next] == dist_sum - dist) {
+			if (node[next] == dist_sum - dist && !visit[cur][next]) {
 				q.push({ next, dist_sum - dist });
+				visit[cur][next] = true;
 				cnt++;
 			}
 		}
