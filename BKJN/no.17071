@@ -1,14 +1,17 @@
-// memory limit code
+// time limit code
 
 #include <iostream>
 #include <queue>
+#include <cstring>
 using namespace std;
 
 #define MAX 500000
 
 int N, K;
 
-queue<pair<pair<int, int>, int>> q; // {{cur, cnt}, k의 위치}
+int visit[2][500001];
+
+queue<pair<int, int>> q;
 
 int main(void)
 {
@@ -18,34 +21,41 @@ int main(void)
 	cin >> N >> K;
 
 	int answer = -1;
+	memset(visit, -1, sizeof(visit));
 
-	q.push({ { N, 0 }, K });
+	q.push({ N, 0 });
 
 	while(!q.empty()) {
-		int cur = q.front().first.first;
-		int cnt = q.front().first.second;
-		int k_pos = q.front().second;
+		int cur = q.front().first;
+		int cnt = q.front().second;
 		q.pop();
 
-		if (cnt > MAX)
+		visit[cnt % 2][cur] = cnt;
+
+		if (cur + 1 <= MAX && visit[(cnt + 1) % 2][cur + 1] == -1)
+			q.push({ cur + 1, cnt + 1 });
+
+		if (cur - 1 >= 0 && visit[(cnt + 1) % 2][cur - 1] == -1)
+			q.push({ cur - 1, cnt + 1 });
+
+		if (cur * 2 <= MAX && visit[(cnt + 1) % 2][cur * 2] == -1)
+			q.push({ cur * 2, cnt + 1 });
+	}
+
+	int chk = 0;
+	int k_pos = K;
+
+	for (int k = 1; k <= MAX; k++) {
+		if (k_pos > MAX)
 			break;
 
-		if (cur == k_pos) {
-			answer = cnt;
+		if (visit[chk % 2][k_pos] != -1 && visit[chk % 2][k_pos] <= chk) {
+			answer = chk;
 			break;
 		}
 
-		if (cur + 1 <= MAX && k_pos + (cnt + 1) <= MAX) {
-			q.push({ { cur + 1, cnt + 1 }, k_pos + (cnt + 1) });
-		}
-		
-		if (cur - 1 >= 0 && k_pos + (cnt + 1) <= MAX) {
-			q.push({ { cur - 1, cnt + 1 }, k_pos + (cnt + 1) });
-		}
-
-		if (cur * 2 <= MAX && k_pos + (cnt + 1) <= MAX) {
-			q.push({ { cur * 2, cnt + 1 }, k_pos + (cnt + 1) });
-		}
+		chk++;
+		k_pos += chk;
 	}
 
 	cout << answer << "\n";
