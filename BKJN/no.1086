@@ -1,3 +1,5 @@
+// wrong code
+
 #include <iostream>
 #include <string>
 using namespace std;
@@ -5,13 +7,22 @@ using namespace std;
 int N, K;
 string num[16];
 int len[16];
+int cache[51];
+int cache_str[16];
 int dp[32767][101];
 
 long long GCD(long long a, long long b)
 {
-	long long gcd = 0;
+	if (a > b)
+		swap(a, b);
 
-	return gcd;
+	while (a != 0) {
+		long long rem = b % a;
+		b = a;
+		a = rem;
+	}
+
+	return b;
 }
 
 int get_div(string s)
@@ -52,15 +63,33 @@ int main(void)
 		len[n] = s.size();
 
 		int bit = 1, div = get_div(s);;
+		cache_str[n] = get_div(s);
 		bit = bit << (n - 1);
 		dp[bit][div] = 1;
 	}
 
-	long long cnt = 0;
+	cache[1] = 1 % K;
 
+	for (int i = 2; i < 51; i++)
+		cache[i] = (cache[i - 1] * 10) % K;
 
+	dp[0][0] = 1;
 
+	for (int cur = 0; cur < (1 << N); cur++) {
+		for (int i = 0; i < N; i++) {
+			if ((cur & (1 << i)) == 0) {
+				int next_bit = cur | (1 << i);
 
+				for (int j = 0; j < K; j++) {
+					int next_k = ((j * cache[num[i].length()]) % K + cache_str[i]) % K;
+
+					dp[next_bit][next_k] += dp[cur][j];
+				}
+			}
+		}
+	}
+
+	long long cnt = dp[(1 << N) - 1][0];
 
 	long long fac = 1;
 	for (int i = 2; i <= N; i++)
