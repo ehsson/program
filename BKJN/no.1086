@@ -6,16 +6,12 @@ using namespace std;
 
 int N, K;
 string num[16];
-int len[16];
 int cache[51];
 int cache_str[16];
-int dp[32767][101];
+int dp[32768][100];
 
 long long GCD(long long a, long long b)
 {
-	if (a > b)
-		swap(a, b);
-
 	while (a != 0) {
 		long long rem = b % a;
 		b = a;
@@ -27,21 +23,12 @@ long long GCD(long long a, long long b)
 
 int get_div(string s)
 {
-	int div = 0, len = s.size(), idx = 0;
+	int div = 0;
 
-	if (len <= 9)
-		div = stoi(s) % K;
-	else {
-		while (idx < len) {
-			int number = div * 10 + (s[idx] - '0');
-
-			if (number < K)
-				div = number;
-			else
-				div = number % K;
-
-			idx++;
-		}
+	for (int i = 0; i < s.length(); i++) {
+		div *= 10;
+		div += s[i] - '0';
+		div %= K;
 	}
 
 	return div;
@@ -53,25 +40,19 @@ int main(void)
 	cin.tie(0);
 	cout.tie(0);
 	cin >> N;
+
+	for (int n = 0; n < N; n++) // 0000001, 0000010, 0000100, 0001000 ... 순으로
+		cin >> num[n];
+
 	cin >> K;
 
-	for (int n = 1; n <= N; n++) { // 0000001, 0000010, 0000100, 0001000 ... 순으로
-		string s;
-		cin >> s;
-		num[n] = s;
+	cache[0] = 1 % K;
 
-		len[n] = s.size();
-
-		int bit = 1, div = get_div(s);;
-		cache_str[n] = get_div(s);
-		bit = bit << (n - 1);
-		dp[bit][div] = 1;
-	}
-
-	cache[1] = 1 % K;
-
-	for (int i = 2; i < 51; i++)
+	for (int i = 1; i < 51; i++)
 		cache[i] = (cache[i - 1] * 10) % K;
+
+	for (int i = 0; i < N; i++)
+		cache_str[i] = get_div(num[i]);
 
 	dp[0][0] = 1;
 
@@ -92,10 +73,10 @@ int main(void)
 	long long cnt = dp[(1 << N) - 1][0];
 
 	long long fac = 1;
-	for (int i = 2; i <= N; i++)
+	for (int i = 1; i <= N; i++)
 		fac *= i;
 
-	int gcd = GCD(cnt, fac);
+	long long gcd = GCD(cnt, fac);
 
 	cout << cnt / gcd << "/" << fac / gcd << "\n";
 
