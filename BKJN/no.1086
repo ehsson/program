@@ -1,5 +1,3 @@
-// wrong code
-
 #include <iostream>
 #include <string>
 using namespace std;
@@ -8,17 +6,20 @@ int N, K;
 string num[16];
 int cache[51];
 int cache_str[16];
-int dp[32768][100];
+long long dp[32768][100];
 
 long long GCD(long long a, long long b)
 {
-	while (a != 0) {
-		long long rem = b % a;
-		b = a;
-		a = rem;
+	long long big = max(a, b);
+	long long small = min(a, b);
+
+	while (small != 0) {
+		long long rem = big % small;
+		big = small;
+		small = rem;
 	}
 
-	return b;
+	return big;
 }
 
 int get_div(string s)
@@ -41,44 +42,44 @@ int main(void)
 	cout.tie(0);
 	cin >> N;
 
-	for (int n = 0; n < N; n++) // 0000001, 0000010, 0000100, 0001000 ... 순으로
+	for (int n = 1; n <= N; n++) // 0000001, 0000010, 0000100, 0001000 ... 순으로
 		cin >> num[n];
 
 	cin >> K;
 
-	cache[0] = 1 % K;
+	dp[0][0] = 1;
 
-	for (int i = 1; i < 51; i++)
-		cache[i] = (cache[i - 1] * 10) % K;
-
-	for (int i = 0; i < N; i++)
+	for (int i = 1; i <= N; i++)
 		cache_str[i] = get_div(num[i]);
 
-	dp[0][0] = 1;
+	cache[0] = 1 % K;
+	for (int i = 1; i <= 50; i++)
+		cache[i] = (cache[i - 1] * 10) % K;
 
 	for (int cur = 0; cur < (1 << N); cur++) {
 		for (int i = 0; i < N; i++) {
 			if ((cur & (1 << i)) == 0) {
-				int next_bit = cur | (1 << i);
+				int next = cur | (1 << i);
 
 				for (int j = 0; j < K; j++) {
-					int next_k = ((j * cache[num[i].length()]) % K + cache_str[i]) % K;
+					int next_k = ((j * cache[num[i + 1].length()]) % K + cache_str[i + 1]) % K;
 
-					dp[next_bit][next_k] += dp[cur][j];
+					dp[next][next_k] += dp[cur][j];
 				}
 			}
 		}
 	}
 
-	long long cnt = dp[(1 << N) - 1][0];
+	long long val = dp[(1 << N) - 1][0];
 
 	long long fac = 1;
+
 	for (int i = 1; i <= N; i++)
 		fac *= i;
 
-	long long gcd = GCD(cnt, fac);
+	long long gcd = GCD(val, fac);
 
-	cout << cnt / gcd << "/" << fac / gcd << "\n";
+	cout << (long long)(val / gcd) << "/" << (long long)(fac / gcd) << "\n";
 
 	return 0;
 }
