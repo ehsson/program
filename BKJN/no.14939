@@ -1,0 +1,55 @@
+// incomplete code
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+int bulb[10][10];
+int dy[5] = { 0, 1, 0, -1, 0 };
+int dx[5] = { 0, 0, 1, 0, -1 };
+
+bool isin(int y, int x)
+{
+	if (y >= 0 && y < 10 && x >= 0 && x < 10)
+		return true;
+	else
+		return false;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+
+	for (int i = 0; i < 10; i++) {
+		string s;
+		cin >> s;
+		
+		for (int j = 0; j < 10; j++)
+			if (s[j] == 'O')
+				bulb[i][j] = 1;
+	}
+
+	for (int i = 0; i < (1 << 10); i++) {
+		int temp[10][10];					// 원래 map 복사
+		for (int y = 0; y < 10; y++)
+			for (int x = 0; x < 10; x++)
+				temp[y][x] = bulb[y][x];
+		
+		for (int x = 0; x < 10; x++) {
+			if (i & (1 << (9 - x)))
+				for (int k = 0; k < 5; k++) {
+					int ny = 0 + dy[k];
+					int nx = x + dx[k];
+
+					if (isin(ny, nx))
+						temp[ny][nx] = !temp[ny][nx];
+				}
+		}
+
+		
+	}
+
+	return 0;
+}
