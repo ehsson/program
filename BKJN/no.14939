@@ -1,4 +1,4 @@
-// incomplete code
+// wrong code
 
 #include <iostream>
 #include <string>
@@ -31,13 +31,15 @@ int main(void)
 				bulb[i][j] = 1;
 	}
 
+	int answer = 100;
+
 	for (int i = 0; i < (1 << 10); i++) {
 		int temp[10][10];					// 원래 map 복사
 		for (int y = 0; y < 10; y++)
 			for (int x = 0; x < 10; x++)
 				temp[y][x] = bulb[y][x];
 		
-		for (int x = 0; x < 10; x++) {
+		for (int x = 0; x < 10; x++) {	// 첫째줄 불 켜기/끄기
 			if (i & (1 << (9 - x)))
 				for (int k = 0; k < 5; k++) {
 					int ny = 0 + dy[k];
@@ -48,8 +50,34 @@ int main(void)
 				}
 		}
 
-		
+		int cnt = 0;
+
+		for (int j = 1; j < 10; j++) {
+			for (int k = 0; k < 10; k++) {
+				if (temp[j - 1][k]) {		// 윗칸의 불이 켜져 있으면 불 끄기
+					cnt++;
+					for (int l = 0; l < 5; l++) {
+						int ny = j + dy[l];
+						int nx = k + dx[l];
+
+						if (isin(ny, nx))
+							temp[ny][nx] = !temp[ny][nx];
+					}
+				}
+			}
+		}
+
+		for (int j = 0; j < 10; j++)
+			if (temp[9][j]) {
+				cnt = -1;
+				break;
+			}
+
+		if(cnt != -1)
+			answer = min(answer, cnt);
 	}
+
+	cout << answer << "\n";
 
 	return 0;
 }
