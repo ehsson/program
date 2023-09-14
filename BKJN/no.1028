@@ -1,0 +1,62 @@
+// incomplete code
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+int map[750][750];
+int dp[770][750][2]; // 0: 좌측 아래쪽 대각선, 1: 우측 아래쪽 대각선
+
+int R, C;
+
+bool isin(int y, int x)
+{
+	if (y >= 0 && y < R && x >= 0 && x < C)
+		return true;
+	else
+		return false;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> R >> C;
+
+	for (int r = 0; r < R; r++) {
+		string s;
+		cin >> s;
+
+		for (int i = 0; i < s.length(); i++)
+			map[r][i] = s[i];
+	}
+
+	for (int r = 0; r < R; r++) {
+		for (int c = 0; c < C; c++) {
+			if (map[r][c]) {
+				int cnt = 1;
+
+				for (int i = 1; isin(r + i, c - i) && map[r + i][c - i]; i++)
+					cnt++;
+
+				dp[r][c][0] = cnt;
+
+				cnt = 1;
+
+				for (int i = 1; isin(r + i, c + i) && map[r + i][c + i]; i++)
+					cnt++;
+
+				dp[r][c][1] = cnt;
+			}
+		}
+	}
+
+	for (int r = 0; r < R; r++) {
+		for (int c = 0; c < C; c++) {
+
+		}
+	}
+
+	return 0;
+}
