@@ -1,4 +1,4 @@
-// incomplete code
+// wrong code
 
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@ int main(void)
 		cin >> s;
 
 		for (int i = 0; i < s.length(); i++)
-			map[r][i] = s[i];
+			map[r][i] = s[i] - '0';
 	}
 
 	for (int r = 0; r < R; r++) {
@@ -52,11 +52,20 @@ int main(void)
 		}
 	}
 
+	int answer = 0;
+
 	for (int r = 0; r < R; r++) {
 		for (int c = 0; c < C; c++) {
+			int temp = min(dp[r][c][0], dp[r][c][1]);
 
+			if (temp > answer)
+				if ((isin(r + (temp - 1), c - (temp - 1)) && isin(r + (temp - 1), c + (temp - 1))) &&
+					(dp[r + (temp - 1)][c - (temp - 1)][1] >= temp && dp[r + (temp - 1)][c + (temp - 1)][0] >= temp))
+					answer = temp;
 		}
 	}
+
+	cout << answer << "\n";
 
 	return 0;
 }
