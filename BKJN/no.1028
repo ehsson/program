@@ -1,11 +1,9 @@
-// wrong code
-
 #include <iostream>
 #include <string>
 using namespace std;
 
 int map[750][750];
-int dp[770][750][2]; // 0: 좌측 아래쪽 대각선, 1: 우측 아래쪽 대각선
+int dp[750][750][2]; // 0: 좌측 아래쪽 대각선, 1: 우측 아래쪽 대각선
 
 int R, C;
 
@@ -56,12 +54,15 @@ int main(void)
 
 	for (int r = 0; r < R; r++) {
 		for (int c = 0; c < C; c++) {
-			int temp = min(dp[r][c][0], dp[r][c][1]);
+			if (map[r][c]) {
+				int temp = min(dp[r][c][0], dp[r][c][1]);
 
-			if (temp > answer)
-				if ((isin(r + (temp - 1), c - (temp - 1)) && isin(r + (temp - 1), c + (temp - 1))) &&
-					(dp[r + (temp - 1)][c - (temp - 1)][1] >= temp && dp[r + (temp - 1)][c + (temp - 1)][0] >= temp))
-					answer = temp;
+				for (int k = answer + 1; k <= temp; k++) {
+					if ((isin(r + (k - 1), c - (k - 1)) && isin(r + (k - 1), c + (k - 1))) &&
+						(dp[r + (k - 1)][c - (k - 1)][1] >= k && dp[r + (k - 1)][c + (k - 1)][0] >= k))
+						answer = k;
+				}
+			}
 		}
 	}
 
