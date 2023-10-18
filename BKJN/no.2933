@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <algorithm>
 #include <cstring>
 using namespace std;
 
@@ -35,7 +36,7 @@ void BFS(int y, int x)
             int ny = cy + dy[i];
             int nx = cx + dx[i];
 
-            if (isin(ny, nx) && !visit[ny][nx]) {
+            if (isin(ny, nx) && map[ny][nx] && !visit[ny][nx]) {
                 visit[ny][nx] = true;
                 q.push({ ny, nx });
             }
@@ -69,15 +70,15 @@ int main()
 
         if (i & 1) {  // i가 홀수이면(오른쪽에서 던짐)
             for(int j = C; j >= 1; j--)
-                if (map[i][j] > 0) {
-                    map[i][j] = 0;
+                if (map[row][j]) {
+                    map[row][j] = 0;
                     break;
                 }
         }
         else {  // i가 짝수이면(왼쪽에서 던짐)
             for (int j = 1; j <= C; j++)
-                if (map[i][j] > 0) {
-                    map[i][j] = 0;
+                if (map[row][j]) {
+                    map[row][j] = 0;
                     break;
                 }
         }
@@ -88,18 +89,47 @@ int main()
                 BFS(1, k);
         }
 
+        int temp = R;
+        vector<pair<int, int>> v;
         for (int y = 2; y <= R; y++) {
             for (int x = 1; x <= C; x++) {
                 if (map[y][x] && !visit[y][x]) {    // 바닥을 훑을 때 탐색 되지 않은 미네랄 확인
-
+                    v.push_back({ y, x });
+                    for (int j = y - 1; j >= 0; j--)
+                        if (j == 0 || (map[j][x] && visit[j][x])) {
+                            temp = min(temp, y - j);
+                            break;
+                        }
                 }
             }
         }
+
+        if (temp == R) {
+            v.clear();
+            continue;
+        }
+
+        temp -= 1;
+
+        sort(v.begin(), v.end());
+
+        for (int j = 0; j < v.size(); j++) {
+            int y = v[j].first;
+            int x = v[j].second;
+
+            map[y][x] = 0;
+            map[y - temp][x] = 1;
+        }
+
+        v.clear();
     }
 
     for (int r = R; r >= 1; r--) {
         for (int c = 1; c <= C; c++)
-            cout << map[r][c];
+            if (map[r][c])
+                cout << "x";
+            else
+                cout << ".";
 
         cout << "\n";
     }
