@@ -1,0 +1,95 @@
+// incomplete code
+
+#include <iostream>
+#include <queue>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int W, H;
+
+char map[21][21];
+bool visit[10][21][21];
+int dy[4] = { 1, 0, -1, 0 };
+int dx[4] = { 0, 1, 0, -1 };
+
+bool isin(int y, int x)
+{
+	if (x >= 1 && x <= W && y >= 1 && y <= H)
+		return true;
+	else
+		return false;
+}
+
+int BFS(int y, int x, int max_dirty)
+{
+	queue<pair<pair<pair<int, int>, int>, int>> q;	// {{{y, x}, moving_cnt}, dirty_room_cnt}
+	visit[0][y][x] = true;
+	q.push({ {{y, x}, 0}, 0 });
+
+	while (!q.empty()) {
+		int cy = q.front().first.first.first;
+		int cx = q.front().first.first.second;
+		int m_cnt = q.front().first.second;
+		int d_cnt = q.front().second;
+		q.pop();
+
+		if (map[cy][cx] == '*') {
+			d_cnt++;
+
+			if (d_cnt == max_dirty)
+				return m_cnt;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int ny = cy + dy[i];
+			int nx = cx + dx[i];
+
+			if (isin(ny, nx) && map[ny][nx] != 'x' && !visit[d_cnt][ny][nx]) {
+				visit[d_cnt][ny][nx] = true;
+				q.push({ {{ny, nx}, m_cnt + 1}, d_cnt });
+			}
+		}
+	}
+
+	return -1;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	
+	while (true) {
+		cin >> W >> H;
+		if (W == 0 && H == 0)
+			break;
+
+		int y = 0, x = 0, max_dirty = 0;
+
+		for (int h = 1; h <= H; h++) {
+			string s;
+			cin >> s;
+
+			for (int w = 1; w <= W; w++) {
+				map[h][w] = s[w - 1];
+
+				if (map[h][w] == 'o') {
+					map[h][w] = '.';
+					y = h;
+					x = w;
+				}
+				else if (map[h][w] == '*')
+					max_dirty++;
+			}
+		}
+
+		memset(visit, false, sizeof(visit));
+		int answer = BFS(y, x, max_dirty);
+
+		cout << answer << "\n";
+	}
+
+	return 0;
+}
