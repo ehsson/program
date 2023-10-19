@@ -8,8 +8,8 @@ using namespace std;
 
 int W, H;
 
-char map[21][21];
-bool visit[10][21][21];
+int map[21][21];	// 일반 땅: 0, 더러운 땅: 1이상의 자연수, 가구: -1
+bool visit[0b1111111111][21][21];
 int dy[4] = { 1, 0, -1, 0 };
 int dx[4] = { 0, 1, 0, -1 };
 
@@ -31,23 +31,20 @@ int BFS(int y, int x, int max_dirty)
 		int cy = q.front().first.first.first;
 		int cx = q.front().first.first.second;
 		int m_cnt = q.front().first.second;
-		int d_cnt = q.front().second;
+		int bit = q.front().second;
 		q.pop();
 
 		if (map[cy][cx] == '*') {
-			d_cnt++;
 
-			if (d_cnt == max_dirty)
-				return m_cnt;
 		}
 
 		for (int i = 0; i < 4; i++) {
 			int ny = cy + dy[i];
 			int nx = cx + dx[i];
 
-			if (isin(ny, nx) && map[ny][nx] != 'x' && !visit[d_cnt][ny][nx]) {
-				visit[d_cnt][ny][nx] = true;
-				q.push({ {{ny, nx}, m_cnt + 1}, d_cnt });
+			if (isin(ny, nx) && map[ny][nx] != -1 && !visit[bit][ny][nx]) {
+				visit[bit][ny][nx] = true;
+				q.push({ {{ny, nx}, m_cnt + 1}, bit });
 			}
 		}
 	}
@@ -73,15 +70,19 @@ int main(void)
 			cin >> s;
 
 			for (int w = 1; w <= W; w++) {
-				map[h][w] = s[w - 1];
-
-				if (map[h][w] == 'o') {
-					map[h][w] = '.';
+				if (s[w - 1] == '.')	// 일반 땅
+					map[h][w] = 0;
+				else if (s[w - 1] == '*') {	// 더러운 땅
+					max_dirty++;
+					map[h][w] = max_dirty;
+				}
+				else if (s[w - 1] == 'o') {	// 시작점
+					map[h][w] = 0;
 					y = h;
 					x = w;
 				}
-				else if (map[h][w] == '*')
-					max_dirty++;
+				else if (s[w - 1] == 'x')	// 가구
+					map[h][w] = -1;
 			}
 		}
 
