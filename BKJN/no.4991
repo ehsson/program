@@ -1,4 +1,4 @@
-// incomplete code
+// wrong code
 
 #include <iostream>
 #include <queue>
@@ -34,8 +34,16 @@ int BFS(int y, int x, int max_dirty)
 		int bit = q.front().second;
 		q.pop();
 
-		if (map[cy][cx] == '*') {
+		if (map[cy][cx] > 0) {
+			int temp = 1 << (map[cy][cx] - 1);
 
+			if (bit & temp)
+				continue;
+			else
+				bit = bit | temp;
+
+			if (bit == ((1 << max_dirty) - 1))
+				return m_cnt;
 		}
 
 		for (int i = 0; i < 4; i++) {
