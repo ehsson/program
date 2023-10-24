@@ -1,0 +1,172 @@
+// wrong code
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+typedef struct direction{
+	int y, x;
+} Direction;
+
+int map[5][5];
+vector<int> v[5][5];
+
+// 상어의 방향
+Direction s_dir[4] = { { -1, 0 },			// 상
+					   { 0, -1 },			// 좌
+					   { 1, 0 },			// 하
+					   { 0, 1 } };			// 우
+
+// 물고기 방향
+Direction f_dir[9] = { {0, 0}, 
+					   {0, -1},
+					   {-1, -1},
+					   {-1, 0},
+					   {-1, 1},
+					   {0, 1},
+					   {1, 1},
+					   {1, 0},
+					   {1, -1} };
+
+int sy, sx;
+
+
+bool isin(int y, int x)
+{
+	if (y >= 1 && y <= 4 && x >= 1 && x <= 4)
+		return true;
+	else
+		return false;
+}
+
+void moving_shark(vector<int> vect[][5])
+{
+	int cnt = 0;
+	Direction d_list[3] = { {0, 0}, {0, 0}, {0, 0} };
+	bool visit[5][5];
+	memset(visit, false, sizeof(visit));
+	visit[sy][sx] = true;
+	int temp_sy = sy, temp_sx = sx;
+
+	for (int i = 0; i < 4; i++) {
+		int ny1 = sy + s_dir[i].y;
+		int nx1 = sx + s_dir[i].x;
+		if (isin(ny1, nx1)) {
+			visit[ny1][nx1] = true;
+			for (int j = 0; j < 4; j++) {
+				int ny2 = ny1 + s_dir[j].y;
+				int nx2 = nx1 + s_dir[j].x;
+				if (isin(ny2, nx2) && !visit[ny2][nx2]) {
+					visit[ny2][nx2] = true;
+					for (int k = 0; k < 4; k++) {
+						int ny3 = ny2 + s_dir[k].y;
+						int nx3 = nx2 + s_dir[k].x;
+						if (isin(ny3, nx3) && !visit[ny3][nx3] && (vect[ny1][nx1].size() + vect[ny2][nx2].size() + vect[ny3][nx3].size() > cnt)) {
+							cnt = vect[ny1][nx1].size() + vect[ny2][nx2].size() + vect[ny3][nx3].size();
+							temp_sy = ny3;
+							temp_sx = nx3;
+							d_list[0] = { ny1, nx1 };
+							d_list[1] = { ny2, nx2 };
+							d_list[2] = { ny3, nx3 };
+						}
+					}
+					visit[ny2][nx2] = false;
+				}
+			}
+			visit[ny1][nx1] = false;
+		}
+	}
+
+	sy = temp_sy;
+	sx = temp_sx;
+
+	for (int i = 0; i < 3; i++) {
+		if (vect[d_list[i].y][d_list[i].x].size() > 0)
+			map[d_list[i].y][d_list[i].x] = 2;
+		vect[d_list[i].y][d_list[i].x].clear();
+	}
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int M, S;
+	cin >> M >> S;
+
+	for (int m = 0; m < M; m++) {
+		int y, x, d;
+		cin >> y >> x >> d;
+
+		v[y][x].push_back(d);
+	}
+
+	cin >> sy >> sx;
+
+	for (int s = 0; s < S; s++) {	// S번 이동
+		vector<int> temp[5][5];
+
+		// 이동 전 원래 물고기 위치 복사
+		for(int y = 1; y <= 4; y++)
+			for(int x = 1; x <= 4; x++)
+				for (int i = 0; i < v[y][x].size(); i++)
+					temp[y][x].push_back(v[y][x][i]);
+
+		// 상어 이동 전 현재 위치의 물고기 잡아먹기
+		if (temp[sy][sx].size() > 0) {
+			temp[sy][sx].clear();
+			map[sy][sx] = 2;
+		}
+
+		vector<int> temp2[5][5];
+
+		// 물고기 한 칸씩 이동
+		for (int y = 1; y <= 4; y++)
+			for (int x = 1; x <= 4; x++)
+				for (int i = 0; i < temp[y][x].size(); i++) {
+					bool chk = false;	// 이동이 된 물고기인지 체크
+
+					for (int j = temp[y][x][i]; j > temp[y][x][i] - 8; j--) {
+						int dir_idx = j;
+						if (dir_idx < 1)
+							dir_idx = dir_idx + 8;
+						int ny = y + f_dir[dir_idx].y;
+						int nx = x + f_dir[dir_idx].x;
+						if (isin(ny, nx) && map[ny][nx] == 0 && !(ny == sy && nx == sx)) {
+							temp2[ny][nx].push_back(dir_idx);
+							chk = true;
+							break;
+						}
+					}
+
+					if (!chk)
+						temp2[y][x].push_back(temp[y][x][i]);
+				}
+
+		// 상어 3칸 이동
+		moving_shark(temp2);
+
+		// 물고기 냄새 하나씩 줄이기
+		for (int y = 1; y <= 4; y++)
+			for (int x = 1; x <= 4; x++)
+				if (map[y][x])
+					map[y][x]--;
+
+		// 이동이 끝난 후 물고기 복제
+		for (int y = 1; y <= 4; y++)
+			for (int x = 1; x <= 4; x++)
+				for (int i = 0; i < temp2[y][x].size(); i++)
+					v[y][x].push_back(temp2[y][x][i]);
+	}
+
+	int answer = 0;
+	for (int y = 1; y <= 4; y++)
+		for (int x = 1; x <= 4; x++)
+			answer += v[y][x].size();
+
+	cout << answer << "\n";
+
+	return 0;
+}
