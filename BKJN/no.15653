@@ -1,0 +1,68 @@
+// incomplete code
+
+#include <iostream>
+#include <queue>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int N, M;
+
+char map[11][11];
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
+
+int BFS(int ry, int rx, int by, int bx)
+{
+	queue<pair<pair<pair<int, int>, pair<int, int>>, int>> q;	// {{{ry, rx}, {by, bx}}, cnt}
+	q.push({ {{ry, rx}, {by, bx}}, 0 });
+
+	while (!q.empty()) {
+		int cry = q.front().first.first.first;		// 빨간 구슬 위치
+		int crx = q.front().first.first.second;
+		int cby = q.front().first.second.first;		// 파란 구슬 위치
+		int cbx = q.front().first.second.second;	
+		int cnt = q.front().second;					// 움직인 횟수
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+
+		}
+	}
+
+	return -1;
+}
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	cin >> N >> M;
+
+	int ry = 0, rx = 0, by = 0, bx = 0;
+
+	for (int n = 1; n <= N; n++) {
+		string s;
+		cin >> s;
+
+		for (int m = 0; m < M; m++) {
+			map[n][m + 1] = s[m];
+
+			if (map[n][m + 1] == 'R') {
+				ry = n;
+				rx = m + 1;
+			}
+			else if (map[n][m + 1] == 'B') {
+				by = n;
+				bx = m + 1;
+			}
+		}
+	}
+
+	int answer = BFS(ry, rx, by, bx);
+
+	cout << answer << "\n";
+
+	return 0;
+}
