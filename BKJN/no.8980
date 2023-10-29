@@ -1,7 +1,8 @@
-// wrong code
+// incomplete code
 
 #include <iostream>
 #include <queue>
+#include <algorithm>
 using namespace std;
 
 int N, C, M;
@@ -24,34 +25,39 @@ int main(void)
 		pq[start].push({ -end, box });
 	}
 
-	int cnt = 0, total = 0;
-	priority_queue<pair<int, int>> truck;
+	int cnt = 0, total = 0, out_idx = 0, in_idx = 0;
+	pair<int, int> truck[10000];
 
 	for (int i = 1; i <= N; i++) {
-		while (truck.size() > 0 && truck.top().first == -i) {
-			int box = truck.top().second;
-			total -= box;
-			cnt += box;
-			truck.pop();
+		while (truck[out_idx].first == -i) {
+			cnt += truck[out_idx].second;
+			total -= truck[out_idx].second;
+			out_idx++;
 		}
 
-		while (pq[i].size() != 0) {
-			int dest = pq[i].top().first;
+		while (pq[i].size() > 0) {
+			int dest = -pq[i].top().first;
 			int box = pq[i].top().second;
 			pq[i].pop();
 
 			if (total + box <= C) {
-				truck.push({ dest, box });
+				in_idx++;
+				truck[in_idx] = { dest, box };
 				total += box;
 			}
 			else {
-				if (total < C) {
-					truck.push({ dest, C - total });
-					total = C;
-				}
+				if (dest < truck[in_idx].first) {
 
-				break;
+				}
+				else {
+					if (total < C) {
+						in_idx++;
+						truck[in_idx] = { dest, C - total };
+					}
+				}
 			}
+
+			in_idx++;
 		}
 	}
 
