@@ -9,6 +9,7 @@ int N, M;
 
 int map[50][50];
 int map_arr[50 * 50];
+int cnt[4];
 
 bool isin(int y, int x)
 {
@@ -67,6 +68,81 @@ void make_arr(void)
 	}
 }
 
+void moving_bead(int temp_arr[])
+{
+	memset(map_arr, 0, sizeof(map_arr));
+	int idx = 1;
+
+	for (int i = 1; i < N * N; i++) {
+		if (temp_arr[i]) {
+			map_arr[idx] = temp_arr[i];
+			idx++;
+		}
+	}
+}
+
+void magic(int d, int s)
+{
+	int temp_arr[50 * 50] = { 0 };
+	for (int i = 0; i < N * N; i++)
+		temp_arr[i] = map_arr[i];
+
+	// 마법으로 구슬 없애기
+	switch (d) {
+	case 1:	// 상
+		for (int i = 1; i <= s; i++) {
+			int idx = (2 * i + 1) * (2 * i + 1) - (i + 1);
+			temp_arr[idx] = 0;
+		}
+		break;
+	case 2:	// 하
+		for (int i = 1; i <= s; i++) {
+			int idx = 4 * i * i - i;
+			temp_arr[idx] = 0;
+		}
+		break;
+	case 3:	// 좌
+		for (int i = 1; i <= s; i++) {
+			int idx = (2 * i - 1) * (2 * i - 1) + (i - 1);
+			temp_arr[idx] = 0;
+		}
+		break;
+	case 4:	// 우
+		for (int i = 1; i <= s; i++) {
+			int idx = 4 * i * i + i;
+			temp_arr[idx] = 0;
+		}
+		break;
+	default:
+		break;
+	}
+
+	// 빈 칸 채우기
+	moving_bead(temp_arr);
+}
+
+void explosion()
+{
+	while (true) {
+		int temp_arr[50 * 50] = { 0 };
+		for (int i = 0; i < N * N; i++)
+			temp_arr[i] = map_arr[i];
+
+
+
+		moving_bead(temp_arr);
+	}
+}
+
+void grouping()
+{
+	int temp_arr[50 * 50] = { 0 };
+	for (int i = 0; i < N * N; i++)
+		temp_arr[i] = map_arr[i];
+
+
+}
+
 int main(void)
 {
 	ios::sync_with_stdio(false);
@@ -85,19 +161,14 @@ int main(void)
 		int d, s;
 		cin >> d >> s;
 
-		switch (d) {
-		case 1:	// 상
-			break;
-		case 2:	// 하
-			break;
-		case 3:	// 좌
-			break;
-		case 4:	// 우
-			break;
-		default:
-			break;
-		}
+		magic(d, s);	// 블리자드 마법
+		
+		explosion();
+
+		grouping();
 	}
+
+	cout << cnt[1] + 2 * cnt[2] + 3 * cnt[3] << "\n";
 
 	return 0;
 }
