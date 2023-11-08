@@ -1,17 +1,40 @@
-// incomplete code
-
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <cstring>
 using namespace std;
 
 int N, P, K;
 
 vector<pair<int, int>> v[1001];
+int dist[1001];
 
-int BFS(int start, int end)
+bool dijkstra(int x)
 {
+	priority_queue<pair<int, int>> pq;
+	pq.push({ 0, 1 }); // {weight, node}
 
+	while (!pq.empty()) {
+		int cnode = pq.top().second;
+		int weight = -pq.top().first;
+		pq.pop();
+
+		if (dist[cnode] < weight)
+			continue;
+
+		for (int i = 0; i < v[cnode].size(); i++) {
+			int nnode = v[cnode][i].first;
+			int price = v[cnode][i].second;
+
+			int nweight = weight + (x < price);
+			if (dist[nnode] > nweight) {
+				dist[nnode] = nweight;
+				pq.push({ -nweight, nnode });
+			}
+		}
+	}
+
+	return dist[N] <= K;
 }
 
 int main(void)
@@ -21,15 +44,36 @@ int main(void)
 	cout.tie(0);
 	cin >> N >> P >> K;
 
+	int temp = 0;
+
 	for (int p = 0; p < P; p++) {
 		int c1, c2, price;
 		cin >> c1 >> c2 >> price;
 
 		v[c1].push_back({ c2, price });
 		v[c2].push_back({ c1, price });
+
+		temp = max(temp, price);
 	}
 
+	int left = 0, right = temp, answer = -1;
 
+	while (left <= right) {
+		int mid = (left + right) / 2;
+		for (int i = 0; i <= N; i++)
+			dist[i] = 10000;
+		dist[1] = 0;
+
+		if (dijkstra(mid)) {
+			answer = mid;
+			right = mid - 1;
+		}
+		else {
+			left = mid + 1;
+		}
+	}
+
+	cout << answer << "\n";
 
 	return 0;
 }
