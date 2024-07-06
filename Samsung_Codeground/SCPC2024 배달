@@ -1,0 +1,35 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+int arr[300001];
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int T;
+	cin >> T;
+
+	for (int t = 0; t < T; t++) {
+		long long answer = 0;
+
+		int N;
+		cin >> N;
+
+		for (int n = 1; n <= N; n++)
+			cin >> arr[n];
+
+		sort(arr + 1, arr + N + 1);
+
+		for (int i = 1; i <= (N / 4); i++) {
+			answer += 2 * (long long)(arr[N - i + 1] - arr[i]);
+		}
+
+		cout << "Case #" << t + 1 << endl;
+		cout << answer << endl;
+	}
+
+	return 0;
+}
