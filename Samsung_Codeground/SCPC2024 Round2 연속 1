@@ -1,0 +1,100 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+#define ULLMAX 9223372036854775807*2
+
+int input[300001];
+unsigned long long arr[300001][2];
+unsigned long long dp[300001][3];
+
+unsigned long long answer;
+
+int main(void)
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+
+	int T;
+	cin >> T;
+
+	for (int t = 1; t <= T; t++) {
+		memset(arr, 0, sizeof(arr));
+		memset(dp, 0, sizeof(dp));
+		memset(input, 0, sizeof(input));
+		answer = ULLMAX;
+		int N, S, E;
+		cin >> N >> S >> E;
+
+		for (int n = 1; n <= N; n++)
+			cin >> input[n];
+
+		arr[1][0] = input[1];
+		int chk_num = input[1];
+		int chk_idx = 1;
+		
+		if (chk_num == 1)
+			arr[chk_idx][1] = E;
+		else
+			arr[chk_idx][1] = S;
+
+		for (int n = 2; n <= N; n++) {
+			if (input[n] != chk_num) {
+				chk_idx++;
+
+				if (chk_num == 1) {
+					chk_num = 0;
+					arr[chk_idx][0] = chk_num;
+					arr[chk_idx][1] = S;
+				}
+				else {
+					chk_num = 1;
+					arr[chk_idx][0] = chk_num;
+					arr[chk_idx][1] = E;
+				}
+			}
+			else {
+				if (chk_num == 1)
+					arr[chk_idx][1] += E;
+				else
+					arr[chk_idx][1] += S;
+			}
+		}
+
+		for (int i = 1; i <= chk_idx; i++) {
+			dp[i][0] = ULLMAX;
+			dp[i][1] = ULLMAX;
+			dp[i][2] = ULLMAX;
+		}
+
+		if (arr[1][0] == 1) {
+			dp[1][0] = arr[1][1];
+			dp[1][1] = 0;
+		}
+		else {
+			dp[1][0] = 0;
+			dp[1][1] = arr[1][1];
+		}
+
+		for (int i = 2; i <= chk_idx; i++) {
+			if (arr[i][0] == 1) {
+				dp[i][0] = dp[i - 1][0] + arr[i][1];
+				dp[i][1] = min(dp[i - 1][0], dp[i - 1][1]);
+				dp[i][2] = min(dp[i - 1][1] + arr[i][1], dp[i - 1][2] + arr[i][1]);
+			}
+			else {
+				dp[i][0] = dp[i - 1][0];
+				dp[i][1] = min(dp[i - 1][0] + arr[i][1], dp[i - 1][1] + arr[i][1]);
+				dp[i][2] = min(dp[i - 1][1], dp[i - 1][2]);
+			}
+		}
+
+		answer = min(answer, min(dp[chk_idx][0], min(dp[chk_idx][1], dp[chk_idx][2])));
+
+		cout << "Case #" << t << endl;
+		cout << answer << endl;
+	}
+
+	return 0;
+}
