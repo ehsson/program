@@ -1,0 +1,48 @@
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int Answer;
+int arr[200001];
+
+int main(int argc, char** argv)
+{
+	int T, test_case;
+
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	cin >> T;
+	for (test_case = 0; test_case < T; test_case++)
+	{
+		Answer = 0;
+		
+		int N;
+		cin >> N;
+
+		for (int n = 1; n <= N; n++)
+			cin >> arr[n];
+
+		int minimum = 200000000;
+		int maximum = 0;
+
+		maximum = arr[3] - arr[1];
+		maximum = max(maximum, arr[N] - arr[N - 2]);
+
+		for (int n = 3; n <= N; n++) {
+			minimum = min(minimum, int(ceil((arr[n] - arr[n - 2]) / 2)));
+		}
+
+		for (int n = 3; n <= N-1; n++) {
+			maximum = max(maximum, int(floor((arr[n + 1] - arr[n - 2]) / 2)));
+		}
+		
+		cout << "Case #" << test_case + 1 << endl;
+		cout << maximum << " " << minimum << endl;
+	}
+
+	return 0;
+}
