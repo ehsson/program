@@ -1,0 +1,58 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int Answer[2001];
+int arr[2001];
+
+int main(int argc, char** argv)
+{
+	int T, test_case;
+
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	cin >> T;
+	for (test_case = 0; test_case < T; test_case++)
+	{
+		string s;
+
+		int N;
+		cin >> N;
+		cin >> s;
+		
+		for (int i = 0; i < N; i++) {
+			arr[i] = s[i] - '0';
+			Answer[i] = s[i] - '0';
+		}
+
+		for (int i = 0; i < N; i++) {
+			int add = (10 - arr[i]) % 10;
+			int idx = 0;
+			bool flag = true;
+			while (idx < N) {
+				if (Answer[idx] > (arr[(i + idx) % N] + add) % 10)
+					break;
+				else if (Answer[idx] == (arr[(i + idx) % N] + add) % 10)
+					idx++;
+				else {
+					flag = false;
+					break;
+				}
+			}
+
+			if (flag && idx < N) {
+				for (int j = 0; j < N; j++)
+					Answer[j] = (arr[(i + j) % N] + add) % 10;
+			}
+		}
+
+		cout << "Case #" << test_case + 1 << endl;
+		for (int i = 0; i < N; i++) cout << Answer[i];
+		cout << endl;
+	}
+
+	return 0;
+}
