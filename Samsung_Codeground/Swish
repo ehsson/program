@@ -1,0 +1,63 @@
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+long long Answer;
+long long A[200000];
+long long B[200000];
+
+long long min_arr[200000];
+long long max_arr[200000];
+
+long long sum_min[200000];
+long long sum_max[200000];
+
+int main(int argc, char** argv)
+{
+	int T, test_case;
+
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	cin >> T;
+	for (test_case = 0; test_case < T; test_case++)
+	{
+		Answer = 0;
+		int N;
+		cin >> N;
+
+		for (int i = 0; i < N; i++)
+			cin >> A[i];
+
+		for (int i = 0; i < N; i++)
+			cin >> B[i];
+
+		for (int i = 0; i < N; i++) {
+			min_arr[i] = min(A[i], B[i]);
+			max_arr[i] = max(A[i], B[i]);
+		}
+
+		sort(min_arr, min_arr + N);
+		sort(max_arr, max_arr + N);
+
+		sum_min[0] = min_arr[0];
+		sum_max[0] = max_arr[0];
+		for (int i = 1; i < N; i++) {
+			sum_min[i] = sum_min[i - 1] + min_arr[i];
+			sum_max[i] = sum_max[i - 1] + max_arr[i];
+		}
+
+		for (long long i = 1; i < N; i++) {
+			Answer += abs((min_arr[i] * i) - sum_min[i - 1]) + abs((max_arr[i] * i) - sum_max[i - 1]);
+			int e = 0;
+		}
+
+		cout << "Case #" << test_case + 1 << endl;
+		cout << Answer << endl;
+	}
+
+	return 0;
+}
