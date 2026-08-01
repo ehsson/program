@@ -7,7 +7,7 @@ using namespace std;
 int Answer;
 int arr[200001];
 
-int main(int argc, char** argv)
+int main(void)
 {
 	int T, test_case;
 
